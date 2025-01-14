@@ -122,7 +122,7 @@ class MainWindow(QMainWindow):
 			return
 
 		painter = QPainter(self.image)
-		pen = QPen(self.brush_color)  # 白笔 => (255,255,255)，黑笔 => (0,0,0)
+		pen = QPen(self.brush_color)
 		pen.setWidth(self.brush_size)
 		painter.setPen(pen)
 
@@ -138,22 +138,13 @@ class MainWindow(QMainWindow):
 
 		self.last_point = current_point
 
-		self.update_label()
+		self.refresh_display_after_draw()
 
 	def activate_add_mode(self):
 		self.brush_color = QColor(255, 255, 255)
 
 	def activate_delete_mode(self):
 		self.brush_color = QColor(0, 0, 0)
-
-	def update_label(self):
-		if self.image is not None:
-			pixmap = QPixmap.fromImage(self.image)
-			self.ui.imageLabel.setPixmap(pixmap.scaled(
-				self.ui.imageLabel.size(),
-				Qt.KeepAspectRatio,
-				Qt.SmoothTransformation,
-			))
 
 	# ------------------------ Image Display ----------------------------------------------------------------------
 	def upload_figures(self):
@@ -254,6 +245,47 @@ class MainWindow(QMainWindow):
 		# Initialize the drawing layer with prediction
 		self.image = prediction_qimage.copy()
 
+	def refresh_display_after_draw(self):
+		if not self.current_image_path or self.image is None:
+			return
+
+		original_image = cv2.imread(self.current_image_path)
+		if original_image is None:
+			return
+
+		original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
+		resized_image = cv2.resize(original_image, (256, 256), interpolation=cv2.INTER_AREA)
+
+		resized_image_bgr = cv2.cvtColor(resized_image, cv2.COLOR_RGB2BGR)
+		resized_image_qimage = QImage(
+			resized_image_bgr.data, resized_image_bgr.shape[1], resized_image_bgr.shape[0],
+			resized_image_bgr.shape[1] * 3, QImage.Format_BGR888
+		)
+		original_pixmap = QPixmap.fromImage(resized_image_qimage)
+		if original_pixmap.isNull():
+			return
+
+		prediction_pixmap = QPixmap.fromImage(self.image)
+
+		combined_pixmap = QPixmap(original_pixmap.size())
+		combined_pixmap.fill(Qt.transparent)
+		painter = QPainter(combined_pixmap)
+		painter.setOpacity(1.0)
+		painter.drawPixmap(0, 0, original_pixmap)
+
+		opacity = self.ui.opacitySlider.value() / 100.0
+		painter.setOpacity(opacity)
+		painter.drawPixmap(0, 0, prediction_pixmap.scaled(
+			original_pixmap.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation
+		))
+		painter.end()
+
+		label_width = self.ui.imageLabel.width()
+		label_height = self.ui.imageLabel.height()
+		scaled_pixmap = combined_pixmap.scaled(
+			label_width, label_height, Qt.KeepAspectRatio, Qt.SmoothTransformation
+		)
+		self.ui.imageLabel.setPixmap(scaled_pixmap)
 	# ------------------------ Progress Management ----------------------------------------------------------------------
 
 	def set_stage(self, stage):
