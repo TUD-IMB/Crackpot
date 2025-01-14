@@ -1,0 +1,22 @@
+# Ignore list for git
+
+# Hidden files
+_*
+.*
+
+# File extensions
+*.bak
+*.egg-info
+*.orig
+*.tmp
+
+# Data or generated content
+data
+dist
+Documentation
+test*
+Test*
+
+# Exemptions
+!__init__.py
+!.gitignore
