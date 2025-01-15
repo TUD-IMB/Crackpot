@@ -1,8 +1,8 @@
 import sys
 import cv2
 import numpy as np
-from PySide2.QtCore import QFile, Qt, QSize, QEvent, QPoint
-from PySide2.QtGui import QPixmap, QIcon, QImage, QPainter, QColor, QPen, qRgb
+from PySide2.QtCore import Qt, QSize, QEvent, QPoint
+from PySide2.QtGui import QPixmap, QIcon, QImage, QPainter, QColor, QPen
 from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog, QListWidgetItem, QListWidget, QSlider, \
 	QButtonGroup
 from backend.edgedetection import EdgeDetection
@@ -31,23 +31,27 @@ class MainWindow(QMainWindow):
 
 		self.ui.plusButton.clicked.connect(self.upload_figures)
 		self.ui.listWidget.itemClicked.connect(self.display_large_image)
+		self.ui.previousFigButton.clicked.connect(self.show_previous_image)
+		self.ui.nextFigButton.clicked.connect(self.show_next_image)
 
 		self.resize(2000, 1500)
-		self.edge_detector = EdgeDetection()
+		# self.edge_detector = EdgeDetection()
+		self.edge_detector = None
 
 		self.ui.opacitySlider.setRange(0, 100)
 		self.ui.opacitySlider.setValue(50)
 		self.ui.opacitySlider.setTickInterval(10)
-		self.ui.opacitySlider.valueChanged.connect(self.upload_and_display_image)
+		self.ui.opacitySlider.valueChanged.connect(self.refresh_display_image)
 
 		self.progress_manager = ProgressManager(
 			buttons=[
 				self.ui.uploadProcessButton,
+				self.ui.detectProcessButton,
 				self.ui.editProcessButton,
 				self.ui.selectProcessButton,
-				self.ui.fileProcessButton
+				self.ui.exportProcessButton
 			],
-			lines=[self.ui.line1, self.ui.line2, self.ui.line3]
+			lines=[self.ui.line1, self.ui.line2, self.ui.line3, self.ui.line4]
 		)
 
 		self.drawing = False
@@ -63,7 +67,8 @@ class MainWindow(QMainWindow):
 		self.ui.nextButton0.clicked.connect(lambda: self.set_stage(1))
 		self.ui.nextButton1.clicked.connect(lambda: self.set_stage(2))
 		self.ui.nextButton2.clicked.connect(lambda: self.set_stage(3))
-		self.ui.nextButton3.clicked.connect(lambda: self.set_stage(0))
+		self.ui.nextButton3.clicked.connect(lambda: self.set_stage(4))
+		self.ui.nextButton4.clicked.connect(lambda: self.set_stage(0))
 		self.ui.stackedWidget.setCurrentIndex(self.progress_stage)
 
 		self.button_group = QButtonGroup(self)
@@ -74,6 +79,8 @@ class MainWindow(QMainWindow):
 
 		self.ui.addButton.clicked.connect(self.activate_add_mode)
 		self.ui.deleteButton.clicked.connect(self.activate_delete_mode)
+
+		self.ui.runModelButton.clicked.connect(self.run_model_detection)
 
 	def init_image_label(self):
 		self.ui.imageLabel.setMouseTracking(True)
@@ -109,7 +116,7 @@ class MainWindow(QMainWindow):
 
 	def resizeEvent(self, event):
 		if self.current_image_path:
-			self.upload_and_display_image()
+			self.refresh_display_image()
 		super().resizeEvent(event)
 
 # ------------------------ Drawing Functions ----------------------------------------------------------------------
@@ -158,22 +165,37 @@ class MainWindow(QMainWindow):
 		for file_name in file_names:
 			pixmap = QPixmap(file_name)
 			if not pixmap.isNull():
-				predicted_mask = self.edge_detector.detect_edges(file_name)
-				self.prediction_results[file_name] = predicted_mask
+				# predicted_mask = self.edge_detector.detect_edges(file_name)
+				# self.prediction_results[file_name] = predicted_mask
+				self.prediction_results[file_name] = None
 
 				item = QListWidgetItem()
 				item.setIcon(QIcon(pixmap.scaled(100, 100, aspectRatioMode=Qt.KeepAspectRatio)))
 				item.setData(Qt.UserRole, file_name)
 				self.ui.listWidget.addItem(item)
 
+		if not self.ui.listWidget.currentItem() and self.ui.listWidget.count() > 0:
+			self.ui.listWidget.setCurrentRow(0)
+			self.display_large_image(self.ui.listWidget.currentItem())
+
+	def run_model_detection(self):
+		self.edge_detector = EdgeDetection()
+		for file_name, prediction in self.prediction_results.items():
+			if prediction is None:
+				predicted_mask = self.edge_detector.detect_edges(file_name)
+				self.prediction_results[file_name] = predicted_mask
+
+		if self.ui.listWidget.currentItem():
+			self.display_large_image(self.ui.listWidget.currentItem())
+
 	def display_large_image(self, item):
 		# Retrieve the file path from the clicked item's UserRole
 		file_path = item.data(Qt.UserRole)
 		if file_path:
 			self.current_image_path = file_path
-			self.upload_and_display_image()
+			self.refresh_display_image()
 
-	def upload_and_display_image(self):
+	def refresh_display_image(self):
 		"""
 		Update the QLabel display with the combined original image and prediction.
 		"""
@@ -199,51 +221,59 @@ class MainWindow(QMainWindow):
 		if original_pixmap.isNull():
 			return
 
-		# Get the prediction result
-		prediction = self.prediction_results.get(self.current_image_path)
-		if prediction is None:
+		if self.progress_stage == 0:
+			label_width = self.ui.imageLabel.width()
+			label_height = self.ui.imageLabel.height()
+
+			scaled_pixmap = original_pixmap.scaled(
+				label_width, label_height, Qt.KeepAspectRatio, Qt.SmoothTransformation
+			)
+			self.ui.imageLabel.setPixmap(scaled_pixmap)
+			self.image = None
 			return
 
-		# Ensure the prediction is 2D
-		if len(prediction.shape) == 3 and prediction.shape[-1] == 1:
-			prediction = np.squeeze(prediction, axis=-1)  # Remove the last dimension
-		elif len(prediction.shape) != 2:
-			raise ValueError(f"Unexpected prediction shape: {prediction.shape}")
+		elif self.progress_stage == 1:
+			prediction = self.prediction_results.get(self.current_image_path)
 
-		# Convert prediction to QImage
-		prediction = (prediction * 255).astype(np.uint8)  # 将数据从 [0, 1] 转为 [0, 255]
-		prediction_qimage = QImage(prediction, prediction.shape[1], prediction.shape[0],
-								   prediction.shape[1], QImage.Format_Grayscale8)
+			if prediction is None:
+				return
 
-		# Convert the prediction to QPixmap
-		prediction_pixmap = QPixmap.fromImage(prediction_qimage)
-		if prediction_pixmap.isNull():
-			return
+			if len(prediction.shape) == 3 and prediction.shape[-1] == 1:
+				prediction = np.squeeze(prediction, axis=-1)
+			elif len(prediction.shape) != 2:
+				raise ValueError(f"Unexpected prediction shape: {prediction.shape}")
 
-		# Combine the original image and the prediction
-		combined_pixmap = QPixmap(original_pixmap.size())
-		combined_pixmap.fill(Qt.transparent)
-		painter = QPainter(combined_pixmap)
-		painter.setOpacity(1.0)
-		painter.drawPixmap(0, 0, original_pixmap)
-		opacity = self.ui.opacitySlider.value() / 100.0
-		painter.setOpacity(opacity)
-		painter.drawPixmap(0, 0, prediction_pixmap.scaled(
-			original_pixmap.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation
-		))
-		painter.end()
+			prediction = (prediction * 255).astype(np.uint8)
+			prediction_qimage = QImage(
+				prediction, prediction.shape[1], prediction.shape[0],
+				prediction.shape[1], QImage.Format_Grayscale8
+			)
 
-		# Display the combined image
-		label_width = self.ui.imageLabel.width()
-		label_height = self.ui.imageLabel.height()
+			prediction_pixmap = QPixmap.fromImage(prediction_qimage)
+			if prediction_pixmap.isNull():
+				return
 
-		scaled_pixmap = combined_pixmap.scaled(
-			label_width, label_height, Qt.KeepAspectRatio, Qt.SmoothTransformation
-		)
-		self.ui.imageLabel.setPixmap(scaled_pixmap)
+			combined_pixmap = QPixmap(original_pixmap.size())
+			combined_pixmap.fill(Qt.transparent)
+			painter = QPainter(combined_pixmap)
+			painter.setOpacity(1.0)
+			painter.drawPixmap(0, 0, original_pixmap)
+			opacity = self.ui.opacitySlider.value() / 100.0
+			painter.setOpacity(opacity)
+			painter.drawPixmap(0, 0, prediction_pixmap.scaled(
+				original_pixmap.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation
+			))
+			painter.end()
 
-		# Initialize the drawing layer with prediction
-		self.image = prediction_qimage.copy()
+			label_width = self.ui.imageLabel.width()
+			label_height = self.ui.imageLabel.height()
+
+			scaled_pixmap = combined_pixmap.scaled(
+				label_width, label_height, Qt.KeepAspectRatio, Qt.SmoothTransformation
+			)
+			self.ui.imageLabel.setPixmap(scaled_pixmap)
+
+			self.image = prediction_qimage.copy()
 
 	def refresh_display_after_draw(self):
 		if not self.current_image_path or self.image is None:
@@ -290,7 +320,7 @@ class MainWindow(QMainWindow):
 
 	def set_stage(self, stage):
 
-		if stage < 0 or stage > 3:
+		if stage < 0 or stage > 4:
 			return
 		self.progress_stage = stage
 		self.ui.stackedWidget.setCurrentIndex(stage)
@@ -300,83 +330,27 @@ class MainWindow(QMainWindow):
 		if self.progress_stage == 0:
 			print("Upload stage")
 		elif self.progress_stage == 1:
-			print("Edit stage")
+			print("Model detect stage")
 		elif self.progress_stage == 2:
-			print("Select stage")
+			print("Edit stage")
 		elif self.progress_stage == 3:
+			print("Select stage")
+		elif self.progress_stage == 4:
 			print("File export stage")
 
 # ------------------------ Others ----------------------------------------------------------------------
 
+	def show_previous_image(self):
+		current_row = self.ui.listWidget.currentRow()
+		if current_row > 0:
+			self.ui.listWidget.setCurrentRow(current_row - 1)
+			self.display_large_image(self.ui.listWidget.currentItem())
 
-
-	# def update_image_label(self):
-	# 	if not self.current_image_path:
-	# 		return
-	#
-	# 	original_image = cv2.imread(self.current_image_path)
-	# 	if original_image is None:
-	# 		return
-	#
-	# 	original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
-	#
-	# 	resized_image = cv2.resize(original_image, (256, 256), interpolation=cv2.INTER_AREA)
-	#
-	# 	resized_image_bgr = cv2.cvtColor(resized_image, cv2.COLOR_RGB2BGR)
-	# 	height, width, _ = resized_image_bgr.shape
-	# 	resized_image_qimage = QImage(
-	# 		resized_image_bgr.data, width, height, width * 3, QImage.Format_BGR888
-	# 	)
-	# 	original_pixmap = QPixmap.fromImage(resized_image_qimage)
-	#
-	# 	if original_pixmap.isNull():
-	# 		return
-	#
-	# 	# Get the prediction result
-	# 	prediction = self.prediction_results.get(self.current_image_path)
-	# 	if prediction is None:
-	# 		return
-	#
-	# 	# Handle prediction dimensions (ensure it is 2D)
-	# 	if len(prediction.shape) == 3 and prediction.shape[-1] == 1:
-	# 		prediction = np.squeeze(prediction, axis=-1)  # Remove the last dimension
-	# 	elif len(prediction.shape) != 2:
-	# 		raise ValueError(f"Unexpected prediction shape: {prediction.shape}")
-	#
-	# 	# Convert prediction to QImage
-	# 	prediction = (prediction * 255).astype(np.uint8)
-	# 	height, width = prediction.shape
-	# 	prediction_qimage = QImage(prediction, width, height, width, QImage.Format_Grayscale8)
-	#
-	# 	# Convert the prediction to QPixmap
-	# 	prediction_pixmap = QPixmap.fromImage(prediction_qimage)
-	# 	if prediction_pixmap.isNull():
-	# 		return
-	#
-	# 	# Combine the original image and the prediction
-	# 	combined_pixmap = QPixmap(original_pixmap.size())
-	# 	combined_pixmap.fill(Qt.transparent)
-	#
-	# 	painter = QPainter(combined_pixmap)
-	# 	painter.setOpacity(1.0)
-	# 	painter.drawPixmap(0, 0, original_pixmap)
-	#
-	# 	opacity = self.ui.opacitySlider.value() / 100.0
-	# 	painter.setOpacity(opacity)  # 设置预测结果的透明度
-	# 	painter.drawPixmap(0, 0, prediction_pixmap.scaled(
-	# 		original_pixmap.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation
-	# 	))
-	# 	painter.end()
-	#
-	# 	# Display the combined image
-	# 	label_width = self.ui.imageLabel.width()
-	# 	label_height = self.ui.imageLabel.height()
-	#
-	# 	scaled_pixmap = combined_pixmap.scaled(
-	# 		label_width, label_height, Qt.KeepAspectRatio, Qt.SmoothTransformation
-	# 	)
-	# 	self.ui.imageLabel.setPixmap(scaled_pixmap)
-	# 	self.ui.imageLabel.set_image(prediction)
+	def show_next_image(self):
+		current_row = self.ui.listWidget.currentRow()
+		if current_row < self.ui.listWidget.count() - 1:
+			self.ui.listWidget.setCurrentRow(current_row + 1)
+			self.display_large_image(self.ui.listWidget.currentItem())
 
 	def show_and_check_config(self):
 		self.show()

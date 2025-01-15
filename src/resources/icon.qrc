@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="icons">
+    <file>icons/arrowleft.svg</file>
+    <file>icons/arrowright.svg</file>
     <file>icons/csv.svg</file>
     <file>icons/cursoredit.svg</file>
     <file>icons/edit.svg</file>

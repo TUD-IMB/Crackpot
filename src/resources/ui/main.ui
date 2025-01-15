@@ -81,6 +81,55 @@ QPushButton:pressed {
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="detectProcessButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QPushButton {
+    border: none; 
+    background: transparent;
+}
+QPushButton:hover {
+    background-color: lightgray;
+}
+QPushButton:pressed {
+    background-color: lightblue;
+}
+</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../icon.qrc">
+            <normaloff>:/icons/icons/imagestar.svg</normaloff>:/icons/icons/imagestar.svg</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>50</width>
+            <height>50</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="line2">
+          <property name="frameShape">
+           <enum>QFrame::HLine</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <property name="lineWidth">
+           <number>3</number>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="editProcessButton">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -117,7 +166,7 @@ QPushButton:pressed {
          </widget>
         </item>
         <item>
-         <widget class="QFrame" name="line2">
+         <widget class="QFrame" name="line3">
           <property name="frameShape">
            <enum>QFrame::HLine</enum>
           </property>
@@ -166,7 +215,7 @@ QPushButton:pressed {
          </widget>
         </item>
         <item>
-         <widget class="QFrame" name="line3">
+         <widget class="QFrame" name="line4">
           <property name="frameShape">
            <enum>QFrame::HLine</enum>
           </property>
@@ -179,7 +228,7 @@ QPushButton:pressed {
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="fileProcessButton">
+         <widget class="QPushButton" name="exportProcessButton">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -286,12 +335,41 @@ QPushButton:pressed {
           <item>
            <widget class="QStackedWidget" name="stackedWidget">
             <property name="currentIndex">
-             <number>3</number>
+             <number>1</number>
             </property>
             <widget class="QWidget" name="page0">
              <layout class="QVBoxLayout" name="verticalLayout_2">
               <item>
                <layout class="QVBoxLayout" name="verticalLayout">
+                <item>
+                 <widget class="QPushButton" name="plusButton">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>100</width>
+                    <height>100</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset resource="../icon.qrc">
+                    <normaloff>:/icons/icons/plus.svg</normaloff>:/icons/icons/plus.svg</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>50</width>
+                    <height>50</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
                 <item>
                  <widget class="QLabel" name="label_3">
                   <property name="text">
@@ -302,7 +380,7 @@ QPushButton:pressed {
                 <item>
                  <widget class="QPushButton" name="nextButton0">
                   <property name="text">
-                   <string>Next</string>
+                   <string>Next Stage</string>
                   </property>
                  </widget>
                 </item>
@@ -311,6 +389,35 @@ QPushButton:pressed {
              </layout>
             </widget>
             <widget class="QWidget" name="page1">
+             <layout class="QHBoxLayout" name="horizontalLayout_11">
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_12">
+                <item>
+                 <widget class="QLabel" name="label_7">
+                  <property name="text">
+                   <string>Select Model</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="runModelButton">
+                  <property name="text">
+                   <string>Run Model</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="nextButton1">
+                  <property name="text">
+                   <string>Next Stage</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="page2">
              <layout class="QVBoxLayout" name="verticalLayout_7">
               <item>
                <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -442,9 +549,9 @@ QPushButton:pressed {
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_9">
                   <item>
-                   <widget class="QPushButton" name="nextButton1">
+                   <widget class="QPushButton" name="nextButton2">
                     <property name="text">
-                     <string>Next</string>
+                     <string>Next Stage</string>
                     </property>
                    </widget>
                   </item>
@@ -467,7 +574,7 @@ QPushButton:pressed {
               </item>
              </layout>
             </widget>
-            <widget class="QWidget" name="page2">
+            <widget class="QWidget" name="page3">
              <layout class="QVBoxLayout" name="verticalLayout_9">
               <item>
                <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -479,9 +586,9 @@ QPushButton:pressed {
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="nextButton2">
+                 <widget class="QPushButton" name="nextButton3">
                   <property name="text">
-                   <string>Next</string>
+                   <string>Next Stage</string>
                   </property>
                  </widget>
                 </item>
@@ -489,7 +596,7 @@ QPushButton:pressed {
               </item>
              </layout>
             </widget>
-            <widget class="QWidget" name="page3">
+            <widget class="QWidget" name="page4">
              <layout class="QVBoxLayout" name="verticalLayout_11">
               <item>
                <layout class="QVBoxLayout" name="verticalLayout_10">
@@ -515,9 +622,9 @@ QPushButton:pressed {
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="nextButton3">
+                 <widget class="QPushButton" name="nextButton4">
                   <property name="text">
-                   <string>Next</string>
+                   <string>Next Stage</string>
                   </property>
                  </widget>
                 </item>
@@ -547,16 +654,10 @@ QPushButton:pressed {
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="QPushButton" name="plusButton">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
+         <widget class="QPushButton" name="previousFigButton">
+          <property name="maximumSize">
            <size>
-            <width>100</width>
+            <width>16777215</width>
             <height>100</height>
            </size>
           </property>
@@ -565,12 +666,12 @@ QPushButton:pressed {
           </property>
           <property name="icon">
            <iconset resource="../icon.qrc">
-            <normaloff>:/icons/icons/plus.svg</normaloff>:/icons/icons/plus.svg</iconset>
+            <normaloff>:/icons/icons/arrowleft.svg</normaloff>:/icons/icons/arrowleft.svg</iconset>
           </property>
           <property name="iconSize">
            <size>
-            <width>50</width>
-            <height>50</height>
+            <width>20</width>
+            <height>20</height>
            </size>
           </property>
          </widget>
@@ -581,6 +682,29 @@ QPushButton:pressed {
            <size>
             <width>16777215</width>
             <height>100</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="nextFigButton">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>100</height>
+           </size>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../icon.qrc">
+            <normaloff>:/icons/icons/arrowright.svg</normaloff>:/icons/icons/arrowright.svg</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
            </size>
           </property>
          </widget>
