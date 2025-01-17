@@ -219,15 +219,11 @@ class MainWindow(QMainWindow):
 			return
 
 		original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
-		resized_image = cv2.resize(original_image, (256, 256), interpolation=cv2.INTER_AREA)
-
-		# Convert to QPixmap
-		resized_image_bgr = cv2.cvtColor(resized_image, cv2.COLOR_RGB2BGR)
-		resized_image_qimage = QImage(
-			resized_image_bgr.data, resized_image_bgr.shape[1], resized_image_bgr.shape[0],
-			resized_image_bgr.shape[1] * 3, QImage.Format_BGR888
+		original_qimage = QImage(
+			original_image.data, original_image.shape[1], original_image.shape[0],
+			original_image.shape[1] * 3, QImage.Format_RGB888
 		)
-		original_pixmap = QPixmap.fromImage(resized_image_qimage)
+		original_pixmap = QPixmap.fromImage(original_qimage)
 
 		if original_pixmap.isNull():
 			return
@@ -295,14 +291,11 @@ class MainWindow(QMainWindow):
 			return
 
 		original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
-		resized_image = cv2.resize(original_image, (256, 256), interpolation=cv2.INTER_AREA)
-
-		resized_image_bgr = cv2.cvtColor(resized_image, cv2.COLOR_RGB2BGR)
-		resized_image_qimage = QImage(
-			resized_image_bgr.data, resized_image_bgr.shape[1], resized_image_bgr.shape[0],
-			resized_image_bgr.shape[1] * 3, QImage.Format_BGR888
+		original_qimage = QImage(
+			original_image.data, original_image.shape[1], original_image.shape[0],
+			original_image.shape[1] * 3, QImage.Format_RGB888
 		)
-		original_pixmap = QPixmap.fromImage(resized_image_qimage)
+		original_pixmap = QPixmap.fromImage(original_qimage)
 		if original_pixmap.isNull():
 			return
 

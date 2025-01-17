@@ -69,19 +69,24 @@ class EdgeDetection:
 			compile=False
 		)
 
-	def resize_and_crop(self, image, target_size=(256, 256)):
-		resized_image = cv2.resize(image, target_size, interpolation=cv2.INTER_AREA)
-		return resized_image
+	def resize_back(self, image, original_size):
+		original_width, original_height = original_size
+		restored_image = cv2.resize(image, (original_width, original_height), interpolation=cv2.INTER_NEAREST)
+		return restored_image
 
 	def detect_edges(self, image_path):
 		image = cv2.imread(image_path)
+		original_size = (image.shape[1], image.shape[0])
+		print(original_size)
+
 		image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-		image = cv2.resize(image, (256, 256))
-		# image = self.resize_and_crop(image)
+		image = cv2.resize(image, (256, 256), interpolation=cv2.INTER_AREA)
 		image = image / 255.0
 		image = np.expand_dims(image, axis=0)
 
 		prediction = self.model.predict(image)
 		predicted_mask = np.squeeze(prediction, axis=0)
 
-		return predicted_mask
+		resize_back_mask = self.resize_back(predicted_mask, original_size)
+
+		return resize_back_mask
