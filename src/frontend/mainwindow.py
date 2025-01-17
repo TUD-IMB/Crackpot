@@ -122,10 +122,28 @@ class MainWindow(QMainWindow):
 # ------------------------ Drawing Functions ----------------------------------------------------------------------
 
 	def draw_on_image(self, current_point):
-		"""
-		在 self.image（灰度 QImage，即当前 prediction）上用画笔(白/黑)画线。
-		"""
 		if self.image is None:
+			return
+
+		label_size = self.ui.imageLabel.size()
+		image_size = self.image.size()
+
+		scale = min(label_size.width() / image_size.width(), label_size.height() / image_size.height())
+
+		display_width = scale * image_size.width()
+		display_height = scale * image_size.height()
+
+		x_offset = (label_size.width() - display_width) / 2
+		y_offset = (label_size.height() - display_height) / 2
+
+		x1 = (self.last_point.x() - x_offset) / scale
+		y1 = (self.last_point.y() - y_offset) / scale
+		x2 = (current_point.x() - x_offset) / scale
+		y2 = (current_point.y() - y_offset) / scale
+
+		if not (0 <= x1 < image_size.width() and 0 <= y1 < image_size.height()):
+			return
+		if not (0 <= x2 < image_size.width() and 0 <= y2 < image_size.height()):
 			return
 
 		painter = QPainter(self.image)
@@ -133,14 +151,7 @@ class MainWindow(QMainWindow):
 		pen.setWidth(self.brush_size)
 		painter.setPen(pen)
 
-		label_size = self.ui.imageLabel.size()
-		image_size = self.image.size()
-		sx = image_size.width() / label_size.width()
-		sy = image_size.height() / label_size.height()
-		x1, y1 = int(self.last_point.x() * sx), int(self.last_point.y() * sy)
-		x2, y2 = int(current_point.x() * sx), int(current_point.y() * sy)
-
-		painter.drawLine(x1, y1, x2, y2)
+		painter.drawLine(int(x1), int(y1), int(x2), int(y2))
 		painter.end()
 
 		self.last_point = current_point

@@ -250,6 +250,7 @@ class Ui_MainWindow(object):
         self.imageLabel.setSizePolicy(sizePolicy1)
         self.imageLabel.setMinimumSize(QSize(0, 0))
         self.imageLabel.setMaximumSize(QSize(16777215, 16777215))
+        self.imageLabel.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout_3.addWidget(self.imageLabel)
 
