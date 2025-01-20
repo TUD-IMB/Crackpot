@@ -25,41 +25,16 @@ class Ui_MainWindow(object):
         self.actionAbout.setObjectName(u"actionAbout")
         self.actionExit = QAction(MainWindow)
         self.actionExit.setObjectName(u"actionExit")
-        self.actionAdd = QAction(MainWindow)
-        self.actionAdd.setObjectName(u"actionAdd")
-        icon = QIcon()
-        icon.addFile(u":/icons/icons/penadd.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.actionAdd.setIcon(icon)
-        self.actionMinus = QAction(MainWindow)
-        self.actionMinus.setObjectName(u"actionMinus")
-        icon1 = QIcon()
-        icon1.addFile(u":/icons/icons/penminus.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.actionMinus.setIcon(icon1)
-        self.actionZoomIn = QAction(MainWindow)
-        self.actionZoomIn.setObjectName(u"actionZoomIn")
-        icon2 = QIcon()
-        icon2.addFile(u":/icons/icons/zoomin.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.actionZoomIn.setIcon(icon2)
-        self.actionZoomOut = QAction(MainWindow)
-        self.actionZoomOut.setObjectName(u"actionZoomOut")
-        icon3 = QIcon()
-        icon3.addFile(u":/icons/icons/zoomout.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.actionZoomOut.setIcon(icon3)
         self.actionBackward = QAction(MainWindow)
         self.actionBackward.setObjectName(u"actionBackward")
-        icon4 = QIcon()
-        icon4.addFile(u":/icons/icons/backward.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.actionBackward.setIcon(icon4)
+        icon = QIcon()
+        icon.addFile(u":/icons/icons/backward.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.actionBackward.setIcon(icon)
         self.actionForward = QAction(MainWindow)
         self.actionForward.setObjectName(u"actionForward")
-        icon5 = QIcon()
-        icon5.addFile(u":/icons/icons/forward.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.actionForward.setIcon(icon5)
-        self.actionProcess = QAction(MainWindow)
-        self.actionProcess.setObjectName(u"actionProcess")
-        icon6 = QIcon()
-        icon6.addFile(u":/icons/icons/imagestar.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.actionProcess.setIcon(icon6)
+        icon1 = QIcon()
+        icon1.addFile(u":/icons/icons/forward.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.actionForward.setIcon(icon1)
         self.actionExportResults = QAction(MainWindow)
         self.actionExportResults.setObjectName(u"actionExportResults")
         self.actionCrackSeg = QAction(MainWindow)
@@ -70,15 +45,8 @@ class Ui_MainWindow(object):
         self.actionEnglish.setObjectName(u"actionEnglish")
         self.actionGerman = QAction(MainWindow)
         self.actionGerman.setObjectName(u"actionGerman")
-        self.actionCursor = QAction(MainWindow)
-        self.actionCursor.setObjectName(u"actionCursor")
-        icon7 = QIcon()
-        icon7.addFile(u":/icons/icons/cursor.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.actionCursor.setIcon(icon7)
         self.actionUploadImages = QAction(MainWindow)
         self.actionUploadImages.setObjectName(u"actionUploadImages")
-        self.actionTool = QAction(MainWindow)
-        self.actionTool.setObjectName(u"actionTool")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout_5 = QVBoxLayout(self.centralwidget)
@@ -89,7 +57,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_4.setContentsMargins(-1, 0, -1, 0)
         self.horizontalLayout_5 = QHBoxLayout()
         self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
-        self.horizontalLayout_5.setContentsMargins(-1, 0, -1, -1)
+        self.horizontalLayout_5.setContentsMargins(-1, 0, -1, 0)
         self.uploadProcessButton = QPushButton(self.centralwidget)
         self.uploadProcessButton.setObjectName(u"uploadProcessButton")
         sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -108,9 +76,9 @@ class Ui_MainWindow(object):
 "    background-color: lightblue;\n"
 "}\n"
 "")
-        icon8 = QIcon()
-        icon8.addFile(u":/icons/icons/imageupload.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.uploadProcessButton.setIcon(icon8)
+        icon2 = QIcon()
+        icon2.addFile(u":/icons/icons/imageupload.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.uploadProcessButton.setIcon(icon2)
         self.uploadProcessButton.setIconSize(QSize(50, 50))
 
         self.horizontalLayout_5.addWidget(self.uploadProcessButton)
@@ -138,7 +106,9 @@ class Ui_MainWindow(object):
 "    background-color: lightblue;\n"
 "}\n"
 "")
-        self.detectProcessButton.setIcon(icon6)
+        icon3 = QIcon()
+        icon3.addFile(u":/icons/icons/imagestar.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.detectProcessButton.setIcon(icon3)
         self.detectProcessButton.setIconSize(QSize(50, 50))
 
         self.horizontalLayout_5.addWidget(self.detectProcessButton)
@@ -166,9 +136,9 @@ class Ui_MainWindow(object):
 "    background-color: lightblue;\n"
 "}\n"
 "")
-        icon9 = QIcon()
-        icon9.addFile(u":/icons/icons/edit.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.editProcessButton.setIcon(icon9)
+        icon4 = QIcon()
+        icon4.addFile(u":/icons/icons/edit.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.editProcessButton.setIcon(icon4)
         self.editProcessButton.setIconSize(QSize(50, 50))
 
         self.horizontalLayout_5.addWidget(self.editProcessButton)
@@ -196,9 +166,9 @@ class Ui_MainWindow(object):
 "    background-color: lightblue;\n"
 "}\n"
 "")
-        icon10 = QIcon()
-        icon10.addFile(u":/icons/icons/cursoredit.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.selectProcessButton.setIcon(icon10)
+        icon5 = QIcon()
+        icon5.addFile(u":/icons/icons/cursoredit.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.selectProcessButton.setIcon(icon5)
         self.selectProcessButton.setIconSize(QSize(50, 50))
 
         self.horizontalLayout_5.addWidget(self.selectProcessButton)
@@ -226,9 +196,9 @@ class Ui_MainWindow(object):
 "    background-color: lightblue;\n"
 "}\n"
 "")
-        icon11 = QIcon()
-        icon11.addFile(u":/icons/icons/csv.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.exportProcessButton.setIcon(icon11)
+        icon6 = QIcon()
+        icon6.addFile(u":/icons/icons/csv.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.exportProcessButton.setIcon(icon6)
         self.exportProcessButton.setIconSize(QSize(50, 50))
 
         self.horizontalLayout_5.addWidget(self.exportProcessButton)
@@ -241,7 +211,15 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.setContentsMargins(0, 0, -1, -1)
         self.verticalLayout_3 = QVBoxLayout()
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
-        self.imageLabel = QLabel(self.centralwidget)
+        self.scrollArea = QScrollArea(self.centralwidget)
+        self.scrollArea.setObjectName(u"scrollArea")
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollAreaWidgetContents = QWidget()
+        self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 484, 213))
+        self.verticalLayout_13 = QVBoxLayout(self.scrollAreaWidgetContents)
+        self.verticalLayout_13.setObjectName(u"verticalLayout_13")
+        self.imageLabel = QLabel(self.scrollAreaWidgetContents)
         self.imageLabel.setObjectName(u"imageLabel")
         sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy1.setHorizontalStretch(0)
@@ -252,7 +230,11 @@ class Ui_MainWindow(object):
         self.imageLabel.setMaximumSize(QSize(16777215, 16777215))
         self.imageLabel.setAlignment(Qt.AlignCenter)
 
-        self.verticalLayout_3.addWidget(self.imageLabel)
+        self.verticalLayout_13.addWidget(self.imageLabel)
+
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+
+        self.verticalLayout_3.addWidget(self.scrollArea)
 
         self.horizontalLayout_3 = QHBoxLayout()
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
@@ -294,9 +276,9 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.plusButton.sizePolicy().hasHeightForWidth())
         self.plusButton.setSizePolicy(sizePolicy)
         self.plusButton.setMinimumSize(QSize(100, 100))
-        icon12 = QIcon()
-        icon12.addFile(u":/icons/icons/plus.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.plusButton.setIcon(icon12)
+        icon7 = QIcon()
+        icon7.addFile(u":/icons/icons/plus.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.plusButton.setIcon(icon7)
         self.plusButton.setIconSize(QSize(50, 50))
 
         self.verticalLayout.addWidget(self.plusButton)
@@ -350,16 +332,24 @@ class Ui_MainWindow(object):
         self.horizontalLayout_4 = QHBoxLayout()
         self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
         self.addButton = QPushButton(self.page2)
+        self.penButtonGroup = QButtonGroup(MainWindow)
+        self.penButtonGroup.setObjectName(u"penButtonGroup")
+        self.penButtonGroup.addButton(self.addButton)
         self.addButton.setObjectName(u"addButton")
-        self.addButton.setIcon(icon)
+        icon8 = QIcon()
+        icon8.addFile(u":/icons/icons/penadd.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.addButton.setIcon(icon8)
         self.addButton.setIconSize(QSize(23, 23))
         self.addButton.setCheckable(True)
 
         self.horizontalLayout_4.addWidget(self.addButton)
 
         self.deleteButton = QPushButton(self.page2)
+        self.penButtonGroup.addButton(self.deleteButton)
         self.deleteButton.setObjectName(u"deleteButton")
-        self.deleteButton.setIcon(icon1)
+        icon9 = QIcon()
+        icon9.addFile(u":/icons/icons/penminus.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.deleteButton.setIcon(icon9)
         self.deleteButton.setIconSize(QSize(23, 23))
         self.deleteButton.setCheckable(True)
 
@@ -375,11 +365,11 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_6.addWidget(self.label)
 
-        self.horizontalSlider = QSlider(self.page2)
-        self.horizontalSlider.setObjectName(u"horizontalSlider")
-        self.horizontalSlider.setOrientation(Qt.Horizontal)
+        self.penSizeSlider = QSlider(self.page2)
+        self.penSizeSlider.setObjectName(u"penSizeSlider")
+        self.penSizeSlider.setOrientation(Qt.Horizontal)
 
-        self.horizontalLayout_6.addWidget(self.horizontalSlider)
+        self.horizontalLayout_6.addWidget(self.penSizeSlider)
 
 
         self.verticalLayout_6.addLayout(self.horizontalLayout_6)
@@ -391,15 +381,17 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_7.addWidget(self.label_2)
 
-        self.comboBox = QComboBox(self.page2)
-        self.comboBox.setObjectName(u"comboBox")
+        self.penShapeComboBox = QComboBox(self.page2)
+        self.penShapeComboBox.addItem("")
+        self.penShapeComboBox.addItem("")
+        self.penShapeComboBox.setObjectName(u"penShapeComboBox")
         sizePolicy2 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         sizePolicy2.setHorizontalStretch(0)
         sizePolicy2.setVerticalStretch(0)
-        sizePolicy2.setHeightForWidth(self.comboBox.sizePolicy().hasHeightForWidth())
-        self.comboBox.setSizePolicy(sizePolicy2)
+        sizePolicy2.setHeightForWidth(self.penShapeComboBox.sizePolicy().hasHeightForWidth())
+        self.penShapeComboBox.setSizePolicy(sizePolicy2)
 
-        self.horizontalLayout_7.addWidget(self.comboBox)
+        self.horizontalLayout_7.addWidget(self.penShapeComboBox)
 
 
         self.verticalLayout_6.addLayout(self.horizontalLayout_7)
@@ -408,13 +400,17 @@ class Ui_MainWindow(object):
         self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
         self.zoomInButton = QPushButton(self.page2)
         self.zoomInButton.setObjectName(u"zoomInButton")
-        self.zoomInButton.setIcon(icon2)
+        icon10 = QIcon()
+        icon10.addFile(u":/icons/icons/zoomin.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.zoomInButton.setIcon(icon10)
 
         self.horizontalLayout_8.addWidget(self.zoomInButton)
 
         self.zoomOutButton = QPushButton(self.page2)
         self.zoomOutButton.setObjectName(u"zoomOutButton")
-        self.zoomOutButton.setIcon(icon3)
+        icon11 = QIcon()
+        icon11.addFile(u":/icons/icons/zoomout.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.zoomOutButton.setIcon(icon11)
 
         self.horizontalLayout_8.addWidget(self.zoomOutButton)
 
@@ -508,6 +504,8 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_2.addLayout(self.toolLayout)
 
+        self.horizontalLayout_2.setStretch(0, 3)
+        self.horizontalLayout_2.setStretch(1, 1)
 
         self.verticalLayout_4.addLayout(self.horizontalLayout_2)
 
@@ -516,9 +514,9 @@ class Ui_MainWindow(object):
         self.previousFigButton = QPushButton(self.centralwidget)
         self.previousFigButton.setObjectName(u"previousFigButton")
         self.previousFigButton.setMaximumSize(QSize(16777215, 100))
-        icon13 = QIcon()
-        icon13.addFile(u":/icons/icons/arrowleft.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.previousFigButton.setIcon(icon13)
+        icon12 = QIcon()
+        icon12.addFile(u":/icons/icons/arrowleft.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.previousFigButton.setIcon(icon12)
         self.previousFigButton.setIconSize(QSize(20, 20))
 
         self.horizontalLayout.addWidget(self.previousFigButton)
@@ -532,9 +530,9 @@ class Ui_MainWindow(object):
         self.nextFigButton = QPushButton(self.centralwidget)
         self.nextFigButton.setObjectName(u"nextFigButton")
         self.nextFigButton.setMaximumSize(QSize(16777215, 100))
-        icon14 = QIcon()
-        icon14.addFile(u":/icons/icons/arrowright.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.nextFigButton.setIcon(icon14)
+        icon13 = QIcon()
+        icon13.addFile(u":/icons/icons/arrowright.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.nextFigButton.setIcon(icon13)
         self.nextFigButton.setIconSize(QSize(20, 20))
 
         self.horizontalLayout.addWidget(self.nextFigButton)
@@ -562,12 +560,9 @@ class Ui_MainWindow(object):
         self.menuLanguage.setObjectName(u"menuLanguage")
         self.menuModel = QMenu(self.menuSetting)
         self.menuModel.setObjectName(u"menuModel")
-        self.menuView = QMenu(self.menuBar)
-        self.menuView.setObjectName(u"menuView")
         MainWindow.setMenuBar(self.menuBar)
 
         self.menuBar.addAction(self.menuFile.menuAction())
-        self.menuBar.addAction(self.menuView.menuAction())
         self.menuBar.addAction(self.menuSetting.menuAction())
         self.menuBar.addAction(self.menuHelp.menuAction())
         self.menuFile.addAction(self.actionUploadImages)
@@ -582,11 +577,10 @@ class Ui_MainWindow(object):
         self.menuLanguage.addAction(self.actionGerman)
         self.menuModel.addAction(self.actionCrackSeg)
         self.menuModel.addAction(self.actionDeepCrack)
-        self.menuView.addAction(self.actionTool)
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(1)
+        self.stackedWidget.setCurrentIndex(2)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -597,21 +591,14 @@ class Ui_MainWindow(object):
         self.actionDocumentation.setText(QCoreApplication.translate("MainWindow", u"Documentation", None))
         self.actionAbout.setText(QCoreApplication.translate("MainWindow", u"About", None))
         self.actionExit.setText(QCoreApplication.translate("MainWindow", u"Exit", None))
-        self.actionAdd.setText(QCoreApplication.translate("MainWindow", u"Add", None))
-        self.actionMinus.setText(QCoreApplication.translate("MainWindow", u"Minus", None))
-        self.actionZoomIn.setText(QCoreApplication.translate("MainWindow", u"Zoom In", None))
-        self.actionZoomOut.setText(QCoreApplication.translate("MainWindow", u"Zoom Out", None))
         self.actionBackward.setText(QCoreApplication.translate("MainWindow", u"Backward", None))
         self.actionForward.setText(QCoreApplication.translate("MainWindow", u"Forward", None))
-        self.actionProcess.setText(QCoreApplication.translate("MainWindow", u"Process", None))
         self.actionExportResults.setText(QCoreApplication.translate("MainWindow", u"Export Results", None))
         self.actionCrackSeg.setText(QCoreApplication.translate("MainWindow", u"Crack Seg", None))
         self.actionDeepCrack.setText(QCoreApplication.translate("MainWindow", u"Deep Crack", None))
         self.actionEnglish.setText(QCoreApplication.translate("MainWindow", u"English", None))
         self.actionGerman.setText(QCoreApplication.translate("MainWindow", u"German", None))
-        self.actionCursor.setText(QCoreApplication.translate("MainWindow", u"Cursor", None))
         self.actionUploadImages.setText(QCoreApplication.translate("MainWindow", u"Upload Images", None))
-        self.actionTool.setText(QCoreApplication.translate("MainWindow", u"Tool", None))
         self.uploadProcessButton.setText("")
         self.detectProcessButton.setText("")
         self.editProcessButton.setText("")
@@ -630,6 +617,9 @@ class Ui_MainWindow(object):
         self.deleteButton.setText(QCoreApplication.translate("MainWindow", u"Delete", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"Size", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"Shape", None))
+        self.penShapeComboBox.setItemText(0, QCoreApplication.translate("MainWindow", u"Round", None))
+        self.penShapeComboBox.setItemText(1, QCoreApplication.translate("MainWindow", u"Square", None))
+
         self.zoomInButton.setText(QCoreApplication.translate("MainWindow", u"Zoom In", None))
         self.zoomOutButton.setText(QCoreApplication.translate("MainWindow", u"Zoom Out", None))
         self.nextButton2.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
@@ -645,6 +635,5 @@ class Ui_MainWindow(object):
         self.menuSetting.setTitle(QCoreApplication.translate("MainWindow", u"Setting", None))
         self.menuLanguage.setTitle(QCoreApplication.translate("MainWindow", u"Language", None))
         self.menuModel.setTitle(QCoreApplication.translate("MainWindow", u"Model", None))
-        self.menuView.setTitle(QCoreApplication.translate("MainWindow", u"View", None))
     # retranslateUi
 

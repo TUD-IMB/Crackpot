@@ -3,8 +3,7 @@ import cv2
 import numpy as np
 from PySide2.QtCore import Qt, QSize, QEvent, QPoint
 from PySide2.QtGui import QPixmap, QIcon, QImage, QPainter, QColor, QPen
-from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog, QListWidgetItem, QListWidget, QSlider, \
-	QButtonGroup
+from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog, QListWidgetItem, QListWidget, QSlider
 from backend.edgedetection import EdgeDetection
 from frontend.progressmanager import ProgressManager
 from frontend.ui.uimain import Ui_MainWindow
@@ -29,7 +28,6 @@ class MainWindow(QMainWindow):
 		self.ui.listWidget.setSpacing(10)
 		self.ui.listWidget.setResizeMode(QListWidget.Adjust)
 
-		self.ui.plusButton.clicked.connect(self.upload_figures)
 		self.ui.listWidget.itemClicked.connect(self.display_large_image)
 		self.ui.previousFigButton.clicked.connect(self.show_previous_image)
 		self.ui.nextFigButton.clicked.connect(self.show_next_image)
@@ -57,30 +55,40 @@ class MainWindow(QMainWindow):
 		self.drawing = False
 		self.last_point = QPoint()
 		self.brush_color = QColor(255, 255, 255)
-		self.brush_size = 2
+		self.brush_size = 5
+		self.pen_cap_style = Qt.RoundCap
 		self.image = None
 
 		self.init_stacked_widget()
 		self.init_image_label()
 
 	def init_stacked_widget(self):
+		self.ui.stackedWidget.setCurrentIndex(self.progress_stage)
 		self.ui.nextButton0.clicked.connect(lambda: self.set_stage(1))
 		self.ui.nextButton1.clicked.connect(lambda: self.set_stage(2))
 		self.ui.nextButton2.clicked.connect(lambda: self.set_stage(3))
 		self.ui.nextButton3.clicked.connect(lambda: self.set_stage(4))
 		self.ui.nextButton4.clicked.connect(lambda: self.set_stage(0))
-		self.ui.stackedWidget.setCurrentIndex(self.progress_stage)
 
-		self.button_group = QButtonGroup(self)
-		self.button_group.setExclusive(True)
+		# upload image stage
+		self.ui.plusButton.clicked.connect(self.upload_figures)
 
-		self.button_group.addButton(self.ui.addButton)
-		self.button_group.addButton(self.ui.deleteButton)
+		# model detection stage
+		self.ui.runModelButton.clicked.connect(self.run_model_detection)
 
+		# edit stage
 		self.ui.addButton.clicked.connect(self.activate_add_mode)
 		self.ui.deleteButton.clicked.connect(self.activate_delete_mode)
+		self.ui.penSizeSlider.setRange(1, 50)
+		self.ui.penSizeSlider.setValue(10)
+		self.ui.penSizeSlider.setTickInterval(10)
+		self.ui.penSizeSlider.setTickPosition(QSlider.TicksBelow)
+		self.ui.penSizeSlider.valueChanged.connect(self.update_brush_size)
 
-		self.ui.runModelButton.clicked.connect(self.run_model_detection)
+		self.ui.zoomInButton.clicked.connect(lambda: self.zoom_image(zoom_in=True))
+		self.ui.zoomOutButton.clicked.connect(lambda: self.zoom_image(zoom_in=False))
+
+		self.ui.penShapeComboBox.currentTextChanged.connect(self.update_pen_shape)
 
 	def init_image_label(self):
 		self.ui.imageLabel.setMouseTracking(True)
@@ -106,7 +114,7 @@ class MainWindow(QMainWindow):
 
 		return super().eventFilter(source, event)
 
-	def qimage_to_np(self, qimage: QImage) -> np.ndarray:
+	def qimage_to_np(self, qimage: QImage):
 		qimage = qimage.convertToFormat(QImage.Format_Grayscale8)
 		width = qimage.width()
 		height = qimage.height()
@@ -120,7 +128,6 @@ class MainWindow(QMainWindow):
 		super().resizeEvent(event)
 
 # ------------------------ Drawing Functions ----------------------------------------------------------------------
-
 	def draw_on_image(self, current_point):
 		if self.image is None:
 			return
@@ -149,6 +156,7 @@ class MainWindow(QMainWindow):
 		painter = QPainter(self.image)
 		pen = QPen(self.brush_color)
 		pen.setWidth(self.brush_size)
+		pen.setCapStyle(self.pen_cap_style)
 		painter.setPen(pen)
 
 		painter.drawLine(int(x1), int(y1), int(x2), int(y2))
@@ -163,6 +171,37 @@ class MainWindow(QMainWindow):
 
 	def activate_delete_mode(self):
 		self.brush_color = QColor(0, 0, 0)
+
+	def update_brush_size(self, value):
+		self.brush_size = value
+
+	def zoom_image(self, zoom_in=True):
+		if not self.ui.imageLabel.pixmap():
+			return
+
+		scale_factor = 1.1 if zoom_in else 1 / 1.1
+
+		original_pixmap = self.ui.imageLabel.pixmap()
+		current_width = original_pixmap.width()
+		current_height = original_pixmap.height()
+		new_width = int(current_width * scale_factor)
+		new_height = int(current_height * scale_factor)
+
+		if new_width < 50 or new_height < 50:
+			return
+		if new_width > 5000 or new_height > 5000:
+			return
+
+		scaled_pixmap = original_pixmap.scaled(new_width, new_height, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+
+		self.ui.imageLabel.setPixmap(scaled_pixmap)
+		self.ui.imageLabel.adjustSize()
+
+	def update_pen_shape(self, shape):
+		if shape == "Round":
+			self.pen_cap_style = Qt.RoundCap
+		elif shape == "Square":
+			self.pen_cap_style = Qt.SquareCap
 
 	# ------------------------ Image Display ----------------------------------------------------------------------
 	def upload_figures(self):
@@ -239,7 +278,7 @@ class MainWindow(QMainWindow):
 			self.image = None
 			return
 
-		elif self.progress_stage == 1:
+		else:
 			prediction = self.prediction_results.get(self.current_image_path)
 
 			if prediction is None:
@@ -334,15 +373,15 @@ class MainWindow(QMainWindow):
 		if self.progress_stage == 0:
 			print("Upload stage")
 		elif self.progress_stage == 1:
-			print("Model detect stage")
+			print("Model detection stage")
 		elif self.progress_stage == 2:
 			print("Edit stage")
 		elif self.progress_stage == 3:
-			print("Select stage")
+			print("Select skeleton stage")
 		elif self.progress_stage == 4:
 			print("File export stage")
 
-# ------------------------ Others ----------------------------------------------------------------------
+	# ------------------------ Others ----------------------------------------------------------------------
 
 	def show_previous_image(self):
 		current_row = self.ui.listWidget.currentRow()
