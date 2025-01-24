@@ -450,6 +450,11 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_8.addWidget(self.label_4)
 
+        self.skeletonButton = QPushButton(self.page3)
+        self.skeletonButton.setObjectName(u"skeletonButton")
+
+        self.verticalLayout_8.addWidget(self.skeletonButton)
+
         self.nextButton3 = QPushButton(self.page3)
         self.nextButton3.setObjectName(u"nextButton3")
 
@@ -580,7 +585,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(2)
+        self.stackedWidget.setCurrentIndex(3)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -624,6 +629,7 @@ class Ui_MainWindow(object):
         self.zoomOutButton.setText(QCoreApplication.translate("MainWindow", u"Zoom Out", None))
         self.nextButton2.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
         self.label_4.setText(QCoreApplication.translate("MainWindow", u"Select skeleton to analysis.", None))
+        self.skeletonButton.setText(QCoreApplication.translate("MainWindow", u"Skeletonization", None))
         self.nextButton3.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
         self.label_6.setText(QCoreApplication.translate("MainWindow", u"Export Path", None))
         self.label_5.setText(QCoreApplication.translate("MainWindow", u"Select path to export", None))

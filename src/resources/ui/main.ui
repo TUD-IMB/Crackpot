@@ -360,7 +360,7 @@ QPushButton:pressed {
           <item>
            <widget class="QStackedWidget" name="stackedWidget">
             <property name="currentIndex">
-             <number>2</number>
+             <number>3</number>
             </property>
             <widget class="QWidget" name="page0">
              <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -623,6 +623,13 @@ QPushButton:pressed {
                  <widget class="QLabel" name="label_4">
                   <property name="text">
                    <string>Select skeleton to analysis.</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="skeletonButton">
+                  <property name="text">
+                   <string>Skeletonization</string>
                   </property>
                  </widget>
                 </item>

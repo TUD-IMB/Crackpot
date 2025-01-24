@@ -5,8 +5,10 @@ from PySide2.QtCore import Qt, QSize, QEvent, QPoint
 from PySide2.QtGui import QPixmap, QIcon, QImage, QPainter, QColor, QPen
 from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog, QListWidgetItem, QListWidget, QSlider
 from backend.edgedetection import EdgeDetection
+from backend.skeletonprocessor import SkeletonProcessor
 from frontend.progressmanager import ProgressManager
 from frontend.ui.uimain import Ui_MainWindow
+from skimage.morphology import skeletonize
 
 
 class MainWindow(QMainWindow):
@@ -23,6 +25,8 @@ class MainWindow(QMainWindow):
 		self.progress_stage = 0
 		self.current_image_path = None
 		self.prediction_results = {}
+		self.skeleton_results = {}
+		self.skeleton_processor = SkeletonProcessor()
 
 		self.ui.listWidget.setViewMode(QListWidget.IconMode)
 		self.ui.listWidget.setSpacing(10)
@@ -33,7 +37,6 @@ class MainWindow(QMainWindow):
 		self.ui.nextFigButton.clicked.connect(self.show_next_image)
 
 		self.resize(2000, 1500)
-		# self.edge_detector = EdgeDetection()
 		self.edge_detector = None
 
 		self.ui.opacitySlider.setRange(0, 100)
@@ -76,6 +79,9 @@ class MainWindow(QMainWindow):
 		# model detection stage
 		self.ui.runModelButton.clicked.connect(self.run_model_detection)
 
+		# skeleton select stage
+		self.ui.skeletonButton.clicked.connect(self.apply_skeletonization)
+
 		# edit stage
 		self.ui.addButton.clicked.connect(self.activate_add_mode)
 		self.ui.deleteButton.clicked.connect(self.activate_delete_mode)
@@ -94,7 +100,33 @@ class MainWindow(QMainWindow):
 		self.ui.imageLabel.setMouseTracking(True)
 		self.ui.imageLabel.installEventFilter(self)
 
-# ------------------------ Event Handling ----------------------------------------------------------------------
+	def apply_skeletonization(self):
+		if not self.prediction_results or len(self.prediction_results) == 0:
+			print("No predictions found to process.")
+			return
+
+		if not hasattr(self, "skeleton_results"):
+			self.skeleton_results = {}
+		else:
+			self.skeleton_results.clear()
+
+		for image_path, prediction in self.prediction_results.items():
+			if prediction is None:
+				continue
+			skeleton = skeletonize(prediction).astype(np.uint8)
+			self.skeleton_results[image_path] = skeleton
+
+			main_endpoints = self.skeleton_processor.find_main_endpoints(skeleton)
+			clean_skeleton = self.skeleton_processor.remove_small_branches(
+				skeleton, max_branch_length=50, main_endpoints=main_endpoints
+			)
+			self.skeleton_results[image_path] = clean_skeleton
+
+		if self.ui.listWidget.currentItem():
+			self.display_large_image(self.ui.listWidget.currentItem())
+		self.skeleton_processor.skeletons = self.skeleton_results
+
+	# ------------------------ Event Handling ----------------------------------------------------------------------
 	def eventFilter(self, source, event):
 		if source == self.ui.imageLabel:
 			if event.type() == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
@@ -205,23 +237,23 @@ class MainWindow(QMainWindow):
 
 	# ------------------------ Image Display ----------------------------------------------------------------------
 	def upload_figures(self):
-		file_names, _ = QFileDialog.getOpenFileNames(
+		image_paths, _ = QFileDialog.getOpenFileNames(
 			self, "Select Images", "", "Images (*.png *.jpg *.jpeg *.bmp)"
 		)
 
-		if not file_names:
+		if not image_paths:
 			return
 
-		for file_name in file_names:
-			pixmap = QPixmap(file_name)
+		for image_path in image_paths:
+			pixmap = QPixmap(image_path)
 			if not pixmap.isNull():
-				# predicted_mask = self.edge_detector.detect_edges(file_name)
-				# self.prediction_results[file_name] = predicted_mask
-				self.prediction_results[file_name] = None
+				# predicted_mask = self.edge_detector.detect_edges(image_path)
+				# self.prediction_results[image_path] = predicted_mask
+				self.prediction_results[image_path] = None
 
 				item = QListWidgetItem()
 				item.setIcon(QIcon(pixmap.scaled(100, 100, aspectRatioMode=Qt.KeepAspectRatio)))
-				item.setData(Qt.UserRole, file_name)
+				item.setData(Qt.UserRole, image_path)
 				self.ui.listWidget.addItem(item)
 
 		if not self.ui.listWidget.currentItem() and self.ui.listWidget.count() > 0:
@@ -278,7 +310,7 @@ class MainWindow(QMainWindow):
 			self.image = None
 			return
 
-		else:
+		elif self.progress_stage in [1, 2]:
 			prediction = self.prediction_results.get(self.current_image_path)
 
 			if prediction is None:
@@ -320,6 +352,37 @@ class MainWindow(QMainWindow):
 			self.ui.imageLabel.setPixmap(scaled_pixmap)
 
 			self.image = prediction_qimage.copy()
+
+		elif self.progress_stage == 3:
+			skeleton = self.skeleton_results.get(self.current_image_path)
+
+			if skeleton is None:
+				print("No skeletonization result found.")
+				return
+
+			overlay_image = original_image.copy()
+			skeleton_coords = np.where(skeleton == 1)
+			overlay_image[skeleton_coords[0], skeleton_coords[1]] = [255, 0, 0]
+
+			overlay_qimage = QImage(
+				overlay_image.data,
+				overlay_image.shape[1],
+				overlay_image.shape[0],
+				overlay_image.shape[1] * 3,
+				QImage.Format_RGB888
+			)
+			overlay_pixmap = QPixmap.fromImage(overlay_qimage)
+
+			if overlay_pixmap.isNull():
+				return
+
+			label_width = self.ui.imageLabel.width()
+			label_height = self.ui.imageLabel.height()
+
+			scaled_pixmap = overlay_pixmap.scaled(
+				label_width, label_height, Qt.KeepAspectRatio, Qt.SmoothTransformation
+			)
+			self.ui.imageLabel.setPixmap(scaled_pixmap)
 
 	def refresh_display_after_draw(self):
 		if not self.current_image_path or self.image is None:
