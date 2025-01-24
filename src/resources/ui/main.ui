@@ -278,6 +278,9 @@ QPushButton:pressed {
         </property>
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_3">
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
           <item>
            <widget class="QScrollArea" name="scrollArea">
             <property name="widgetResizable">
@@ -288,8 +291,8 @@ QPushButton:pressed {
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>484</width>
-               <height>213</height>
+               <width>466</width>
+               <height>172</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_13">
@@ -326,30 +329,92 @@ QPushButton:pressed {
            </widget>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_3">
-            <property name="topMargin">
-             <number>0</number>
-            </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_8">
             <item>
-             <widget class="QLabel" name="labelOriginal">
-              <property name="text">
-               <string>Original</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QSlider" name="opacitySlider">
+             <spacer name="horizontalSpacer_3">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="zoomInButton">
+              <property name="styleSheet">
+               <string notr="true">QPushButton {
+    border: none; 
+    background: transparent;
+}
+QPushButton:hover {
+    background-color: lightgray;
+}
+QPushButton:pressed {
+    background-color: lightblue;
+}
+</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset resource="../icon.qrc">
+                <normaloff>:/icons/icons/zoomin.svg</normaloff>:/icons/icons/zoomin.svg</iconset>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>50</width>
+                <height>50</height>
+               </size>
+              </property>
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="labelMask">
+             <widget class="QPushButton" name="zoomOutButton">
+              <property name="styleSheet">
+               <string notr="true">QPushButton {
+    border: none; 
+    background: transparent;
+}
+QPushButton:hover {
+    background-color: lightgray;
+}
+QPushButton:pressed {
+    background-color: lightblue;
+}
+</string>
+              </property>
               <property name="text">
-               <string>Mask</string>
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset resource="../icon.qrc">
+                <normaloff>:/icons/icons/zoomout.svg</normaloff>:/icons/icons/zoomout.svg</iconset>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>50</width>
+                <height>50</height>
+               </size>
               </property>
              </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
             </item>
            </layout>
           </item>
@@ -360,7 +425,7 @@ QPushButton:pressed {
           <item>
            <widget class="QStackedWidget" name="stackedWidget">
             <property name="currentIndex">
-             <number>3</number>
+             <number>2</number>
             </property>
             <widget class="QWidget" name="page0">
              <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -418,21 +483,35 @@ QPushButton:pressed {
               <item>
                <layout class="QVBoxLayout" name="verticalLayout_12">
                 <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_12">
+                  <item>
+                   <widget class="QLabel" name="label_9">
+                    <property name="text">
+                     <string>Model</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QComboBox" name="modelComboBox">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
                  <widget class="QLabel" name="label_7">
                   <property name="text">
-                   <string>Select Model</string>
+                   <string>Select a Model to do detection.</string>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <widget class="QPushButton" name="runModelButton">
-                  <property name="text">
-                   <string>Run Model</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="nextButton1">
                   <property name="text">
                    <string>Next Stage</string>
                   </property>
@@ -549,26 +628,35 @@ QPushButton:pressed {
                  </layout>
                 </item>
                 <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_8">
+                 <layout class="QHBoxLayout" name="horizontalLayout_3">
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
                   <item>
-                   <widget class="QPushButton" name="zoomInButton">
+                   <widget class="QLabel" name="label_8">
                     <property name="text">
-                     <string>Zoom In</string>
-                    </property>
-                    <property name="icon">
-                     <iconset resource="../icon.qrc">
-                      <normaloff>:/icons/icons/zoomin.svg</normaloff>:/icons/icons/zoomin.svg</iconset>
+                     <string>Opacity:</string>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="zoomOutButton">
+                   <widget class="QLabel" name="labelOriginal">
                     <property name="text">
-                     <string>Zoom Out</string>
+                     <string>Original</string>
                     </property>
-                    <property name="icon">
-                     <iconset resource="../icon.qrc">
-                      <normaloff>:/icons/icons/zoomout.svg</normaloff>:/icons/icons/zoomout.svg</iconset>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSlider" name="opacitySlider">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="labelMask">
+                    <property name="text">
+                     <string>Mask</string>
                     </property>
                    </widget>
                   </item>

@@ -39,11 +39,6 @@ class MainWindow(QMainWindow):
 		self.resize(2000, 1500)
 		self.edge_detector = None
 
-		self.ui.opacitySlider.setRange(0, 100)
-		self.ui.opacitySlider.setValue(50)
-		self.ui.opacitySlider.setTickInterval(10)
-		self.ui.opacitySlider.valueChanged.connect(self.refresh_display_image)
-
 		self.progress_manager = ProgressManager(
 			buttons=[
 				self.ui.uploadProcessButton,
@@ -54,6 +49,9 @@ class MainWindow(QMainWindow):
 			],
 			lines=[self.ui.line1, self.ui.line2, self.ui.line3, self.ui.line4]
 		)
+
+		self.ui.zoomInButton.clicked.connect(lambda: self.zoom_image(zoom_in=True))
+		self.ui.zoomOutButton.clicked.connect(lambda: self.zoom_image(zoom_in=False))
 
 		self.drawing = False
 		self.last_point = QPoint()
@@ -68,7 +66,7 @@ class MainWindow(QMainWindow):
 	def init_stacked_widget(self):
 		self.ui.stackedWidget.setCurrentIndex(self.progress_stage)
 		self.ui.nextButton0.clicked.connect(lambda: self.set_stage(1))
-		self.ui.nextButton1.clicked.connect(lambda: self.set_stage(2))
+		# self.ui.nextButton1.clicked.connect(lambda: self.set_stage(2))
 		self.ui.nextButton2.clicked.connect(lambda: self.set_stage(3))
 		self.ui.nextButton3.clicked.connect(lambda: self.set_stage(4))
 		self.ui.nextButton4.clicked.connect(lambda: self.set_stage(0))
@@ -91,10 +89,12 @@ class MainWindow(QMainWindow):
 		self.ui.penSizeSlider.setTickPosition(QSlider.TicksBelow)
 		self.ui.penSizeSlider.valueChanged.connect(self.update_brush_size)
 
-		self.ui.zoomInButton.clicked.connect(lambda: self.zoom_image(zoom_in=True))
-		self.ui.zoomOutButton.clicked.connect(lambda: self.zoom_image(zoom_in=False))
-
 		self.ui.penShapeComboBox.currentTextChanged.connect(self.update_pen_shape)
+
+		self.ui.opacitySlider.setRange(0, 100)
+		self.ui.opacitySlider.setValue(50)
+		self.ui.opacitySlider.setTickInterval(10)
+		self.ui.opacitySlider.valueChanged.connect(self.refresh_display_image)
 
 	def init_image_label(self):
 		self.ui.imageLabel.setMouseTracking(True)
@@ -267,6 +267,9 @@ class MainWindow(QMainWindow):
 				predicted_mask = self.edge_detector.detect_edges(file_name)
 				self.prediction_results[file_name] = predicted_mask
 
+		next_stage = self.progress_stage + 1
+		self.set_stage(next_stage)
+
 		if self.ui.listWidget.currentItem():
 			self.display_large_image(self.ui.listWidget.currentItem())
 
@@ -299,7 +302,7 @@ class MainWindow(QMainWindow):
 		if original_pixmap.isNull():
 			return
 
-		if self.progress_stage == 0:
+		if self.progress_stage in [0, 1]:
 			label_width = self.ui.imageLabel.width()
 			label_height = self.ui.imageLabel.height()
 
@@ -310,7 +313,7 @@ class MainWindow(QMainWindow):
 			self.image = None
 			return
 
-		elif self.progress_stage in [1, 2]:
+		elif self.progress_stage == 2:
 			prediction = self.prediction_results.get(self.current_image_path)
 
 			if prediction is None:

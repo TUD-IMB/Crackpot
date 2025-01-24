@@ -211,12 +211,13 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.setContentsMargins(0, 0, -1, -1)
         self.verticalLayout_3 = QVBoxLayout()
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.verticalLayout_3.setContentsMargins(-1, -1, -1, 0)
         self.scrollArea = QScrollArea(self.centralwidget)
         self.scrollArea.setObjectName(u"scrollArea")
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 484, 213))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 466, 172))
         self.verticalLayout_13 = QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_13.setObjectName(u"verticalLayout_13")
         self.imageLabel = QLabel(self.scrollAreaWidgetContents)
@@ -236,27 +237,58 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_3.addWidget(self.scrollArea)
 
-        self.horizontalLayout_3 = QHBoxLayout()
-        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
-        self.horizontalLayout_3.setContentsMargins(-1, 0, -1, -1)
-        self.labelOriginal = QLabel(self.centralwidget)
-        self.labelOriginal.setObjectName(u"labelOriginal")
+        self.horizontalLayout_8 = QHBoxLayout()
+        self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
+        self.horizontalSpacer_3 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.horizontalLayout_3.addWidget(self.labelOriginal)
+        self.horizontalLayout_8.addItem(self.horizontalSpacer_3)
 
-        self.opacitySlider = QSlider(self.centralwidget)
-        self.opacitySlider.setObjectName(u"opacitySlider")
-        self.opacitySlider.setOrientation(Qt.Horizontal)
+        self.zoomInButton = QPushButton(self.centralwidget)
+        self.zoomInButton.setObjectName(u"zoomInButton")
+        self.zoomInButton.setStyleSheet(u"QPushButton {\n"
+"    border: none; \n"
+"    background: transparent;\n"
+"}\n"
+"QPushButton:hover {\n"
+"    background-color: lightgray;\n"
+"}\n"
+"QPushButton:pressed {\n"
+"    background-color: lightblue;\n"
+"}\n"
+"")
+        icon7 = QIcon()
+        icon7.addFile(u":/icons/icons/zoomin.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.zoomInButton.setIcon(icon7)
+        self.zoomInButton.setIconSize(QSize(50, 50))
 
-        self.horizontalLayout_3.addWidget(self.opacitySlider)
+        self.horizontalLayout_8.addWidget(self.zoomInButton)
 
-        self.labelMask = QLabel(self.centralwidget)
-        self.labelMask.setObjectName(u"labelMask")
+        self.zoomOutButton = QPushButton(self.centralwidget)
+        self.zoomOutButton.setObjectName(u"zoomOutButton")
+        self.zoomOutButton.setStyleSheet(u"QPushButton {\n"
+"    border: none; \n"
+"    background: transparent;\n"
+"}\n"
+"QPushButton:hover {\n"
+"    background-color: lightgray;\n"
+"}\n"
+"QPushButton:pressed {\n"
+"    background-color: lightblue;\n"
+"}\n"
+"")
+        icon8 = QIcon()
+        icon8.addFile(u":/icons/icons/zoomout.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.zoomOutButton.setIcon(icon8)
+        self.zoomOutButton.setIconSize(QSize(50, 50))
 
-        self.horizontalLayout_3.addWidget(self.labelMask)
+        self.horizontalLayout_8.addWidget(self.zoomOutButton)
+
+        self.horizontalSpacer_4 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_8.addItem(self.horizontalSpacer_4)
 
 
-        self.verticalLayout_3.addLayout(self.horizontalLayout_3)
+        self.verticalLayout_3.addLayout(self.horizontalLayout_8)
 
 
         self.horizontalLayout_2.addLayout(self.verticalLayout_3)
@@ -276,9 +308,9 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.plusButton.sizePolicy().hasHeightForWidth())
         self.plusButton.setSizePolicy(sizePolicy)
         self.plusButton.setMinimumSize(QSize(100, 100))
-        icon7 = QIcon()
-        icon7.addFile(u":/icons/icons/plus.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.plusButton.setIcon(icon7)
+        icon9 = QIcon()
+        icon9.addFile(u":/icons/icons/plus.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.plusButton.setIcon(icon9)
         self.plusButton.setIconSize(QSize(50, 50))
 
         self.verticalLayout.addWidget(self.plusButton)
@@ -303,6 +335,26 @@ class Ui_MainWindow(object):
         self.horizontalLayout_11.setObjectName(u"horizontalLayout_11")
         self.verticalLayout_12 = QVBoxLayout()
         self.verticalLayout_12.setObjectName(u"verticalLayout_12")
+        self.horizontalLayout_12 = QHBoxLayout()
+        self.horizontalLayout_12.setObjectName(u"horizontalLayout_12")
+        self.label_9 = QLabel(self.page1)
+        self.label_9.setObjectName(u"label_9")
+
+        self.horizontalLayout_12.addWidget(self.label_9)
+
+        self.modelComboBox = QComboBox(self.page1)
+        self.modelComboBox.setObjectName(u"modelComboBox")
+        sizePolicy2 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.modelComboBox.sizePolicy().hasHeightForWidth())
+        self.modelComboBox.setSizePolicy(sizePolicy2)
+
+        self.horizontalLayout_12.addWidget(self.modelComboBox)
+
+
+        self.verticalLayout_12.addLayout(self.horizontalLayout_12)
+
         self.label_7 = QLabel(self.page1)
         self.label_7.setObjectName(u"label_7")
 
@@ -312,11 +364,6 @@ class Ui_MainWindow(object):
         self.runModelButton.setObjectName(u"runModelButton")
 
         self.verticalLayout_12.addWidget(self.runModelButton)
-
-        self.nextButton1 = QPushButton(self.page1)
-        self.nextButton1.setObjectName(u"nextButton1")
-
-        self.verticalLayout_12.addWidget(self.nextButton1)
 
 
         self.horizontalLayout_11.addLayout(self.verticalLayout_12)
@@ -336,9 +383,9 @@ class Ui_MainWindow(object):
         self.penButtonGroup.setObjectName(u"penButtonGroup")
         self.penButtonGroup.addButton(self.addButton)
         self.addButton.setObjectName(u"addButton")
-        icon8 = QIcon()
-        icon8.addFile(u":/icons/icons/penadd.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.addButton.setIcon(icon8)
+        icon10 = QIcon()
+        icon10.addFile(u":/icons/icons/penadd.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.addButton.setIcon(icon10)
         self.addButton.setIconSize(QSize(23, 23))
         self.addButton.setCheckable(True)
 
@@ -347,9 +394,9 @@ class Ui_MainWindow(object):
         self.deleteButton = QPushButton(self.page2)
         self.penButtonGroup.addButton(self.deleteButton)
         self.deleteButton.setObjectName(u"deleteButton")
-        icon9 = QIcon()
-        icon9.addFile(u":/icons/icons/penminus.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.deleteButton.setIcon(icon9)
+        icon11 = QIcon()
+        icon11.addFile(u":/icons/icons/penminus.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.deleteButton.setIcon(icon11)
         self.deleteButton.setIconSize(QSize(23, 23))
         self.deleteButton.setCheckable(True)
 
@@ -385,9 +432,6 @@ class Ui_MainWindow(object):
         self.penShapeComboBox.addItem("")
         self.penShapeComboBox.addItem("")
         self.penShapeComboBox.setObjectName(u"penShapeComboBox")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(0)
         sizePolicy2.setHeightForWidth(self.penShapeComboBox.sizePolicy().hasHeightForWidth())
         self.penShapeComboBox.setSizePolicy(sizePolicy2)
 
@@ -396,26 +440,32 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_6.addLayout(self.horizontalLayout_7)
 
-        self.horizontalLayout_8 = QHBoxLayout()
-        self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
-        self.zoomInButton = QPushButton(self.page2)
-        self.zoomInButton.setObjectName(u"zoomInButton")
-        icon10 = QIcon()
-        icon10.addFile(u":/icons/icons/zoomin.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.zoomInButton.setIcon(icon10)
+        self.horizontalLayout_3 = QHBoxLayout()
+        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+        self.horizontalLayout_3.setContentsMargins(-1, 0, -1, -1)
+        self.label_8 = QLabel(self.page2)
+        self.label_8.setObjectName(u"label_8")
 
-        self.horizontalLayout_8.addWidget(self.zoomInButton)
+        self.horizontalLayout_3.addWidget(self.label_8)
 
-        self.zoomOutButton = QPushButton(self.page2)
-        self.zoomOutButton.setObjectName(u"zoomOutButton")
-        icon11 = QIcon()
-        icon11.addFile(u":/icons/icons/zoomout.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.zoomOutButton.setIcon(icon11)
+        self.labelOriginal = QLabel(self.page2)
+        self.labelOriginal.setObjectName(u"labelOriginal")
 
-        self.horizontalLayout_8.addWidget(self.zoomOutButton)
+        self.horizontalLayout_3.addWidget(self.labelOriginal)
+
+        self.opacitySlider = QSlider(self.page2)
+        self.opacitySlider.setObjectName(u"opacitySlider")
+        self.opacitySlider.setOrientation(Qt.Horizontal)
+
+        self.horizontalLayout_3.addWidget(self.opacitySlider)
+
+        self.labelMask = QLabel(self.page2)
+        self.labelMask.setObjectName(u"labelMask")
+
+        self.horizontalLayout_3.addWidget(self.labelMask)
 
 
-        self.verticalLayout_6.addLayout(self.horizontalLayout_8)
+        self.verticalLayout_6.addLayout(self.horizontalLayout_3)
 
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
@@ -585,7 +635,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(3)
+        self.stackedWidget.setCurrentIndex(2)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -610,14 +660,14 @@ class Ui_MainWindow(object):
         self.selectProcessButton.setText("")
         self.exportProcessButton.setText("")
         self.imageLabel.setText("")
-        self.labelOriginal.setText(QCoreApplication.translate("MainWindow", u"Original", None))
-        self.labelMask.setText(QCoreApplication.translate("MainWindow", u"Mask", None))
+        self.zoomInButton.setText("")
+        self.zoomOutButton.setText("")
         self.plusButton.setText("")
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"Click \"+\" to upload figures.", None))
         self.nextButton0.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
-        self.label_7.setText(QCoreApplication.translate("MainWindow", u"Select Model", None))
-        self.runModelButton.setText(QCoreApplication.translate("MainWindow", u"Run Model", None))
-        self.nextButton1.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
+        self.label_9.setText(QCoreApplication.translate("MainWindow", u"Model", None))
+        self.label_7.setText(QCoreApplication.translate("MainWindow", u"Select a Model to do detection.", None))
+        self.runModelButton.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
         self.addButton.setText(QCoreApplication.translate("MainWindow", u"Add", None))
         self.deleteButton.setText(QCoreApplication.translate("MainWindow", u"Delete", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"Size", None))
@@ -625,8 +675,9 @@ class Ui_MainWindow(object):
         self.penShapeComboBox.setItemText(0, QCoreApplication.translate("MainWindow", u"Round", None))
         self.penShapeComboBox.setItemText(1, QCoreApplication.translate("MainWindow", u"Square", None))
 
-        self.zoomInButton.setText(QCoreApplication.translate("MainWindow", u"Zoom In", None))
-        self.zoomOutButton.setText(QCoreApplication.translate("MainWindow", u"Zoom Out", None))
+        self.label_8.setText(QCoreApplication.translate("MainWindow", u"Opacity:", None))
+        self.labelOriginal.setText(QCoreApplication.translate("MainWindow", u"Original", None))
+        self.labelMask.setText(QCoreApplication.translate("MainWindow", u"Mask", None))
         self.nextButton2.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
         self.label_4.setText(QCoreApplication.translate("MainWindow", u"Select skeleton to analysis.", None))
         self.skeletonButton.setText(QCoreApplication.translate("MainWindow", u"Skeletonization", None))
