@@ -291,7 +291,7 @@ QPushButton:pressed {
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>466</width>
+               <width>456</width>
                <height>172</height>
               </rect>
              </property>
@@ -747,6 +747,13 @@ QPushButton:pressed {
                   </item>
                   <item>
                    <widget class="QLineEdit" name="lineEdit"/>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="browseButton">
+                    <property name="text">
+                     <string>Browse</string>
+                    </property>
+                   </widget>
                   </item>
                  </layout>
                 </item>

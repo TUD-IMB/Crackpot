@@ -9,7 +9,8 @@ from backend.skeletonprocessor import SkeletonProcessor
 from frontend.progressmanager import ProgressManager
 from frontend.ui.uimain import Ui_MainWindow
 from skimage.morphology import skeletonize
-
+from collections import deque
+from skimage.measure import label, regionprops
 
 class MainWindow(QMainWindow):
 	r"""
@@ -120,7 +121,16 @@ class MainWindow(QMainWindow):
 			clean_skeleton = self.skeleton_processor.remove_small_branches(
 				skeleton, max_branch_length=50, main_endpoints=main_endpoints
 			)
-			self.skeleton_results[image_path] = clean_skeleton
+			# self.skeleton_results[image_path] = clean_skeleton
+			branch_points = self.skeleton_processor.find_branch_points(clean_skeleton)
+			end_points = self.skeleton_processor.find_end_points(clean_skeleton)
+
+			self.skeleton_results[image_path] = {
+				"skeleton": clean_skeleton,
+				"branch_points": branch_points,
+				"end_points": end_points,
+				# "selected_nodes": []
+			}
 
 		if self.ui.listWidget.currentItem():
 			self.display_large_image(self.ui.listWidget.currentItem())
@@ -128,6 +138,8 @@ class MainWindow(QMainWindow):
 
 	# ------------------------ Event Handling ----------------------------------------------------------------------
 	def eventFilter(self, source, event):
+		if self.progress_stage != 2:
+			return super().eventFilter(source, event)
 		if source == self.ui.imageLabel:
 			if event.type() == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
 				self.drawing = True
@@ -357,15 +369,27 @@ class MainWindow(QMainWindow):
 			self.image = prediction_qimage.copy()
 
 		elif self.progress_stage == 3:
-			skeleton = self.skeleton_results.get(self.current_image_path)
+			skeleton_data = self.skeleton_results.get(self.current_image_path)
 
-			if skeleton is None:
+			if skeleton_data is None:
 				print("No skeletonization result found.")
 				return
+
+			skeleton = skeleton_data["skeleton"]
+			branch_points = skeleton_data["branch_points"]
+			end_points = skeleton_data["end_points"]
 
 			overlay_image = original_image.copy()
 			skeleton_coords = np.where(skeleton == 1)
 			overlay_image[skeleton_coords[0], skeleton_coords[1]] = [255, 0, 0]
+
+			branch_coords = np.argwhere(branch_points > 0)
+			for coord in branch_coords:
+				cv2.circle(overlay_image, (coord[1], coord[0]), radius=5, color=(255, 255, 255), thickness=2)
+
+			end_coords = np.argwhere(end_points > 0)
+			for coord in end_coords:
+				cv2.circle(overlay_image, (coord[1], coord[0]), radius=5, color=(255, 255, 255), thickness=2)
 
 			overlay_qimage = QImage(
 				overlay_image.data,
