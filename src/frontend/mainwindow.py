@@ -51,6 +51,11 @@ class MainWindow(QMainWindow):
 			],
 			lines=[self.ui.line1, self.ui.line2, self.ui.line3, self.ui.line4]
 		)
+		self.ui.uploadProcessButton.clicked.connect(lambda: self.set_stage(0))
+		self.ui.detectProcessButton.clicked.connect(lambda: self.set_stage(1))
+		self.ui.editProcessButton.clicked.connect(lambda: self.set_stage(2))
+		self.ui.selectProcessButton.clicked.connect(lambda: self.set_stage(3))
+		self.ui.exportProcessButton.clicked.connect(lambda: self.set_stage(4))
 
 		self.ui.zoomInButton.clicked.connect(lambda: self.zoom_image(zoom_in=True))
 		self.ui.zoomOutButton.clicked.connect(lambda: self.zoom_image(zoom_in=False))
@@ -677,6 +682,9 @@ class MainWindow(QMainWindow):
 			print("Select skeleton stage")
 		elif self.progress_stage == 4:
 			print("File export stage")
+
+		if self.ui.listWidget.currentItem():
+			self.display_large_image(self.ui.listWidget.currentItem())
 
 	# ------------------------ Others ----------------------------------------------------------------------
 
