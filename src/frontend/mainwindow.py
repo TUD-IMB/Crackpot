@@ -117,10 +117,13 @@ class MainWindow(QMainWindow):
 				continue
 			skeleton = skeletonize(prediction).astype(np.uint8)
 
+			branch_points = self.skeleton_processor.find_branch_points(skeleton)
+			end_points = self.skeleton_processor.find_end_points(skeleton)
+
 			self.skeleton_results[image_path] = {
 				"skeleton": skeleton,
-				"branch_points": None,
-				"end_points": None,
+				"branch_points": branch_points,
+				"end_points": end_points,
 				"longest_path": None,
 			}
 
@@ -139,9 +142,10 @@ class MainWindow(QMainWindow):
 				continue
 
 			main_endpoints = self.skeleton_processor.find_main_endpoints(skeleton)
-			clean_skeleton = self.skeleton_processor.remove_small_branches(
-				skeleton, max_branch_length=50, main_endpoints=main_endpoints
-			)
+			# clean_skeleton = self.skeleton_processor.remove_small_branches(
+			# 	skeleton, max_branch_length=50, main_endpoints=main_endpoints
+			# )
+			clean_skeleton = self.skeleton_processor.extract_main_skeleton(skeleton)
 
 			longest_path = self.get_longest_skeleton(clean_skeleton)
 			branch_points = self.skeleton_processor.find_branch_points(clean_skeleton)
@@ -420,6 +424,8 @@ class MainWindow(QMainWindow):
 			return
 
 		skeleton = skeleton_data["skeleton"]
+		branch_points = skeleton_data.get("branch_points", None)
+		end_points = skeleton_data.get("end_points", None)
 		longest_path = skeleton_data.get("longest_path", [])
 
 		overlay_image = original_image.copy()
@@ -429,6 +435,16 @@ class MainWindow(QMainWindow):
 		if longest_path is not None and len(longest_path) > 0:
 			for point in longest_path:
 				overlay_image[point[0], point[1]] = [255, 0, 0]
+
+		if branch_points is not None and np.any(branch_points):
+			branch_coords = np.argwhere(branch_points > 0)
+			for coord in branch_coords:
+				cv2.circle(overlay_image, (coord[1], coord[0]), radius=5, color=(255, 255, 255), thickness=2)
+
+		if end_points is not None and np.any(end_points):
+			end_coords = np.argwhere(end_points > 0)
+			for coord in end_coords:
+				cv2.circle(overlay_image, (coord[1], coord[0]), radius=5, color=(255, 255, 255), thickness=2)
 
 		overlay_qimage = QImage(
 			overlay_image.data,
