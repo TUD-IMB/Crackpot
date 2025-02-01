@@ -26,6 +26,7 @@ class SkeletonProcessor:
 		return branch_points
 
 	def find_main_endpoints(self, skeleton):
+		# 距离最远的一对端点，计算欧几里得距离
 		end_points = np.column_stack(np.where(self.find_end_points(skeleton)))
 		if len(end_points) < 2:
 			return end_points

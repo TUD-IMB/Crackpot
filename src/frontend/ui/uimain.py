@@ -217,7 +217,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 466, 172))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 456, 172))
         self.verticalLayout_13 = QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_13.setObjectName(u"verticalLayout_13")
         self.imageLabel = QLabel(self.scrollAreaWidgetContents)
@@ -495,15 +495,20 @@ class Ui_MainWindow(object):
         self.verticalLayout_9.setObjectName(u"verticalLayout_9")
         self.verticalLayout_8 = QVBoxLayout()
         self.verticalLayout_8.setObjectName(u"verticalLayout_8")
-        self.label_4 = QLabel(self.page3)
-        self.label_4.setObjectName(u"label_4")
-
-        self.verticalLayout_8.addWidget(self.label_4)
-
         self.skeletonButton = QPushButton(self.page3)
         self.skeletonButton.setObjectName(u"skeletonButton")
 
         self.verticalLayout_8.addWidget(self.skeletonButton)
+
+        self.cleanBranchButton = QPushButton(self.page3)
+        self.cleanBranchButton.setObjectName(u"cleanBranchButton")
+
+        self.verticalLayout_8.addWidget(self.cleanBranchButton)
+
+        self.label_4 = QLabel(self.page3)
+        self.label_4.setObjectName(u"label_4")
+
+        self.verticalLayout_8.addWidget(self.label_4)
 
         self.nextButton3 = QPushButton(self.page3)
         self.nextButton3.setObjectName(u"nextButton3")
@@ -531,6 +536,11 @@ class Ui_MainWindow(object):
         self.lineEdit.setObjectName(u"lineEdit")
 
         self.horizontalLayout_10.addWidget(self.lineEdit)
+
+        self.browseButton = QPushButton(self.page4)
+        self.browseButton.setObjectName(u"browseButton")
+
+        self.horizontalLayout_10.addWidget(self.browseButton)
 
 
         self.verticalLayout_10.addLayout(self.horizontalLayout_10)
@@ -635,7 +645,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(2)
+        self.stackedWidget.setCurrentIndex(3)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -679,10 +689,12 @@ class Ui_MainWindow(object):
         self.labelOriginal.setText(QCoreApplication.translate("MainWindow", u"Original", None))
         self.labelMask.setText(QCoreApplication.translate("MainWindow", u"Mask", None))
         self.nextButton2.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
-        self.label_4.setText(QCoreApplication.translate("MainWindow", u"Select skeleton to analysis.", None))
         self.skeletonButton.setText(QCoreApplication.translate("MainWindow", u"Skeletonization", None))
+        self.cleanBranchButton.setText(QCoreApplication.translate("MainWindow", u"Remove small branches", None))
+        self.label_4.setText(QCoreApplication.translate("MainWindow", u"Select skeleton to analysis.", None))
         self.nextButton3.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
         self.label_6.setText(QCoreApplication.translate("MainWindow", u"Export Path", None))
+        self.browseButton.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
         self.label_5.setText(QCoreApplication.translate("MainWindow", u"Select path to export", None))
         self.nextButton4.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
         self.previousFigButton.setText("")

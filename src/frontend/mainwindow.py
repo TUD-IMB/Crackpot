@@ -4,13 +4,14 @@ import numpy as np
 from PySide2.QtCore import Qt, QSize, QEvent, QPoint
 from PySide2.QtGui import QPixmap, QIcon, QImage, QPainter, QColor, QPen
 from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog, QListWidgetItem, QListWidget, QSlider
+from skimage.measure import regionprops,label
+
 from backend.edgedetection import EdgeDetection
 from backend.skeletonprocessor import SkeletonProcessor
 from frontend.progressmanager import ProgressManager
 from frontend.ui.uimain import Ui_MainWindow
 from skimage.morphology import skeletonize
-from collections import deque
-from skimage.measure import label, regionprops
+
 
 class MainWindow(QMainWindow):
 	r"""
@@ -37,7 +38,7 @@ class MainWindow(QMainWindow):
 		self.ui.previousFigButton.clicked.connect(self.show_previous_image)
 		self.ui.nextFigButton.clicked.connect(self.show_next_image)
 
-		self.resize(2000, 1500)
+		self.resize(2000, 1600)
 		self.edge_detector = None
 
 		self.progress_manager = ProgressManager(
@@ -80,6 +81,7 @@ class MainWindow(QMainWindow):
 
 		# skeleton select stage
 		self.ui.skeletonButton.clicked.connect(self.apply_skeletonization)
+		self.ui.cleanBranchButton.clicked.connect(self.clean_skeleton_branches)
 
 		# edit stage
 		self.ui.addButton.clicked.connect(self.activate_add_mode)
@@ -103,7 +105,6 @@ class MainWindow(QMainWindow):
 
 	def apply_skeletonization(self):
 		if not self.prediction_results or len(self.prediction_results) == 0:
-			print("No predictions found to process.")
 			return
 
 		if not hasattr(self, "skeleton_results"):
@@ -115,13 +116,34 @@ class MainWindow(QMainWindow):
 			if prediction is None:
 				continue
 			skeleton = skeletonize(prediction).astype(np.uint8)
-			self.skeleton_results[image_path] = skeleton
+
+			self.skeleton_results[image_path] = {
+				"skeleton": skeleton,
+				"branch_points": None,
+				"end_points": None,
+				"longest_path": None,
+			}
+
+		if self.ui.listWidget.currentItem():
+			self.display_large_image(self.ui.listWidget.currentItem())
+
+		self.skeleton_processor.skeletons = self.skeleton_results
+
+	def clean_skeleton_branches(self):
+		if not hasattr(self, "skeleton_results") or not self.skeleton_results:
+			return
+
+		for image_path, skeleton_data in self.skeleton_results.items():
+			skeleton = skeleton_data.get("skeleton")
+			if skeleton is None:
+				continue
 
 			main_endpoints = self.skeleton_processor.find_main_endpoints(skeleton)
 			clean_skeleton = self.skeleton_processor.remove_small_branches(
 				skeleton, max_branch_length=50, main_endpoints=main_endpoints
 			)
-			# self.skeleton_results[image_path] = clean_skeleton
+
+			longest_path = self.get_longest_skeleton(clean_skeleton)
 			branch_points = self.skeleton_processor.find_branch_points(clean_skeleton)
 			end_points = self.skeleton_processor.find_end_points(clean_skeleton)
 
@@ -129,12 +151,29 @@ class MainWindow(QMainWindow):
 				"skeleton": clean_skeleton,
 				"branch_points": branch_points,
 				"end_points": end_points,
-				# "selected_nodes": []
+				"longest_path": longest_path,
 			}
 
 		if self.ui.listWidget.currentItem():
 			self.display_large_image(self.ui.listWidget.currentItem())
+
 		self.skeleton_processor.skeletons = self.skeleton_results
+
+	def get_longest_skeleton(self, skeleton):
+
+		labeled_skeleton = label(skeleton, connectivity=2)
+
+		longest_path = []
+		max_length = 0
+
+		for region in regionprops(labeled_skeleton):
+			coords = region.coords
+			length = len(coords)
+
+			if length > max_length:
+				max_length = length
+				longest_path = coords
+		return longest_path
 
 	# ------------------------ Event Handling ----------------------------------------------------------------------
 	def eventFilter(self, source, event):
@@ -299,117 +338,269 @@ class MainWindow(QMainWindow):
 		if not self.current_image_path:
 			return
 
-		# Load the original image
 		original_image = cv2.imread(self.current_image_path)
+		original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
 		if original_image is None:
 			return
 
-		original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
 		original_qimage = QImage(
 			original_image.data, original_image.shape[1], original_image.shape[0],
 			original_image.shape[1] * 3, QImage.Format_RGB888
 		)
 		original_pixmap = QPixmap.fromImage(original_qimage)
-
 		if original_pixmap.isNull():
 			return
 
 		if self.progress_stage in [0, 1]:
-			label_width = self.ui.imageLabel.width()
-			label_height = self.ui.imageLabel.height()
+			self.display_original_image(original_pixmap)
+		elif self.progress_stage == 2:
+			self.display_prediction_overlay(original_pixmap)
+		elif self.progress_stage == 3:
+			self.display_skeleton_overlay(original_image)
 
-			scaled_pixmap = original_pixmap.scaled(
-				label_width, label_height, Qt.KeepAspectRatio, Qt.SmoothTransformation
-			)
-			self.ui.imageLabel.setPixmap(scaled_pixmap)
-			self.image = None
+	def display_original_image(self, original_pixmap):
+		"""Display the original image scaled to fit the label."""
+		label_width = self.ui.imageLabel.width()
+		label_height = self.ui.imageLabel.height()
+
+		scaled_pixmap = original_pixmap.scaled(
+			label_width, label_height, Qt.KeepAspectRatio, Qt.SmoothTransformation
+		)
+		self.ui.imageLabel.setPixmap(scaled_pixmap)
+		self.image = None
+
+	def display_prediction_overlay(self, original_pixmap):
+		"""Display the original image with the prediction overlay."""
+		prediction = self.prediction_results.get(self.current_image_path)
+		if prediction is None:
 			return
 
-		elif self.progress_stage == 2:
-			prediction = self.prediction_results.get(self.current_image_path)
+		if len(prediction.shape) == 3 and prediction.shape[-1] == 1:
+			prediction = np.squeeze(prediction, axis=-1)
+		elif len(prediction.shape) != 2:
+			raise ValueError(f"Unexpected prediction shape: {prediction.shape}")
 
-			if prediction is None:
-				return
+		prediction = (prediction * 255).astype(np.uint8)
+		prediction_qimage = QImage(
+			prediction, prediction.shape[1], prediction.shape[0],
+			prediction.shape[1], QImage.Format_Grayscale8
+		)
 
-			if len(prediction.shape) == 3 and prediction.shape[-1] == 1:
-				prediction = np.squeeze(prediction, axis=-1)
-			elif len(prediction.shape) != 2:
-				raise ValueError(f"Unexpected prediction shape: {prediction.shape}")
+		prediction_pixmap = QPixmap.fromImage(prediction_qimage)
+		if prediction_pixmap.isNull():
+			return
 
-			prediction = (prediction * 255).astype(np.uint8)
-			prediction_qimage = QImage(
-				prediction, prediction.shape[1], prediction.shape[0],
-				prediction.shape[1], QImage.Format_Grayscale8
-			)
+		combined_pixmap = QPixmap(original_pixmap.size())
+		combined_pixmap.fill(Qt.transparent)
+		painter = QPainter(combined_pixmap)
+		painter.setOpacity(1.0)
+		painter.drawPixmap(0, 0, original_pixmap)
+		opacity = self.ui.opacitySlider.value() / 100.0
+		painter.setOpacity(opacity)
+		painter.drawPixmap(0, 0, prediction_pixmap.scaled(
+			original_pixmap.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation
+		))
+		painter.end()
 
-			prediction_pixmap = QPixmap.fromImage(prediction_qimage)
-			if prediction_pixmap.isNull():
-				return
+		label_width = self.ui.imageLabel.width()
+		label_height = self.ui.imageLabel.height()
 
-			combined_pixmap = QPixmap(original_pixmap.size())
-			combined_pixmap.fill(Qt.transparent)
-			painter = QPainter(combined_pixmap)
-			painter.setOpacity(1.0)
-			painter.drawPixmap(0, 0, original_pixmap)
-			opacity = self.ui.opacitySlider.value() / 100.0
-			painter.setOpacity(opacity)
-			painter.drawPixmap(0, 0, prediction_pixmap.scaled(
-				original_pixmap.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation
-			))
-			painter.end()
+		scaled_pixmap = combined_pixmap.scaled(
+			label_width, label_height, Qt.KeepAspectRatio, Qt.SmoothTransformation
+		)
+		self.ui.imageLabel.setPixmap(scaled_pixmap)
 
-			label_width = self.ui.imageLabel.width()
-			label_height = self.ui.imageLabel.height()
+		self.image = prediction_qimage.copy()
 
-			scaled_pixmap = combined_pixmap.scaled(
-				label_width, label_height, Qt.KeepAspectRatio, Qt.SmoothTransformation
-			)
-			self.ui.imageLabel.setPixmap(scaled_pixmap)
+	def display_skeleton_overlay(self, original_image):
+		"""Display the original image with skeleton overlay."""
+		skeleton_data = self.skeleton_results.get(self.current_image_path)
+		if not skeleton_data:
+			print("No skeletonization result found.")
+			return
 
-			self.image = prediction_qimage.copy()
+		skeleton = skeleton_data["skeleton"]
+		longest_path = skeleton_data.get("longest_path", [])
 
-		elif self.progress_stage == 3:
-			skeleton_data = self.skeleton_results.get(self.current_image_path)
+		overlay_image = original_image.copy()
+		skeleton_coords = np.where(skeleton == 1)
+		overlay_image[skeleton_coords[0], skeleton_coords[1]] = [255, 255, 0]
 
-			if skeleton_data is None:
-				print("No skeletonization result found.")
-				return
+		if longest_path is not None and len(longest_path) > 0:
+			for point in longest_path:
+				overlay_image[point[0], point[1]] = [255, 0, 0]
 
-			skeleton = skeleton_data["skeleton"]
-			branch_points = skeleton_data["branch_points"]
-			end_points = skeleton_data["end_points"]
+		overlay_qimage = QImage(
+			overlay_image.data,
+			overlay_image.shape[1],
+			overlay_image.shape[0],
+			overlay_image.shape[1] * 3,
+			QImage.Format_RGB888
+		)
+		overlay_pixmap = QPixmap.fromImage(overlay_qimage)
 
-			overlay_image = original_image.copy()
-			skeleton_coords = np.where(skeleton == 1)
-			overlay_image[skeleton_coords[0], skeleton_coords[1]] = [255, 0, 0]
+		label_width = self.ui.imageLabel.width()
+		label_height = self.ui.imageLabel.height()
+		scaled_pixmap = overlay_pixmap.scaled(
+			label_width, label_height, Qt.KeepAspectRatio, Qt.SmoothTransformation
+		)
+		self.ui.imageLabel.setPixmap(scaled_pixmap)
 
-			branch_coords = np.argwhere(branch_points > 0)
-			for coord in branch_coords:
-				cv2.circle(overlay_image, (coord[1], coord[0]), radius=5, color=(255, 255, 255), thickness=2)
+	# def refresh_display_image(self):
+	# 	"""
+	# 	Update the QLabel display with the combined original image and prediction.
+	# 	"""
+	# 	if not self.current_image_path:
+	# 		return
+	#
+	# 	# Load the original image
+	# 	original_image = cv2.imread(self.current_image_path)
+	# 	if original_image is None:
+	# 		return
+	#
+	# 	original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
+	# 	overlay_image = original_image.copy()
+	# 	original_qimage = QImage(
+	# 		original_image.data, original_image.shape[1], original_image.shape[0],
+	# 		original_image.shape[1] * 3, QImage.Format_RGB888
+	# 	)
+	# 	original_pixmap = QPixmap.fromImage(original_qimage)
+	#
+	# 	if original_pixmap.isNull():
+	# 		return
+	#
+	# 	if self.progress_stage in [0, 1]:
+	# 		label_width = self.ui.imageLabel.width()
+	# 		label_height = self.ui.imageLabel.height()
+	#
+	# 		scaled_pixmap = original_pixmap.scaled(
+	# 			label_width, label_height, Qt.KeepAspectRatio, Qt.SmoothTransformation
+	# 		)
+	# 		self.ui.imageLabel.setPixmap(scaled_pixmap)
+	# 		self.image = None
+	# 		return
+	#
+	# 	elif self.progress_stage == 2:
+	# 		prediction = self.prediction_results.get(self.current_image_path)
+	#
+	# 		if prediction is None:
+	# 			return
+	#
+	# 		if len(prediction.shape) == 3 and prediction.shape[-1] == 1:
+	# 			prediction = np.squeeze(prediction, axis=-1)
+	# 		elif len(prediction.shape) != 2:
+	# 			raise ValueError(f"Unexpected prediction shape: {prediction.shape}")
+	#
+	# 		prediction = (prediction * 255).astype(np.uint8)
+	# 		prediction_qimage = QImage(
+	# 			prediction, prediction.shape[1], prediction.shape[0],
+	# 			prediction.shape[1], QImage.Format_Grayscale8
+	# 		)
+	#
+	# 		prediction_pixmap = QPixmap.fromImage(prediction_qimage)
+	# 		if prediction_pixmap.isNull():
+	# 			return
+	#
+	# 		combined_pixmap = QPixmap(original_pixmap.size())
+	# 		combined_pixmap.fill(Qt.transparent)
+	# 		painter = QPainter(combined_pixmap)
+	# 		painter.setOpacity(1.0)
+	# 		painter.drawPixmap(0, 0, original_pixmap)
+	# 		opacity = self.ui.opacitySlider.value() / 100.0
+	# 		painter.setOpacity(opacity)
+	# 		painter.drawPixmap(0, 0, prediction_pixmap.scaled(
+	# 			original_pixmap.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation
+	# 		))
+	# 		painter.end()
+	#
+	# 		label_width = self.ui.imageLabel.width()
+	# 		label_height = self.ui.imageLabel.height()
+	#
+	# 		scaled_pixmap = combined_pixmap.scaled(
+	# 			label_width, label_height, Qt.KeepAspectRatio, Qt.SmoothTransformation
+	# 		)
+	# 		self.ui.imageLabel.setPixmap(scaled_pixmap)
+	#
+	# 		self.image = prediction_qimage.copy()
+	#
+	# 	elif self.progress_stage == 3:  # Stage 3: Skeleton visualization
+	# 		skeleton_data = self.skeleton_results.get(self.current_image_path)
+	# 		if not skeleton_data:
+	# 			print("No skeletonization result found.")
+	# 			return
+	#
+	# 		skeleton = skeleton_data["skeleton"]
+	# 		longest_path = skeleton_data.get("longest_path", [])
+	#
+	# 		# Highlight all skeletons in yellow
+	# 		skeleton_coords = np.where(skeleton == 1)
+	# 		overlay_image[skeleton_coords[0], skeleton_coords[1]] = [255, 255, 0]  # Yellow
+	#
+	# 		# Highlight the longest path in red
+	# 		for point in longest_path:
+	# 			overlay_image[point[0], point[1]] = [255, 0, 0]  # Red
+	#
+	# 		# Convert to QPixmap for display
+	# 		overlay_qimage = QImage(
+	# 			overlay_image.data,
+	# 			overlay_image.shape[1],
+	# 			overlay_image.shape[0],
+	# 			overlay_image.shape[1] * 3,
+	# 			QImage.Format_RGB888
+	# 		)
+	# 		overlay_pixmap = QPixmap.fromImage(overlay_qimage)
+	#
+	# 		label_width = self.ui.imageLabel.width()
+	# 		label_height = self.ui.imageLabel.height()
+	# 		scaled_pixmap = overlay_pixmap.scaled(
+	# 			label_width, label_height, Qt.KeepAspectRatio, Qt.SmoothTransformation
+	# 		)
+	# 		self.ui.imageLabel.setPixmap(scaled_pixmap)
 
-			end_coords = np.argwhere(end_points > 0)
-			for coord in end_coords:
-				cv2.circle(overlay_image, (coord[1], coord[0]), radius=5, color=(255, 255, 255), thickness=2)
 
-			overlay_qimage = QImage(
-				overlay_image.data,
-				overlay_image.shape[1],
-				overlay_image.shape[0],
-				overlay_image.shape[1] * 3,
-				QImage.Format_RGB888
-			)
-			overlay_pixmap = QPixmap.fromImage(overlay_qimage)
+		# elif self.progress_stage == 3:
+		# 	skeleton_data = self.skeleton_results.get(self.current_image_path)
+		#
+		# 	if skeleton_data is None:
+		# 		print("No skeletonization result found.")
+		# 		return
+		#
+		# 	skeleton = skeleton_data["skeleton"]
+		# 	branch_points = skeleton_data["branch_points"]
+		# 	end_points = skeleton_data["end_points"]
+		#
+		# 	overlay_image = original_image.copy()
+		# 	skeleton_coords = np.where(skeleton == 1)
+		# 	overlay_image[skeleton_coords[0], skeleton_coords[1]] = [255, 0, 0]
+		#
+		# 	branch_coords = np.argwhere(branch_points > 0)
+		# 	for coord in branch_coords:
+		# 		cv2.circle(overlay_image, (coord[1], coord[0]), radius=5, color=(255, 255, 255), thickness=2)
+		#
+		# 	end_coords = np.argwhere(end_points > 0)
+		# 	for coord in end_coords:
+		# 		cv2.circle(overlay_image, (coord[1], coord[0]), radius=5, color=(255, 255, 255), thickness=2)
+		#
+		# 	overlay_qimage = QImage(
+		# 		overlay_image.data,
+		# 		overlay_image.shape[1],
+		# 		overlay_image.shape[0],
+		# 		overlay_image.shape[1] * 3,
+		# 		QImage.Format_RGB888
+		# 	)
+		# 	overlay_pixmap = QPixmap.fromImage(overlay_qimage)
+		#
+		# 	if overlay_pixmap.isNull():
+		# 		return
+		#
+		# 	label_width = self.ui.imageLabel.width()
+		# 	label_height = self.ui.imageLabel.height()
+		#
+		# 	scaled_pixmap = overlay_pixmap.scaled(
+		# 		label_width, label_height, Qt.KeepAspectRatio, Qt.SmoothTransformation
+		# 	)
+		# 	self.ui.imageLabel.setPixmap(scaled_pixmap)
 
-			if overlay_pixmap.isNull():
-				return
-
-			label_width = self.ui.imageLabel.width()
-			label_height = self.ui.imageLabel.height()
-
-			scaled_pixmap = overlay_pixmap.scaled(
-				label_width, label_height, Qt.KeepAspectRatio, Qt.SmoothTransformation
-			)
-			self.ui.imageLabel.setPixmap(scaled_pixmap)
 
 	def refresh_display_after_draw(self):
 		if not self.current_image_path or self.image is None:
