@@ -722,6 +722,26 @@ QPushButton:pressed {
                  </widget>
                 </item>
                 <item>
+                 <widget class="QPushButton" name="addNodeButton">
+                  <property name="text">
+                   <string>Add Node</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="adjustNodeButton">
+                  <property name="text">
+                   <string>adjust node</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
                  <widget class="QLabel" name="label_4">
                   <property name="text">
                    <string>Select skeleton to analysis.</string>

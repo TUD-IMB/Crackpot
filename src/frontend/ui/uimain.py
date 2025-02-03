@@ -505,6 +505,18 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_8.addWidget(self.cleanBranchButton)
 
+        self.addNodeButton = QPushButton(self.page3)
+        self.addNodeButton.setObjectName(u"addNodeButton")
+        self.addNodeButton.setCheckable(True)
+
+        self.verticalLayout_8.addWidget(self.addNodeButton)
+
+        self.adjustNodeButton = QPushButton(self.page3)
+        self.adjustNodeButton.setObjectName(u"adjustNodeButton")
+        self.adjustNodeButton.setCheckable(True)
+
+        self.verticalLayout_8.addWidget(self.adjustNodeButton)
+
         self.label_4 = QLabel(self.page3)
         self.label_4.setObjectName(u"label_4")
 
@@ -691,6 +703,8 @@ class Ui_MainWindow(object):
         self.nextButton2.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
         self.skeletonButton.setText(QCoreApplication.translate("MainWindow", u"Skeletonization", None))
         self.cleanBranchButton.setText(QCoreApplication.translate("MainWindow", u"Remove small branches", None))
+        self.addNodeButton.setText(QCoreApplication.translate("MainWindow", u"Add Node", None))
+        self.adjustNodeButton.setText(QCoreApplication.translate("MainWindow", u"adjust node", None))
         self.label_4.setText(QCoreApplication.translate("MainWindow", u"Select skeleton to analysis.", None))
         self.nextButton3.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
         self.label_6.setText(QCoreApplication.translate("MainWindow", u"Export Path", None))

@@ -27,7 +27,6 @@ class SkeletonProcessor:
 		return branch_points
 
 	def find_main_endpoints(self, skeleton):
-		# 距离最远的一对端点，计算欧几里得距离
 		end_points = np.column_stack(np.where(self.find_end_points(skeleton)))
 		if len(end_points) < 2:
 			return end_points
@@ -60,8 +59,8 @@ class SkeletonProcessor:
 					if len(row) == 0 or len(col) == 0:
 						break
 					row, col = row[0] + path[-1][0] - 1, col[0] + path[-1][1] - 1
-					if branch_points[row, col]:
-						break
+					# if branch_points[row, col]:
+					# 	break
 					path.append((row, col))
 				else:
 					break
@@ -70,42 +69,42 @@ class SkeletonProcessor:
 					skeleton_copy[r, c] = 0
 		return skeleton_copy
 
-	def find_longest_path(self, skeleton):
-		G = nx.Graph()
-		rows, cols = np.where(skeleton > 0)
-
-		for r, c in zip(rows, cols):
-			for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]:
-				nr, nc = r + dr, c + dc
-				if (nr, nc) in zip(rows, cols):
-					G.add_edge((r, c), (nr, nc), weight=1)
-
-		end_points = list(zip(*np.where(self.find_end_points(skeleton))))
-		if len(end_points) < 2:
-			return []
-
-		longest_path = []
-		max_length = 0
-
-		for i in range(len(end_points)):
-			for j in range(i + 1, len(end_points)):
-				try:
-					path = nx.shortest_path(G, source=end_points[i], target=end_points[j], weight='weight')
-					if len(path) > max_length:
-						max_length = len(path)
-						longest_path = path
-				except nx.NetworkXNoPath:
-					continue
-
-		return longest_path
-
-	def extract_main_skeleton(self, skeleton):
-		longest_path = self.find_longest_path(skeleton)
-		new_skeleton = np.zeros_like(skeleton)
-
-		for point in longest_path:
-			new_skeleton[point] = 1
-
-		return new_skeleton
+	# def find_longest_path(self, skeleton):
+	# 	G = nx.Graph()
+	# 	rows, cols = np.where(skeleton > 0)
+	#
+	# 	for r, c in zip(rows, cols):
+	# 		for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]:
+	# 			nr, nc = r + dr, c + dc
+	# 			if (nr, nc) in zip(rows, cols):
+	# 				G.add_edge((r, c), (nr, nc), weight=1)
+	#
+	# 	end_points = list(zip(*np.where(self.find_end_points(skeleton))))
+	# 	if len(end_points) < 2:
+	# 		return []
+	#
+	# 	longest_path = []
+	# 	max_length = 0
+	#
+	# 	for i in range(len(end_points)):
+	# 		for j in range(i + 1, len(end_points)):
+	# 			try:
+	# 				path = nx.shortest_path(G, source=end_points[i], target=end_points[j], weight='weight')
+	# 				if len(path) > max_length:
+	# 					max_length = len(path)
+	# 					longest_path = path
+	# 			except nx.NetworkXNoPath:
+	# 				continue
+	#
+	# 	return longest_path
+	#
+	# def extract_main_skeleton(self, skeleton):
+	# 		longest_path = self.find_longest_path(skeleton)
+	# 		new_skeleton = np.zeros_like(skeleton)
+	#
+	# 		for point in longest_path:
+	# 			new_skeleton[point] = 1
+	#
+	# 		return new_skeleton
 
 

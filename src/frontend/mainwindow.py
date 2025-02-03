@@ -70,6 +70,10 @@ class MainWindow(QMainWindow):
 		self.init_stacked_widget()
 		self.init_image_label()
 
+		self.adjusting_node = None
+		self.creating_node = None
+		self.dragged_node = None
+
 	def init_stacked_widget(self):
 		self.ui.stackedWidget.setCurrentIndex(self.progress_stage)
 		self.ui.nextButton0.clicked.connect(lambda: self.set_stage(1))
@@ -104,6 +108,25 @@ class MainWindow(QMainWindow):
 		self.ui.opacitySlider.setTickInterval(10)
 		self.ui.opacitySlider.valueChanged.connect(self.refresh_display_image)
 
+		self.ui.addNodeButton.clicked.connect(self.toggle_add_node_mode)
+		self.ui.adjustNodeButton.clicked.connect(self.toggle_adjust_node_mode)
+
+	def toggle_add_node_mode(self):
+		if self.ui.addNodeButton.isChecked():
+			self.creating_node = True
+			self.adjusting_node = False
+			self.ui.adjustNodeButton.setChecked(False)
+		else:
+			self.creating_node = False
+
+	def toggle_adjust_node_mode(self):
+		if self.ui.adjustNodeButton.isChecked():
+			self.adjusting_node = True
+			self.creating_node = False
+			self.ui.addNodeButton.setChecked(False)
+		else:
+			self.adjusting_node = False
+
 	def init_image_label(self):
 		self.ui.imageLabel.setMouseTracking(True)
 		self.ui.imageLabel.installEventFilter(self)
@@ -130,6 +153,7 @@ class MainWindow(QMainWindow):
 				"branch_points": branch_points,
 				"end_points": end_points,
 				"longest_path": None,
+				"selected_points": []
 			}
 
 		if self.ui.listWidget.currentItem():
@@ -147,10 +171,10 @@ class MainWindow(QMainWindow):
 				continue
 
 			main_endpoints = self.skeleton_processor.find_main_endpoints(skeleton)
-			# clean_skeleton = self.skeleton_processor.remove_small_branches(
-			# 	skeleton, max_branch_length=50, main_endpoints=main_endpoints
-			# )
-			clean_skeleton = self.skeleton_processor.extract_main_skeleton(skeleton)
+			clean_skeleton = self.skeleton_processor.remove_small_branches(
+				skeleton, max_branch_length=50, main_endpoints=main_endpoints
+			)
+			# clean_skeleton = self.skeleton_processor.extract_main_skeleton(skeleton)
 
 			longest_path = self.get_longest_skeleton(clean_skeleton)
 			branch_points = self.skeleton_processor.find_branch_points(clean_skeleton)
@@ -158,9 +182,10 @@ class MainWindow(QMainWindow):
 
 			self.skeleton_results[image_path] = {
 				"skeleton": clean_skeleton,
-				"branch_points": branch_points,
+				"branch_points": branch_poinats,
 				"end_points": end_points,
 				"longest_path": longest_path,
+				"selected_points": []
 			}
 
 		if self.ui.listWidget.currentItem():
@@ -186,25 +211,123 @@ class MainWindow(QMainWindow):
 
 	# ------------------------ Event Handling ----------------------------------------------------------------------
 	def eventFilter(self, source, event):
-		if self.progress_stage != 2:
+		if source != self.ui.imageLabel:
 			return super().eventFilter(source, event)
-		if source == self.ui.imageLabel:
+
+		if self.progress_stage == 2:
 			if event.type() == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
 				self.drawing = True
 				self.last_point = event.pos()
-
 			elif event.type() == QEvent.MouseMove and self.drawing:
 				self.draw_on_image(event.pos())
-
 			elif event.type() == QEvent.MouseButtonRelease and event.button() == Qt.LeftButton:
 				self.drawing = False
-
 				if self.image is not None and self.current_image_path is not None:
 					updated_array = self.qimage_to_np(self.image)
 					updated_array = updated_array.astype(np.float32) / 255.0
 					self.prediction_results[self.current_image_path] = updated_array
 
+		elif self.progress_stage == 3:
+			if self.creating_node and event.type() == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
+				clicked_pos = event.pos()
+				if self.image:
+					selected_node = self.create_node(clicked_pos)
+					if selected_node:
+						self.dragged_node = selected_node
+
+			elif self.adjusting_node and event.type() == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
+				clicked_pos = event.pos()
+				skeleton_data = self.skeleton_results.get(self.current_image_path)
+
+				if skeleton_data:
+					selected_node = self.get_clicked_node(clicked_pos)
+					if selected_node:
+						skeleton_data["selected_points"] = [selected_node]
+						self.refresh_display_image()
+						self.dragged_node = selected_node
+
+			elif self.adjusting_node and event.type() == QEvent.MouseMove and self.dragged_node:
+				new_pos = event.pos()
+				skeleton_data = self.skeleton_results.get(self.current_image_path)
+				# todo: drag node to new pos and refresh skeleton path
+
 		return super().eventFilter(source, event)
+
+	def move_node(self, old_pos, new_pos):
+		return
+
+	def create_node(self, clicked_pos):
+		skeleton_data = self.skeleton_results.get(self.current_image_path)
+		if not skeleton_data:
+			return None
+
+		skeleton = skeleton_data["skeleton"]
+		branch_points = skeleton_data["branch_points"]
+
+		if branch_points is None:
+			branch_points = np.zeros_like(skeleton)
+
+		label_size = self.ui.imageLabel.size()
+		skeleton_shape = skeleton.shape
+
+		scale = min(label_size.width() / skeleton_shape[1], label_size.height() / skeleton_shape[0])
+		display_width = scale * skeleton_shape[1]
+		display_height = scale * skeleton_shape[0]
+
+		x_offset = (label_size.width() - display_width) / 2
+		y_offset = (label_size.height() - display_height) / 2
+
+		img_x = (clicked_pos.x() - x_offset) / scale
+		img_y = (clicked_pos.y() - y_offset) / scale
+
+		skeleton_coords = np.argwhere(skeleton > 0)
+		min_dist = float('inf')
+		closest_point = None
+
+		for node in skeleton_coords:
+			node_x, node_y = node[1], node[0]
+			dist = np.sqrt((img_x - node_x) ** 2 + (img_y - node_y) ** 2)
+			if dist < 5 and dist < min_dist:
+				min_dist = dist
+				closest_point = (node_x, node_y)
+
+		if closest_point is None:
+			return None
+
+		branch_points[closest_point[1], closest_point[0]] = 1
+		skeleton_data["branch_points"] = branch_points
+
+		self.refresh_display_image()
+
+		return closest_point
+
+	def get_clicked_node(self, position):
+		skeleton_data = self.skeleton_results.get(self.current_image_path)
+		if not skeleton_data:
+			return None
+
+		branch_points = np.argwhere(skeleton_data["branch_points"] > 0)
+		end_points = np.argwhere(skeleton_data["end_points"] > 0)
+		all_nodes = np.vstack((branch_points, end_points))
+
+		label_size = self.ui.imageLabel.size()
+		skeleton_shape = skeleton_data["skeleton"].shape
+
+		scale = min(label_size.width() / skeleton_shape[1], label_size.height() / skeleton_shape[0])
+		display_width = scale * skeleton_shape[1]
+		display_height = scale * skeleton_shape[0]
+
+		x_offset = (label_size.width() - display_width) / 2
+		y_offset = (label_size.height() - display_height) / 2
+
+		img_x = (position.x() - x_offset) / scale
+		img_y = (position.y() - y_offset) / scale
+
+		for node in all_nodes:
+			node_x, node_y = node[1], node[0]
+			if abs(img_x - node_x) < 5 and abs(img_y - node_y) < 5:
+				return (node_x, node_y)
+		return None
 
 	def qimage_to_np(self, qimage: QImage):
 		qimage = qimage.convertToFormat(QImage.Format_Grayscale8)
@@ -432,6 +555,7 @@ class MainWindow(QMainWindow):
 		branch_points = skeleton_data.get("branch_points", None)
 		end_points = skeleton_data.get("end_points", None)
 		longest_path = skeleton_data.get("longest_path", [])
+		selected_points = skeleton_data.get("selected_points", [])
 
 		overlay_image = original_image.copy()
 		skeleton_coords = np.where(skeleton == 1)
@@ -441,15 +565,19 @@ class MainWindow(QMainWindow):
 			for point in longest_path:
 				overlay_image[point[0], point[1]] = [255, 0, 0]
 
-		if branch_points is not None and np.any(branch_points):
-			branch_coords = np.argwhere(branch_points > 0)
-			for coord in branch_coords:
-				cv2.circle(overlay_image, (coord[1], coord[0]), radius=5, color=(255, 255, 255), thickness=2)
+		# if branch_points is not None and np.any(branch_points):
+		# 	branch_coords = np.argwhere(branch_points > 0)
+		# 	for coord in branch_coords:
+		# 		point_tuple = (coord[1], coord[0])  # (x, y)
+		# 		color = (0, 255, 0) if point_tuple in selected_points else (255, 255, 255)
+		# 		cv2.circle(overlay_image, point_tuple, radius=5, color=color, thickness=2)
 
 		if end_points is not None and np.any(end_points):
 			end_coords = np.argwhere(end_points > 0)
 			for coord in end_coords:
-				cv2.circle(overlay_image, (coord[1], coord[0]), radius=5, color=(255, 255, 255), thickness=2)
+				point_tuple = (coord[1], coord[0])  # (x, y)
+				color = (0, 255, 0) if point_tuple in selected_points else (255, 255, 255)
+				cv2.circle(overlay_image, point_tuple, radius=5, color=color, thickness=2)
 
 		overlay_qimage = QImage(
 			overlay_image.data,
@@ -466,162 +594,6 @@ class MainWindow(QMainWindow):
 			label_width, label_height, Qt.KeepAspectRatio, Qt.SmoothTransformation
 		)
 		self.ui.imageLabel.setPixmap(scaled_pixmap)
-
-	# def refresh_display_image(self):
-	# 	"""
-	# 	Update the QLabel display with the combined original image and prediction.
-	# 	"""
-	# 	if not self.current_image_path:
-	# 		return
-	#
-	# 	# Load the original image
-	# 	original_image = cv2.imread(self.current_image_path)
-	# 	if original_image is None:
-	# 		return
-	#
-	# 	original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
-	# 	overlay_image = original_image.copy()
-	# 	original_qimage = QImage(
-	# 		original_image.data, original_image.shape[1], original_image.shape[0],
-	# 		original_image.shape[1] * 3, QImage.Format_RGB888
-	# 	)
-	# 	original_pixmap = QPixmap.fromImage(original_qimage)
-	#
-	# 	if original_pixmap.isNull():
-	# 		return
-	#
-	# 	if self.progress_stage in [0, 1]:
-	# 		label_width = self.ui.imageLabel.width()
-	# 		label_height = self.ui.imageLabel.height()
-	#
-	# 		scaled_pixmap = original_pixmap.scaled(
-	# 			label_width, label_height, Qt.KeepAspectRatio, Qt.SmoothTransformation
-	# 		)
-	# 		self.ui.imageLabel.setPixmap(scaled_pixmap)
-	# 		self.image = None
-	# 		return
-	#
-	# 	elif self.progress_stage == 2:
-	# 		prediction = self.prediction_results.get(self.current_image_path)
-	#
-	# 		if prediction is None:
-	# 			return
-	#
-	# 		if len(prediction.shape) == 3 and prediction.shape[-1] == 1:
-	# 			prediction = np.squeeze(prediction, axis=-1)
-	# 		elif len(prediction.shape) != 2:
-	# 			raise ValueError(f"Unexpected prediction shape: {prediction.shape}")
-	#
-	# 		prediction = (prediction * 255).astype(np.uint8)
-	# 		prediction_qimage = QImage(
-	# 			prediction, prediction.shape[1], prediction.shape[0],
-	# 			prediction.shape[1], QImage.Format_Grayscale8
-	# 		)
-	#
-	# 		prediction_pixmap = QPixmap.fromImage(prediction_qimage)
-	# 		if prediction_pixmap.isNull():
-	# 			return
-	#
-	# 		combined_pixmap = QPixmap(original_pixmap.size())
-	# 		combined_pixmap.fill(Qt.transparent)
-	# 		painter = QPainter(combined_pixmap)
-	# 		painter.setOpacity(1.0)
-	# 		painter.drawPixmap(0, 0, original_pixmap)
-	# 		opacity = self.ui.opacitySlider.value() / 100.0
-	# 		painter.setOpacity(opacity)
-	# 		painter.drawPixmap(0, 0, prediction_pixmap.scaled(
-	# 			original_pixmap.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation
-	# 		))
-	# 		painter.end()
-	#
-	# 		label_width = self.ui.imageLabel.width()
-	# 		label_height = self.ui.imageLabel.height()
-	#
-	# 		scaled_pixmap = combined_pixmap.scaled(
-	# 			label_width, label_height, Qt.KeepAspectRatio, Qt.SmoothTransformation
-	# 		)
-	# 		self.ui.imageLabel.setPixmap(scaled_pixmap)
-	#
-	# 		self.image = prediction_qimage.copy()
-	#
-	# 	elif self.progress_stage == 3:  # Stage 3: Skeleton visualization
-	# 		skeleton_data = self.skeleton_results.get(self.current_image_path)
-	# 		if not skeleton_data:
-	# 			print("No skeletonization result found.")
-	# 			return
-	#
-	# 		skeleton = skeleton_data["skeleton"]
-	# 		longest_path = skeleton_data.get("longest_path", [])
-	#
-	# 		# Highlight all skeletons in yellow
-	# 		skeleton_coords = np.where(skeleton == 1)
-	# 		overlay_image[skeleton_coords[0], skeleton_coords[1]] = [255, 255, 0]  # Yellow
-	#
-	# 		# Highlight the longest path in red
-	# 		for point in longest_path:
-	# 			overlay_image[point[0], point[1]] = [255, 0, 0]  # Red
-	#
-	# 		# Convert to QPixmap for display
-	# 		overlay_qimage = QImage(
-	# 			overlay_image.data,
-	# 			overlay_image.shape[1],
-	# 			overlay_image.shape[0],
-	# 			overlay_image.shape[1] * 3,
-	# 			QImage.Format_RGB888
-	# 		)
-	# 		overlay_pixmap = QPixmap.fromImage(overlay_qimage)
-	#
-	# 		label_width = self.ui.imageLabel.width()
-	# 		label_height = self.ui.imageLabel.height()
-	# 		scaled_pixmap = overlay_pixmap.scaled(
-	# 			label_width, label_height, Qt.KeepAspectRatio, Qt.SmoothTransformation
-	# 		)
-	# 		self.ui.imageLabel.setPixmap(scaled_pixmap)
-
-
-		# elif self.progress_stage == 3:
-		# 	skeleton_data = self.skeleton_results.get(self.current_image_path)
-		#
-		# 	if skeleton_data is None:
-		# 		print("No skeletonization result found.")
-		# 		return
-		#
-		# 	skeleton = skeleton_data["skeleton"]
-		# 	branch_points = skeleton_data["branch_points"]
-		# 	end_points = skeleton_data["end_points"]
-		#
-		# 	overlay_image = original_image.copy()
-		# 	skeleton_coords = np.where(skeleton == 1)
-		# 	overlay_image[skeleton_coords[0], skeleton_coords[1]] = [255, 0, 0]
-		#
-		# 	branch_coords = np.argwhere(branch_points > 0)
-		# 	for coord in branch_coords:
-		# 		cv2.circle(overlay_image, (coord[1], coord[0]), radius=5, color=(255, 255, 255), thickness=2)
-		#
-		# 	end_coords = np.argwhere(end_points > 0)
-		# 	for coord in end_coords:
-		# 		cv2.circle(overlay_image, (coord[1], coord[0]), radius=5, color=(255, 255, 255), thickness=2)
-		#
-		# 	overlay_qimage = QImage(
-		# 		overlay_image.data,
-		# 		overlay_image.shape[1],
-		# 		overlay_image.shape[0],
-		# 		overlay_image.shape[1] * 3,
-		# 		QImage.Format_RGB888
-		# 	)
-		# 	overlay_pixmap = QPixmap.fromImage(overlay_qimage)
-		#
-		# 	if overlay_pixmap.isNull():
-		# 		return
-		#
-		# 	label_width = self.ui.imageLabel.width()
-		# 	label_height = self.ui.imageLabel.height()
-		#
-		# 	scaled_pixmap = overlay_pixmap.scaled(
-		# 		label_width, label_height, Qt.KeepAspectRatio, Qt.SmoothTransformation
-		# 	)
-		# 	self.ui.imageLabel.setPixmap(scaled_pixmap)
-
 
 	def refresh_display_after_draw(self):
 		if not self.current_image_path or self.image is None:
