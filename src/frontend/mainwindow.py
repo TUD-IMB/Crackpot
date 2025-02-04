@@ -3,14 +3,55 @@ import cv2
 import numpy as np
 from PySide2.QtCore import Qt, QSize, QEvent, QPoint
 from PySide2.QtGui import QPixmap, QIcon, QImage, QPainter, QColor, QPen
-from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog, QListWidgetItem, QListWidget, QSlider
+from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog, QListWidgetItem, QListWidget, QSlider, QMessageBox
 from skimage.measure import regionprops,label
-
 from backend.edgedetection import EdgeDetection
 from backend.skeletonprocessor import SkeletonProcessor
 from frontend.progressmanager import ProgressManager
 from frontend.ui.uimain import Ui_MainWindow
 from skimage.morphology import skeletonize
+
+
+def calculate_pixel_distance(image_path):
+	image = cv2.imread(image_path)
+	if image is None:
+		return None
+
+	hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+
+	lower_red1 = np.array([0, 70, 50])
+	upper_red1 = np.array([10, 255, 255])
+	lower_red2 = np.array([170, 70, 50])
+	upper_red2 = np.array([180, 255, 255])
+
+	mask1 = cv2.inRange(hsv, lower_red1, upper_red1)
+	mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
+	mask = mask1 + mask2
+
+	kernel = np.ones((5, 5), np.uint8)
+	mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+
+	contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+	if len(contours) != 2:
+		print(f"Found {len(contours)} red points, expect 2")
+		return None
+
+	red_points = []
+	for cnt in contours:
+		M = cv2.moments(cnt)
+		if M['m00'] != 0:
+			cx = int(M['m10'] / M['m00'])
+			cy = int(M['m01'] / M['m00'])
+			red_points.append((cx, cy))
+
+	if len(red_points) != 2:
+		print("Unable to get the center of the two red points.")
+		return None
+
+	pixel_distance = abs(red_points[0][0] - red_points[1][0])
+
+	return pixel_distance
 
 
 class MainWindow(QMainWindow):
@@ -74,6 +115,8 @@ class MainWindow(QMainWindow):
 		self.creating_node = None
 		self.dragged_node = None
 
+		self.resolution = None
+
 	def init_stacked_widget(self):
 		self.ui.stackedWidget.setCurrentIndex(self.progress_stage)
 		self.ui.nextButton0.clicked.connect(lambda: self.set_stage(1))
@@ -84,6 +127,9 @@ class MainWindow(QMainWindow):
 
 		# upload image stage
 		self.ui.plusButton.clicked.connect(self.upload_figures)
+		self.ui.calculateButton.clicked.connect(self.calculate_resolution)
+		self.ui.confirmButton.clicked.connect(self.confirm_resolution)
+		self.ui.caliUploadButton.clicked.connect(self.upload_calibration_image)
 
 		# model detection stage
 		self.ui.runModelButton.clicked.connect(self.run_model_detection)
@@ -110,6 +156,44 @@ class MainWindow(QMainWindow):
 
 		self.ui.addNodeButton.clicked.connect(self.toggle_add_node_mode)
 		self.ui.adjustNodeButton.clicked.connect(self.toggle_adjust_node_mode)
+
+	def upload_calibration_image(self):
+
+		cali_path, _ = QFileDialog.getOpenFileName(self, "Select Calibration Picture", "", "Images (*.png *.jpg *.jpeg *.bmp)")
+		if not cali_path:
+			return
+
+		pixel_value = calculate_pixel_distance(cali_path)
+
+		if pixel_value:
+			self.ui.pixelLineEdit.setText(str(pixel_value))
+		else:
+			QMessageBox.warning(self, "Calibration Failure", "Failed to detect a red marker, please check the image!")
+
+	def calculate_resolution(self):
+		try:
+			pixel_value = float(self.ui.pixelLineEdit.text())
+			distance_value = float(self.ui.distanceLineEdit.text())
+
+			if pixel_value > 0:
+				resolution = distance_value / pixel_value
+				self.ui.resolutionLineEdit.setText(f"{resolution:.6f}")
+			else:
+				QMessageBox.warning(self, "Error", "Please enter a valid pixel distance.")
+		except ValueError:
+			pass
+
+	def confirm_resolution(self):
+		resolution_text = self.ui.resolutionLineEdit.text().strip()
+
+		if resolution_text:
+			try:
+				self.resolution = float(resolution_text)
+				QMessageBox.information(self, "Success", f"Current resolution: {self.resolution:.6f} mm/px saved")
+			except ValueError:
+				QMessageBox.warning(self, "Error", "....")
+		else:
+			QMessageBox.warning(self, "Error", "....")
 
 	def toggle_add_node_mode(self):
 		if self.ui.addNodeButton.isChecked():
@@ -182,7 +266,7 @@ class MainWindow(QMainWindow):
 
 			self.skeleton_results[image_path] = {
 				"skeleton": clean_skeleton,
-				"branch_points": branch_poinats,
+				"branch_points": branch_points,
 				"end_points": end_points,
 				"longest_path": longest_path,
 				"selected_points": []

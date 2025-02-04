@@ -217,7 +217,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 456, 172))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 456, 318))
         self.verticalLayout_13 = QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_13.setObjectName(u"verticalLayout_13")
         self.imageLabel = QLabel(self.scrollAreaWidgetContents)
@@ -303,14 +303,99 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.verticalLayout = QVBoxLayout()
         self.verticalLayout.setObjectName(u"verticalLayout")
+        self.verticalLayout_14 = QVBoxLayout()
+        self.verticalLayout_14.setObjectName(u"verticalLayout_14")
+        self.horizontalLayout_13 = QHBoxLayout()
+        self.horizontalLayout_13.setObjectName(u"horizontalLayout_13")
+        self.horizontalLayout_13.setContentsMargins(-1, -1, 0, 0)
+        self.label_10 = QLabel(self.page0)
+        self.label_10.setObjectName(u"label_10")
+
+        self.horizontalLayout_13.addWidget(self.label_10)
+
+        self.caliUploadButton = QPushButton(self.page0)
+        self.caliUploadButton.setObjectName(u"caliUploadButton")
+        icon9 = QIcon()
+        icon9.addFile(u":/icons/icons/ruler.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.caliUploadButton.setIcon(icon9)
+        self.caliUploadButton.setIconSize(QSize(20, 20))
+
+        self.horizontalLayout_13.addWidget(self.caliUploadButton)
+
+        self.horizontalSpacer_5 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_13.addItem(self.horizontalSpacer_5)
+
+
+        self.verticalLayout_14.addLayout(self.horizontalLayout_13)
+
+        self.formLayout = QFormLayout()
+        self.formLayout.setObjectName(u"formLayout")
+        self.formLayout.setContentsMargins(-1, -1, -1, 0)
+        self.distanceLabel = QLabel(self.page0)
+        self.distanceLabel.setObjectName(u"distanceLabel")
+
+        self.formLayout.setWidget(1, QFormLayout.LabelRole, self.distanceLabel)
+
+        self.distanceLineEdit = QLineEdit(self.page0)
+        self.distanceLineEdit.setObjectName(u"distanceLineEdit")
+
+        self.formLayout.setWidget(1, QFormLayout.FieldRole, self.distanceLineEdit)
+
+        self.pixelLabel = QLabel(self.page0)
+        self.pixelLabel.setObjectName(u"pixelLabel")
+
+        self.formLayout.setWidget(2, QFormLayout.LabelRole, self.pixelLabel)
+
+        self.pixelLineEdit = QLineEdit(self.page0)
+        self.pixelLineEdit.setObjectName(u"pixelLineEdit")
+
+        self.formLayout.setWidget(2, QFormLayout.FieldRole, self.pixelLineEdit)
+
+        self.resolutionLabel = QLabel(self.page0)
+        self.resolutionLabel.setObjectName(u"resolutionLabel")
+
+        self.formLayout.setWidget(3, QFormLayout.LabelRole, self.resolutionLabel)
+
+        self.resolutionLineEdit = QLineEdit(self.page0)
+        self.resolutionLineEdit.setObjectName(u"resolutionLineEdit")
+
+        self.formLayout.setWidget(3, QFormLayout.FieldRole, self.resolutionLineEdit)
+
+
+        self.verticalLayout_14.addLayout(self.formLayout)
+
+        self.horizontalLayout_14 = QHBoxLayout()
+        self.horizontalLayout_14.setObjectName(u"horizontalLayout_14")
+        self.horizontalLayout_14.setContentsMargins(-1, -1, -1, 0)
+        self.calculateButton = QPushButton(self.page0)
+        self.calculateButton.setObjectName(u"calculateButton")
+
+        self.horizontalLayout_14.addWidget(self.calculateButton)
+
+        self.confirmButton = QPushButton(self.page0)
+        self.confirmButton.setObjectName(u"confirmButton")
+
+        self.horizontalLayout_14.addWidget(self.confirmButton)
+
+
+        self.verticalLayout_14.addLayout(self.horizontalLayout_14)
+
+        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.verticalLayout_14.addItem(self.verticalSpacer_2)
+
+
+        self.verticalLayout.addLayout(self.verticalLayout_14)
+
         self.plusButton = QPushButton(self.page0)
         self.plusButton.setObjectName(u"plusButton")
         sizePolicy.setHeightForWidth(self.plusButton.sizePolicy().hasHeightForWidth())
         self.plusButton.setSizePolicy(sizePolicy)
         self.plusButton.setMinimumSize(QSize(100, 100))
-        icon9 = QIcon()
-        icon9.addFile(u":/icons/icons/plus.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.plusButton.setIcon(icon9)
+        icon10 = QIcon()
+        icon10.addFile(u":/icons/icons/plus.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.plusButton.setIcon(icon10)
         self.plusButton.setIconSize(QSize(50, 50))
 
         self.verticalLayout.addWidget(self.plusButton)
@@ -383,9 +468,9 @@ class Ui_MainWindow(object):
         self.penButtonGroup.setObjectName(u"penButtonGroup")
         self.penButtonGroup.addButton(self.addButton)
         self.addButton.setObjectName(u"addButton")
-        icon10 = QIcon()
-        icon10.addFile(u":/icons/icons/penadd.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.addButton.setIcon(icon10)
+        icon11 = QIcon()
+        icon11.addFile(u":/icons/icons/penadd.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.addButton.setIcon(icon11)
         self.addButton.setIconSize(QSize(23, 23))
         self.addButton.setCheckable(True)
 
@@ -394,9 +479,9 @@ class Ui_MainWindow(object):
         self.deleteButton = QPushButton(self.page2)
         self.penButtonGroup.addButton(self.deleteButton)
         self.deleteButton.setObjectName(u"deleteButton")
-        icon11 = QIcon()
-        icon11.addFile(u":/icons/icons/penminus.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.deleteButton.setIcon(icon11)
+        icon12 = QIcon()
+        icon12.addFile(u":/icons/icons/penminus.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.deleteButton.setIcon(icon12)
         self.deleteButton.setIconSize(QSize(23, 23))
         self.deleteButton.setCheckable(True)
 
@@ -591,9 +676,9 @@ class Ui_MainWindow(object):
         self.previousFigButton = QPushButton(self.centralwidget)
         self.previousFigButton.setObjectName(u"previousFigButton")
         self.previousFigButton.setMaximumSize(QSize(16777215, 100))
-        icon12 = QIcon()
-        icon12.addFile(u":/icons/icons/arrowleft.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.previousFigButton.setIcon(icon12)
+        icon13 = QIcon()
+        icon13.addFile(u":/icons/icons/arrowleft.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.previousFigButton.setIcon(icon13)
         self.previousFigButton.setIconSize(QSize(20, 20))
 
         self.horizontalLayout.addWidget(self.previousFigButton)
@@ -607,9 +692,9 @@ class Ui_MainWindow(object):
         self.nextFigButton = QPushButton(self.centralwidget)
         self.nextFigButton.setObjectName(u"nextFigButton")
         self.nextFigButton.setMaximumSize(QSize(16777215, 100))
-        icon13 = QIcon()
-        icon13.addFile(u":/icons/icons/arrowright.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.nextFigButton.setIcon(icon13)
+        icon14 = QIcon()
+        icon14.addFile(u":/icons/icons/arrowright.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.nextFigButton.setIcon(icon14)
         self.nextFigButton.setIconSize(QSize(20, 20))
 
         self.horizontalLayout.addWidget(self.nextFigButton)
@@ -657,7 +742,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(3)
+        self.stackedWidget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -684,6 +769,13 @@ class Ui_MainWindow(object):
         self.imageLabel.setText("")
         self.zoomInButton.setText("")
         self.zoomOutButton.setText("")
+        self.label_10.setText(QCoreApplication.translate("MainWindow", u"Calibration", None))
+        self.caliUploadButton.setText("")
+        self.distanceLabel.setText(QCoreApplication.translate("MainWindow", u"Distance(mm)", None))
+        self.pixelLabel.setText(QCoreApplication.translate("MainWindow", u"Pixel(px)", None))
+        self.resolutionLabel.setText(QCoreApplication.translate("MainWindow", u"Resolution(mm/px)", None))
+        self.calculateButton.setText(QCoreApplication.translate("MainWindow", u"Calculate", None))
+        self.confirmButton.setText(QCoreApplication.translate("MainWindow", u"Confirm", None))
         self.plusButton.setText("")
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"Click \"+\" to upload figures.", None))
         self.nextButton0.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
