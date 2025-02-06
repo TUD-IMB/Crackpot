@@ -217,7 +217,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 456, 318))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 456, 320))
         self.verticalLayout_13 = QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_13.setObjectName(u"verticalLayout_13")
         self.imageLabel = QLabel(self.scrollAreaWidgetContents)
@@ -318,7 +318,7 @@ class Ui_MainWindow(object):
         icon9 = QIcon()
         icon9.addFile(u":/icons/icons/ruler.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.caliUploadButton.setIcon(icon9)
-        self.caliUploadButton.setIconSize(QSize(20, 20))
+        self.caliUploadButton.setIconSize(QSize(25, 25))
 
         self.horizontalLayout_13.addWidget(self.caliUploadButton)
 
@@ -622,6 +622,21 @@ class Ui_MainWindow(object):
         self.verticalLayout_11.setObjectName(u"verticalLayout_11")
         self.verticalLayout_10 = QVBoxLayout()
         self.verticalLayout_10.setObjectName(u"verticalLayout_10")
+        self.horizontalLayout_15 = QHBoxLayout()
+        self.horizontalLayout_15.setObjectName(u"horizontalLayout_15")
+        self.label_11 = QLabel(self.page4)
+        self.label_11.setObjectName(u"label_11")
+
+        self.horizontalLayout_15.addWidget(self.label_11)
+
+        self.crackWidthLabel = QLabel(self.page4)
+        self.crackWidthLabel.setObjectName(u"crackWidthLabel")
+
+        self.horizontalLayout_15.addWidget(self.crackWidthLabel)
+
+
+        self.verticalLayout_10.addLayout(self.horizontalLayout_15)
+
         self.horizontalLayout_10 = QHBoxLayout()
         self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
         self.label_6 = QLabel(self.page4)
@@ -742,7 +757,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(0)
+        self.stackedWidget.setCurrentIndex(4)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -799,6 +814,8 @@ class Ui_MainWindow(object):
         self.adjustNodeButton.setText(QCoreApplication.translate("MainWindow", u"adjust node", None))
         self.label_4.setText(QCoreApplication.translate("MainWindow", u"Select skeleton to analysis.", None))
         self.nextButton3.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
+        self.label_11.setText(QCoreApplication.translate("MainWindow", u"Crack Width:", None))
+        self.crackWidthLabel.setText("")
         self.label_6.setText(QCoreApplication.translate("MainWindow", u"Export Path", None))
         self.browseButton.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
         self.label_5.setText(QCoreApplication.translate("MainWindow", u"Select path to export", None))

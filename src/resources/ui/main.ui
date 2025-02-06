@@ -425,7 +425,7 @@ QPushButton:pressed {
           <item>
            <widget class="QStackedWidget" name="stackedWidget">
             <property name="currentIndex">
-             <number>0</number>
+             <number>4</number>
             </property>
             <widget class="QWidget" name="page0">
              <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -885,6 +885,24 @@ QPushButton:pressed {
              <layout class="QVBoxLayout" name="verticalLayout_11">
               <item>
                <layout class="QVBoxLayout" name="verticalLayout_10">
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_15">
+                  <item>
+                   <widget class="QLabel" name="label_11">
+                    <property name="text">
+                     <string>Crack Width:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="crackWidthLabel">
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_10">
                   <item>

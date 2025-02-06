@@ -1,7 +1,7 @@
 import sys
 import cv2
 import numpy as np
-from PySide2.QtCore import Qt, QSize, QEvent, QPoint
+from PySide2.QtCore import Qt, QEvent, QPoint
 from PySide2.QtGui import QPixmap, QIcon, QImage, QPainter, QColor, QPen
 from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog, QListWidgetItem, QListWidget, QSlider, QMessageBox
 from skimage.measure import regionprops,label
@@ -62,6 +62,7 @@ class MainWindow(QMainWindow):
 	def __init__(self):
 		super().__init__()
 
+		self.crack_results = None
 		self.ui = Ui_MainWindow()
 		self.ui.setupUi(self)
 
@@ -156,6 +157,8 @@ class MainWindow(QMainWindow):
 
 		self.ui.addNodeButton.clicked.connect(self.toggle_add_node_mode)
 		self.ui.adjustNodeButton.clicked.connect(self.toggle_adjust_node_mode)
+
+		# export stage
 
 	def upload_calibration_image(self):
 
@@ -573,6 +576,13 @@ class MainWindow(QMainWindow):
 			self.display_prediction_overlay(original_pixmap)
 		elif self.progress_stage == 3:
 			self.display_skeleton_overlay(original_image)
+		elif self.progress_stage == 4:
+			self.display_original_image(original_pixmap)
+			if self.crack_results and self.current_image_path in self.crack_results:
+				crack_width_mm = self.crack_results[self.current_image_path]["crack_width"]
+				self.ui.crackWidthLabel.setText(f"{crack_width_mm:.6f} mm")
+			else:
+				self.ui.crackWidthLabel.setText("")
 
 	def display_original_image(self, original_pixmap):
 		"""Display the original image scaled to fit the label."""
@@ -737,10 +747,39 @@ class MainWindow(QMainWindow):
 		elif self.progress_stage == 3:
 			print("Select skeleton stage")
 		elif self.progress_stage == 4:
+			self.crack_results = self.calculate_crack_properties()
 			print("File export stage")
 
 		if self.ui.listWidget.currentItem():
 			self.display_large_image(self.ui.listWidget.currentItem())
+
+	def calculate_crack_properties(self):
+		if not self.prediction_results or not self.skeleton_results:
+			return {}
+
+		if self.resolution is None or self.resolution <= 0:
+			print("No valid resolution.")
+			return
+
+		crack_results = {}
+
+		for image_path, prediction in self.prediction_results.items():
+
+			crack_region_pixels = np.sum(prediction == 1)
+
+			skeleton_data = self.skeleton_results.get(image_path)
+			clean_skeleton = skeleton_data.get("skeleton")
+			skeleton_length = np.sum(clean_skeleton == 1)
+
+			avg_crack_width_pixels = (crack_region_pixels / skeleton_length) if skeleton_length > 0 else 0
+
+			crack_results[image_path] = {
+				"crack_pixels": crack_region_pixels,
+				"skeleton_pixels": skeleton_length,
+				"crack_width": avg_crack_width_pixels * self.resolution
+			}
+
+		return crack_results
 
 	# ------------------------ Others ----------------------------------------------------------------------
 
