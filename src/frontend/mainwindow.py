@@ -1,6 +1,8 @@
+import os
 import sys
 import cv2
 import numpy as np
+import pandas as pd
 from PySide2.QtCore import Qt, QEvent, QPoint
 from PySide2.QtGui import QPixmap, QIcon, QImage, QPainter, QColor, QPen
 from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog, QListWidgetItem, QListWidget, QSlider, QMessageBox
@@ -159,6 +161,8 @@ class MainWindow(QMainWindow):
 		self.ui.adjustNodeButton.clicked.connect(self.toggle_adjust_node_mode)
 
 		# export stage
+		self.ui.browseButton.clicked.connect(self.browse_export_path)
+		self.ui.exportButton.clicked.connect(self.export_to_csv)
 
 	def upload_calibration_image(self):
 
@@ -579,6 +583,8 @@ class MainWindow(QMainWindow):
 		elif self.progress_stage == 4:
 			self.display_original_image(original_pixmap)
 			if self.crack_results and self.current_image_path in self.crack_results:
+				file_name = os.path.basename(self.current_image_path)
+				self.ui.fileNameLabel.setText(file_name)
 				crack_width_mm = self.crack_results[self.current_image_path]["crack_width"]
 				self.ui.crackWidthLabel.setText(f"{crack_width_mm:.6f} mm")
 			else:
@@ -753,6 +759,7 @@ class MainWindow(QMainWindow):
 		if self.ui.listWidget.currentItem():
 			self.display_large_image(self.ui.listWidget.currentItem())
 
+	# ------------------------ Results Export ----------------------------------------------------------------------
 	def calculate_crack_properties(self):
 		if not self.prediction_results or not self.skeleton_results:
 			return {}
@@ -781,6 +788,48 @@ class MainWindow(QMainWindow):
 
 		return crack_results
 
+	def browse_export_path(self):
+		options = QFileDialog.Options()
+		file_path, _ = QFileDialog.getSaveFileName(
+			self, "Select Export File", "", "CSV Files (*.csv);;All Files (*)", options=options
+		)
+
+		if file_path:
+			if not file_path.lower().endswith(".csv"):
+				file_path += ".csv"
+
+			self.ui.exportPathLineEdit.setText(file_path)
+
+	def export_to_csv(self):
+		file_path = self.ui.exportPathLineEdit.text().strip()
+
+		if not file_path:
+			QMessageBox.warning(self, "Export Error", "Please select a file path!")
+			return
+
+		if not self.crack_results:
+			QMessageBox.warning(self, "Export Error", "No valid data to export!")
+			return
+
+		os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+		data_list = []
+		for image_path, result in self.crack_results.items():
+			file_name = os.path.basename(image_path)
+			crack_width = result["crack_width"]
+
+			data_list.append({
+				"File Name": file_name,
+				"Crack Width (mm)": crack_width
+			})
+
+		df = pd.DataFrame(data_list)
+
+		try:
+			df.to_csv(file_path, index=False, encoding="utf-8-sig")
+			QMessageBox.information(self, "Success", f"File exported successfully:\n{file_path}")
+		except Exception as e:
+			QMessageBox.critical(self, "Export Failed", f"Error:\n{str(e)}")
 	# ------------------------ Others ----------------------------------------------------------------------
 
 	def show_previous_image(self):

@@ -217,7 +217,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 456, 320))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 456, 315))
         self.verticalLayout_13 = QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_13.setObjectName(u"verticalLayout_13")
         self.imageLabel = QLabel(self.scrollAreaWidgetContents)
@@ -622,6 +622,21 @@ class Ui_MainWindow(object):
         self.verticalLayout_11.setObjectName(u"verticalLayout_11")
         self.verticalLayout_10 = QVBoxLayout()
         self.verticalLayout_10.setObjectName(u"verticalLayout_10")
+        self.horizontalLayout_16 = QHBoxLayout()
+        self.horizontalLayout_16.setObjectName(u"horizontalLayout_16")
+        self.label_12 = QLabel(self.page4)
+        self.label_12.setObjectName(u"label_12")
+
+        self.horizontalLayout_16.addWidget(self.label_12)
+
+        self.fileNameLabel = QLabel(self.page4)
+        self.fileNameLabel.setObjectName(u"fileNameLabel")
+
+        self.horizontalLayout_16.addWidget(self.fileNameLabel)
+
+
+        self.verticalLayout_10.addLayout(self.horizontalLayout_16)
+
         self.horizontalLayout_15 = QHBoxLayout()
         self.horizontalLayout_15.setObjectName(u"horizontalLayout_15")
         self.label_11 = QLabel(self.page4)
@@ -637,6 +652,10 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_10.addLayout(self.horizontalLayout_15)
 
+        self.verticalSpacer_3 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.verticalLayout_10.addItem(self.verticalSpacer_3)
+
         self.horizontalLayout_10 = QHBoxLayout()
         self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
         self.label_6 = QLabel(self.page4)
@@ -644,10 +663,10 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_10.addWidget(self.label_6)
 
-        self.lineEdit = QLineEdit(self.page4)
-        self.lineEdit.setObjectName(u"lineEdit")
+        self.exportPathLineEdit = QLineEdit(self.page4)
+        self.exportPathLineEdit.setObjectName(u"exportPathLineEdit")
 
-        self.horizontalLayout_10.addWidget(self.lineEdit)
+        self.horizontalLayout_10.addWidget(self.exportPathLineEdit)
 
         self.browseButton = QPushButton(self.page4)
         self.browseButton.setObjectName(u"browseButton")
@@ -656,6 +675,20 @@ class Ui_MainWindow(object):
 
 
         self.verticalLayout_10.addLayout(self.horizontalLayout_10)
+
+        self.horizontalLayout_18 = QHBoxLayout()
+        self.horizontalLayout_18.setObjectName(u"horizontalLayout_18")
+        self.horizontalSpacer_6 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_18.addItem(self.horizontalSpacer_6)
+
+        self.exportButton = QPushButton(self.page4)
+        self.exportButton.setObjectName(u"exportButton")
+
+        self.horizontalLayout_18.addWidget(self.exportButton)
+
+
+        self.verticalLayout_10.addLayout(self.horizontalLayout_18)
 
         self.label_5 = QLabel(self.page4)
         self.label_5.setObjectName(u"label_5")
@@ -814,10 +847,13 @@ class Ui_MainWindow(object):
         self.adjustNodeButton.setText(QCoreApplication.translate("MainWindow", u"adjust node", None))
         self.label_4.setText(QCoreApplication.translate("MainWindow", u"Select skeleton to analysis.", None))
         self.nextButton3.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
+        self.label_12.setText(QCoreApplication.translate("MainWindow", u"File Name:", None))
+        self.fileNameLabel.setText("")
         self.label_11.setText(QCoreApplication.translate("MainWindow", u"Crack Width:", None))
         self.crackWidthLabel.setText("")
         self.label_6.setText(QCoreApplication.translate("MainWindow", u"Export Path", None))
         self.browseButton.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
+        self.exportButton.setText(QCoreApplication.translate("MainWindow", u"Export", None))
         self.label_5.setText(QCoreApplication.translate("MainWindow", u"Select path to export", None))
         self.nextButton4.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
         self.previousFigButton.setText("")
