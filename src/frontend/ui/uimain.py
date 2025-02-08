@@ -283,6 +283,26 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_8.addWidget(self.zoomOutButton)
 
+        self.deleteImageButton = QPushButton(self.centralwidget)
+        self.deleteImageButton.setObjectName(u"deleteImageButton")
+        self.deleteImageButton.setStyleSheet(u"QPushButton {\n"
+"    border: none; \n"
+"    background: transparent;\n"
+"}\n"
+"QPushButton:hover {\n"
+"    background-color: lightgray;\n"
+"}\n"
+"QPushButton:pressed {\n"
+"    background-color: lightblue;\n"
+"}\n"
+"")
+        icon9 = QIcon()
+        icon9.addFile(u":/icons/icons/delete.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.deleteImageButton.setIcon(icon9)
+        self.deleteImageButton.setIconSize(QSize(50, 50))
+
+        self.horizontalLayout_8.addWidget(self.deleteImageButton)
+
         self.horizontalSpacer_4 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.horizontalLayout_8.addItem(self.horizontalSpacer_4)
@@ -315,9 +335,9 @@ class Ui_MainWindow(object):
 
         self.caliUploadButton = QPushButton(self.page0)
         self.caliUploadButton.setObjectName(u"caliUploadButton")
-        icon9 = QIcon()
-        icon9.addFile(u":/icons/icons/ruler.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.caliUploadButton.setIcon(icon9)
+        icon10 = QIcon()
+        icon10.addFile(u":/icons/icons/ruler.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.caliUploadButton.setIcon(icon10)
         self.caliUploadButton.setIconSize(QSize(25, 25))
 
         self.horizontalLayout_13.addWidget(self.caliUploadButton)
@@ -393,9 +413,9 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.plusButton.sizePolicy().hasHeightForWidth())
         self.plusButton.setSizePolicy(sizePolicy)
         self.plusButton.setMinimumSize(QSize(100, 100))
-        icon10 = QIcon()
-        icon10.addFile(u":/icons/icons/plus.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.plusButton.setIcon(icon10)
+        icon11 = QIcon()
+        icon11.addFile(u":/icons/icons/plus.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.plusButton.setIcon(icon11)
         self.plusButton.setIconSize(QSize(50, 50))
 
         self.verticalLayout.addWidget(self.plusButton)
@@ -468,9 +488,9 @@ class Ui_MainWindow(object):
         self.penButtonGroup.setObjectName(u"penButtonGroup")
         self.penButtonGroup.addButton(self.addButton)
         self.addButton.setObjectName(u"addButton")
-        icon11 = QIcon()
-        icon11.addFile(u":/icons/icons/penadd.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.addButton.setIcon(icon11)
+        icon12 = QIcon()
+        icon12.addFile(u":/icons/icons/penadd.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.addButton.setIcon(icon12)
         self.addButton.setIconSize(QSize(23, 23))
         self.addButton.setCheckable(True)
 
@@ -479,9 +499,9 @@ class Ui_MainWindow(object):
         self.deleteButton = QPushButton(self.page2)
         self.penButtonGroup.addButton(self.deleteButton)
         self.deleteButton.setObjectName(u"deleteButton")
-        icon12 = QIcon()
-        icon12.addFile(u":/icons/icons/penminus.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.deleteButton.setIcon(icon12)
+        icon13 = QIcon()
+        icon13.addFile(u":/icons/icons/penminus.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.deleteButton.setIcon(icon13)
         self.deleteButton.setIconSize(QSize(23, 23))
         self.deleteButton.setCheckable(True)
 
@@ -724,9 +744,9 @@ class Ui_MainWindow(object):
         self.previousFigButton = QPushButton(self.centralwidget)
         self.previousFigButton.setObjectName(u"previousFigButton")
         self.previousFigButton.setMaximumSize(QSize(16777215, 100))
-        icon13 = QIcon()
-        icon13.addFile(u":/icons/icons/arrowleft.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.previousFigButton.setIcon(icon13)
+        icon14 = QIcon()
+        icon14.addFile(u":/icons/icons/arrowleft.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.previousFigButton.setIcon(icon14)
         self.previousFigButton.setIconSize(QSize(20, 20))
 
         self.horizontalLayout.addWidget(self.previousFigButton)
@@ -740,9 +760,9 @@ class Ui_MainWindow(object):
         self.nextFigButton = QPushButton(self.centralwidget)
         self.nextFigButton.setObjectName(u"nextFigButton")
         self.nextFigButton.setMaximumSize(QSize(16777215, 100))
-        icon14 = QIcon()
-        icon14.addFile(u":/icons/icons/arrowright.svg", QSize(), QIcon.Normal, QIcon.Off)
-        self.nextFigButton.setIcon(icon14)
+        icon15 = QIcon()
+        icon15.addFile(u":/icons/icons/arrowright.svg", QSize(), QIcon.Normal, QIcon.Off)
+        self.nextFigButton.setIcon(icon15)
         self.nextFigButton.setIconSize(QSize(20, 20))
 
         self.horizontalLayout.addWidget(self.nextFigButton)
@@ -817,6 +837,7 @@ class Ui_MainWindow(object):
         self.imageLabel.setText("")
         self.zoomInButton.setText("")
         self.zoomOutButton.setText("")
+        self.deleteImageButton.setText("")
         self.label_10.setText(QCoreApplication.translate("MainWindow", u"Calibration", None))
         self.caliUploadButton.setText("")
         self.distanceLabel.setText(QCoreApplication.translate("MainWindow", u"Distance(mm)", None))

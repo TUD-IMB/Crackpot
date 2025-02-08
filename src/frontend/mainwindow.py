@@ -64,7 +64,6 @@ class MainWindow(QMainWindow):
 	def __init__(self):
 		super().__init__()
 
-		self.crack_results = None
 		self.ui = Ui_MainWindow()
 		self.ui.setupUi(self)
 
@@ -72,6 +71,7 @@ class MainWindow(QMainWindow):
 		self.current_image_path = None
 		self.prediction_results = {}
 		self.skeleton_results = {}
+		self.crack_results = {}
 		self.skeleton_processor = SkeletonProcessor()
 
 		self.ui.listWidget.setViewMode(QListWidget.IconMode)
@@ -103,6 +103,7 @@ class MainWindow(QMainWindow):
 
 		self.ui.zoomInButton.clicked.connect(lambda: self.zoom_image(zoom_in=True))
 		self.ui.zoomOutButton.clicked.connect(lambda: self.zoom_image(zoom_in=False))
+		self.ui.deleteImageButton.clicked.connect(self.delete_current_image)
 
 		self.drawing = False
 		self.last_point = QPoint()
@@ -119,6 +120,10 @@ class MainWindow(QMainWindow):
 		self.dragged_node = None
 
 		self.resolution = None
+
+	def init_image_label(self):
+		self.ui.imageLabel.setMouseTracking(True)
+		self.ui.imageLabel.installEventFilter(self)
 
 	def init_stacked_widget(self):
 		self.ui.stackedWidget.setCurrentIndex(self.progress_stage)
@@ -144,6 +149,7 @@ class MainWindow(QMainWindow):
 		# edit stage
 		self.ui.addButton.clicked.connect(self.activate_add_mode)
 		self.ui.deleteButton.clicked.connect(self.activate_delete_mode)
+
 		self.ui.penSizeSlider.setRange(1, 50)
 		self.ui.penSizeSlider.setValue(10)
 		self.ui.penSizeSlider.setTickInterval(10)
@@ -157,6 +163,7 @@ class MainWindow(QMainWindow):
 		self.ui.opacitySlider.setTickInterval(10)
 		self.ui.opacitySlider.valueChanged.connect(self.refresh_display_image)
 
+		# skeleton stage
 		self.ui.addNodeButton.clicked.connect(self.toggle_add_node_mode)
 		self.ui.adjustNodeButton.clicked.connect(self.toggle_adjust_node_mode)
 
@@ -166,7 +173,7 @@ class MainWindow(QMainWindow):
 
 	def upload_calibration_image(self):
 
-		cali_path, _ = QFileDialog.getOpenFileName(self, "Select Calibration Picture", "", "Images (*.png *.jpg *.jpeg *.bmp)")
+		cali_path, _ = QFileDialog.getOpenFileName(self, "Select a Calibration Picture", "", "Images (*.png *.jpg *.jpeg *.bmp)")
 		if not cali_path:
 			return
 
@@ -217,10 +224,6 @@ class MainWindow(QMainWindow):
 			self.ui.addNodeButton.setChecked(False)
 		else:
 			self.adjusting_node = False
-
-	def init_image_label(self):
-		self.ui.imageLabel.setMouseTracking(True)
-		self.ui.imageLabel.installEventFilter(self)
 
 	def apply_skeletonization(self):
 		if not self.prediction_results or len(self.prediction_results) == 0:
@@ -480,28 +483,6 @@ class MainWindow(QMainWindow):
 
 	def update_brush_size(self, value):
 		self.brush_size = value
-
-	def zoom_image(self, zoom_in=True):
-		if not self.ui.imageLabel.pixmap():
-			return
-
-		scale_factor = 1.1 if zoom_in else 1 / 1.1
-
-		original_pixmap = self.ui.imageLabel.pixmap()
-		current_width = original_pixmap.width()
-		current_height = original_pixmap.height()
-		new_width = int(current_width * scale_factor)
-		new_height = int(current_height * scale_factor)
-
-		if new_width < 50 or new_height < 50:
-			return
-		if new_width > 5000 or new_height > 5000:
-			return
-
-		scaled_pixmap = original_pixmap.scaled(new_width, new_height, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-
-		self.ui.imageLabel.setPixmap(scaled_pixmap)
-		self.ui.imageLabel.adjustSize()
 
 	def update_pen_shape(self, shape):
 		if shape == "Round":
@@ -830,7 +811,66 @@ class MainWindow(QMainWindow):
 			QMessageBox.information(self, "Success", f"File exported successfully:\n{file_path}")
 		except Exception as e:
 			QMessageBox.critical(self, "Export Failed", f"Error:\n{str(e)}")
-	# ------------------------ Others ----------------------------------------------------------------------
+	# ------------------------ Global UI Functions ----------------------------------------------------------------------
+
+	def zoom_image(self, zoom_in=True):
+		if not self.ui.imageLabel.pixmap():
+			return
+
+		scale_factor = 1.1 if zoom_in else 1 / 1.1
+
+		original_pixmap = self.ui.imageLabel.pixmap()
+		current_width = original_pixmap.width()
+		current_height = original_pixmap.height()
+		new_width = int(current_width * scale_factor)
+		new_height = int(current_height * scale_factor)
+
+		if new_width < 50 or new_height < 50:
+			return
+		if new_width > 5000 or new_height > 5000:
+			return
+
+		scaled_pixmap = original_pixmap.scaled(new_width, new_height, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+
+		self.ui.imageLabel.setPixmap(scaled_pixmap)
+		self.ui.imageLabel.adjustSize()
+
+	def delete_current_image(self):
+
+		selected_item = self.ui.listWidget.currentItem()
+		if not selected_item:
+			QMessageBox.warning(self, "Error", "No image selected!")
+			return
+
+		image_path = selected_item.data(Qt.UserRole)
+
+		reply = QMessageBox.question(self, "Confirm Delete",
+									 f"Are you sure you want to delete {os.path.basename(image_path)}?",
+									 QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+
+		if reply == QMessageBox.No:
+			return
+
+		row = self.ui.listWidget.row(selected_item)
+		self.ui.listWidget.takeItem(row)
+
+		self.prediction_results.pop(image_path, None)
+		self.skeleton_results.pop(image_path, None)
+		self.crack_results.pop(image_path, None)
+
+		self.ui.listWidget.update()
+
+		if self.ui.listWidget.count() > 0:
+			new_index = min(row, self.ui.listWidget.count() - 1)
+			self.ui.listWidget.setCurrentRow(new_index)
+			self.display_large_image(self.ui.listWidget.currentItem())
+		else:
+			self.current_image_path = None
+			self.image = None
+			self.ui.imageLabel.clear()
+			if self.progress_stage == 4:
+				self.ui.fileNameLabel.clear()
+				self.ui.crackWidthLabel.clear()
 
 	def show_previous_image(self):
 		current_row = self.ui.listWidget.currentRow()
