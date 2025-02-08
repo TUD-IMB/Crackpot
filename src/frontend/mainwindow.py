@@ -4,8 +4,9 @@ import cv2
 import numpy as np
 import pandas as pd
 from PySide2.QtCore import Qt, QEvent, QPoint
-from PySide2.QtGui import QPixmap, QIcon, QImage, QPainter, QColor, QPen
-from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog, QListWidgetItem, QListWidget, QSlider, QMessageBox
+from PySide2.QtGui import QPixmap, QIcon, QImage, QPainter, QColor, QPen, QCursor
+from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog, QListWidgetItem, QListWidget, QSlider, \
+	QMessageBox, QToolTip
 from skimage.measure import regionprops,label
 from backend.edgedetection import EdgeDetection
 from backend.skeletonprocessor import SkeletonProcessor
@@ -477,12 +478,46 @@ class MainWindow(QMainWindow):
 
 	def activate_add_mode(self):
 		self.brush_color = QColor(255, 255, 255)
+		self.update_cursor()
 
 	def activate_delete_mode(self):
 		self.brush_color = QColor(0, 0, 0)
+		self.update_cursor()
 
 	def update_brush_size(self, value):
 		self.brush_size = value
+		self.show_brush_size_tooltip(value)
+		self.update_cursor()
+
+	def show_brush_size_tooltip(self, value):
+		slider = self.ui.penSizeSlider
+		slider_pos = slider.mapToGlobal(QPoint(0, 0))
+
+		handle_x = slider_pos.x() + int(
+			slider.width() * ((value - slider.minimum()) / (slider.maximum() - slider.minimum()))
+		) + 15
+		handle_y = slider_pos.y() - 50
+
+		QToolTip.showText(QPoint(handle_x, handle_y), f"{value} px", slider)
+
+	def update_cursor(self):
+		size = self.brush_size
+
+		cursor_pixmap = QPixmap(size, size)
+		cursor_pixmap.fill(Qt.transparent)
+		painter = QPainter(cursor_pixmap)
+		pen = QPen(Qt.yellow)
+		pen.setWidth(3)
+		painter.setPen(pen)
+
+		if self.pen_cap_style == Qt.RoundCap:
+			painter.drawEllipse(1, 1, size - 2, size - 2)
+		else:
+			painter.drawRect(1, 1, size - 2, size - 2)
+		painter.end()
+
+		custom_cursor = QCursor(cursor_pixmap)
+		self.ui.imageLabel.setCursor(custom_cursor)
 
 	def update_pen_shape(self, shape):
 		if shape == "Round":
