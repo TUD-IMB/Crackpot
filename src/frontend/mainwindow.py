@@ -6,7 +6,7 @@ import pandas as pd
 from PySide2.QtCore import Qt, QEvent, QPoint
 from PySide2.QtGui import QPixmap, QIcon, QImage, QPainter, QColor, QPen, QCursor
 from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog, QListWidgetItem, QListWidget, QSlider, \
-	QMessageBox, QToolTip
+	QMessageBox, QToolTip, QAbstractItemView
 from skimage.measure import regionprops,label
 from backend.edgedetection import EdgeDetection
 from backend.skeletonprocessor import SkeletonProcessor
@@ -78,6 +78,8 @@ class MainWindow(QMainWindow):
 		self.ui.listWidget.setViewMode(QListWidget.IconMode)
 		self.ui.listWidget.setSpacing(10)
 		self.ui.listWidget.setResizeMode(QListWidget.Adjust)
+		# todo: multi selection
+		# self.ui.listWidget.setSelectionMode(QAbstractItemView.MultiSelection)
 
 		self.ui.listWidget.itemClicked.connect(self.display_large_image)
 		self.ui.previousFigButton.clicked.connect(self.show_previous_image)
@@ -759,7 +761,11 @@ class MainWindow(QMainWindow):
 		self.ui.stackedWidget.setCurrentIndex(stage)
 		self.progress_manager.update_progress(self.progress_stage)
 
-		# Perform actions based on the stage
+		if self.progress_stage == 2:
+			self.update_cursor()
+		else:
+			self.ui.imageLabel.unsetCursor()
+
 		if self.progress_stage == 0:
 			print("Upload stage")
 		elif self.progress_stage == 1:

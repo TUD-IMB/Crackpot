@@ -217,7 +217,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 456, 315))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 382, 332))
         self.verticalLayout_13 = QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_13.setObjectName(u"verticalLayout_13")
         self.imageLabel = QLabel(self.scrollAreaWidgetContents)
@@ -328,107 +328,164 @@ class Ui_MainWindow(object):
         self.horizontalLayout_13 = QHBoxLayout()
         self.horizontalLayout_13.setObjectName(u"horizontalLayout_13")
         self.horizontalLayout_13.setContentsMargins(-1, -1, 0, 0)
-        self.label_10 = QLabel(self.page0)
+
+        self.verticalLayout_14.addLayout(self.horizontalLayout_13)
+
+        self.groupBox_2 = QGroupBox(self.page0)
+        self.groupBox_2.setObjectName(u"groupBox_2")
+        self.groupBox_2.setStyleSheet(u"QGroupBox{\n"
+"    font-weight: bold;\n"
+"}\n"
+"")
+        self.verticalLayout_16 = QVBoxLayout(self.groupBox_2)
+        self.verticalLayout_16.setObjectName(u"verticalLayout_16")
+        self.horizontalLayout_20 = QHBoxLayout()
+        self.horizontalLayout_20.setObjectName(u"horizontalLayout_20")
+        self.horizontalLayout_20.setContentsMargins(-1, -1, -1, 0)
+        self.label_10 = QLabel(self.groupBox_2)
         self.label_10.setObjectName(u"label_10")
 
-        self.horizontalLayout_13.addWidget(self.label_10)
+        self.horizontalLayout_20.addWidget(self.label_10)
 
-        self.caliUploadButton = QPushButton(self.page0)
+        self.caliUploadButton = QPushButton(self.groupBox_2)
         self.caliUploadButton.setObjectName(u"caliUploadButton")
         icon10 = QIcon()
         icon10.addFile(u":/icons/icons/ruler.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.caliUploadButton.setIcon(icon10)
-        self.caliUploadButton.setIconSize(QSize(25, 25))
+        self.caliUploadButton.setIconSize(QSize(30, 30))
 
-        self.horizontalLayout_13.addWidget(self.caliUploadButton)
+        self.horizontalLayout_20.addWidget(self.caliUploadButton)
 
         self.horizontalSpacer_5 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.horizontalLayout_13.addItem(self.horizontalSpacer_5)
+        self.horizontalLayout_20.addItem(self.horizontalSpacer_5)
 
 
-        self.verticalLayout_14.addLayout(self.horizontalLayout_13)
+        self.verticalLayout_16.addLayout(self.horizontalLayout_20)
 
         self.formLayout = QFormLayout()
         self.formLayout.setObjectName(u"formLayout")
         self.formLayout.setContentsMargins(-1, -1, -1, 0)
-        self.distanceLabel = QLabel(self.page0)
+        self.distanceLabel = QLabel(self.groupBox_2)
         self.distanceLabel.setObjectName(u"distanceLabel")
 
         self.formLayout.setWidget(1, QFormLayout.LabelRole, self.distanceLabel)
 
-        self.distanceLineEdit = QLineEdit(self.page0)
+        self.distanceLineEdit = QLineEdit(self.groupBox_2)
         self.distanceLineEdit.setObjectName(u"distanceLineEdit")
 
         self.formLayout.setWidget(1, QFormLayout.FieldRole, self.distanceLineEdit)
 
-        self.pixelLabel = QLabel(self.page0)
+        self.pixelLabel = QLabel(self.groupBox_2)
         self.pixelLabel.setObjectName(u"pixelLabel")
 
         self.formLayout.setWidget(2, QFormLayout.LabelRole, self.pixelLabel)
 
-        self.pixelLineEdit = QLineEdit(self.page0)
+        self.pixelLineEdit = QLineEdit(self.groupBox_2)
         self.pixelLineEdit.setObjectName(u"pixelLineEdit")
 
         self.formLayout.setWidget(2, QFormLayout.FieldRole, self.pixelLineEdit)
 
-        self.resolutionLabel = QLabel(self.page0)
+        self.resolutionLabel = QLabel(self.groupBox_2)
         self.resolutionLabel.setObjectName(u"resolutionLabel")
 
         self.formLayout.setWidget(3, QFormLayout.LabelRole, self.resolutionLabel)
 
-        self.resolutionLineEdit = QLineEdit(self.page0)
+        self.resolutionLineEdit = QLineEdit(self.groupBox_2)
         self.resolutionLineEdit.setObjectName(u"resolutionLineEdit")
 
         self.formLayout.setWidget(3, QFormLayout.FieldRole, self.resolutionLineEdit)
 
 
-        self.verticalLayout_14.addLayout(self.formLayout)
+        self.verticalLayout_16.addLayout(self.formLayout)
 
         self.horizontalLayout_14 = QHBoxLayout()
         self.horizontalLayout_14.setObjectName(u"horizontalLayout_14")
         self.horizontalLayout_14.setContentsMargins(-1, -1, -1, 0)
-        self.calculateButton = QPushButton(self.page0)
+        self.calculateButton = QPushButton(self.groupBox_2)
         self.calculateButton.setObjectName(u"calculateButton")
 
         self.horizontalLayout_14.addWidget(self.calculateButton)
 
-        self.confirmButton = QPushButton(self.page0)
+        self.confirmButton = QPushButton(self.groupBox_2)
         self.confirmButton.setObjectName(u"confirmButton")
 
         self.horizontalLayout_14.addWidget(self.confirmButton)
 
 
-        self.verticalLayout_14.addLayout(self.horizontalLayout_14)
+        self.verticalLayout_16.addLayout(self.horizontalLayout_14)
 
-        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
-        self.verticalLayout_14.addItem(self.verticalSpacer_2)
+        self.verticalLayout_14.addWidget(self.groupBox_2)
+
+        self.line = QFrame(self.page0)
+        self.line.setObjectName(u"line")
+        self.line.setFrameShape(QFrame.HLine)
+        self.line.setFrameShadow(QFrame.Sunken)
+
+        self.verticalLayout_14.addWidget(self.line)
 
 
         self.verticalLayout.addLayout(self.verticalLayout_14)
 
-        self.plusButton = QPushButton(self.page0)
+        self.groupBox_3 = QGroupBox(self.page0)
+        self.groupBox_3.setObjectName(u"groupBox_3")
+        self.groupBox_3.setStyleSheet(u"QGroupBox{\n"
+"    font-weight: bold;\n"
+"}\n"
+"")
+        self.verticalLayout_17 = QVBoxLayout(self.groupBox_3)
+        self.verticalLayout_17.setObjectName(u"verticalLayout_17")
+        self.horizontalLayout_19 = QHBoxLayout()
+        self.horizontalLayout_19.setObjectName(u"horizontalLayout_19")
+        self.horizontalLayout_19.setContentsMargins(-1, -1, -1, 0)
+        self.label_13 = QLabel(self.groupBox_3)
+        self.label_13.setObjectName(u"label_13")
+        sizePolicy2 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.label_13.sizePolicy().hasHeightForWidth())
+        self.label_13.setSizePolicy(sizePolicy2)
+
+        self.horizontalLayout_19.addWidget(self.label_13)
+
+        self.plusButton = QPushButton(self.groupBox_3)
         self.plusButton.setObjectName(u"plusButton")
         sizePolicy.setHeightForWidth(self.plusButton.sizePolicy().hasHeightForWidth())
         self.plusButton.setSizePolicy(sizePolicy)
-        self.plusButton.setMinimumSize(QSize(100, 100))
+        self.plusButton.setMinimumSize(QSize(80, 80))
         icon11 = QIcon()
         icon11.addFile(u":/icons/icons/plus.svg", QSize(), QIcon.Normal, QIcon.Off)
         self.plusButton.setIcon(icon11)
         self.plusButton.setIconSize(QSize(50, 50))
 
-        self.verticalLayout.addWidget(self.plusButton)
+        self.horizontalLayout_19.addWidget(self.plusButton)
 
-        self.label_3 = QLabel(self.page0)
+        self.label_3 = QLabel(self.groupBox_3)
         self.label_3.setObjectName(u"label_3")
 
-        self.verticalLayout.addWidget(self.label_3)
+        self.horizontalLayout_19.addWidget(self.label_3)
 
+
+        self.verticalLayout_17.addLayout(self.horizontalLayout_19)
+
+
+        self.verticalLayout.addWidget(self.groupBox_3)
+
+        self.verticalSpacer_4 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.verticalLayout.addItem(self.verticalSpacer_4)
+
+        self.horizontalLayout_17 = QHBoxLayout()
+        self.horizontalLayout_17.setObjectName(u"horizontalLayout_17")
+        self.horizontalLayout_17.setContentsMargins(-1, -1, -1, 0)
         self.nextButton0 = QPushButton(self.page0)
         self.nextButton0.setObjectName(u"nextButton0")
 
-        self.verticalLayout.addWidget(self.nextButton0)
+        self.horizontalLayout_17.addWidget(self.nextButton0)
+
+
+        self.verticalLayout.addLayout(self.horizontalLayout_17)
 
 
         self.verticalLayout_2.addLayout(self.verticalLayout)
@@ -449,11 +506,11 @@ class Ui_MainWindow(object):
 
         self.modelComboBox = QComboBox(self.page1)
         self.modelComboBox.setObjectName(u"modelComboBox")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(0)
-        sizePolicy2.setHeightForWidth(self.modelComboBox.sizePolicy().hasHeightForWidth())
-        self.modelComboBox.setSizePolicy(sizePolicy2)
+        sizePolicy3 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        sizePolicy3.setHorizontalStretch(0)
+        sizePolicy3.setVerticalStretch(0)
+        sizePolicy3.setHeightForWidth(self.modelComboBox.sizePolicy().hasHeightForWidth())
+        self.modelComboBox.setSizePolicy(sizePolicy3)
 
         self.horizontalLayout_12.addWidget(self.modelComboBox)
 
@@ -481,9 +538,17 @@ class Ui_MainWindow(object):
         self.verticalLayout_6 = QVBoxLayout()
         self.verticalLayout_6.setObjectName(u"verticalLayout_6")
         self.verticalLayout_6.setContentsMargins(-1, -1, -1, 0)
+        self.groupBox = QGroupBox(self.page2)
+        self.groupBox.setObjectName(u"groupBox")
+        self.groupBox.setStyleSheet(u"QGroupBox{\n"
+"    font-weight: bold;\n"
+"}\n"
+"")
+        self.verticalLayout_15 = QVBoxLayout(self.groupBox)
+        self.verticalLayout_15.setObjectName(u"verticalLayout_15")
         self.horizontalLayout_4 = QHBoxLayout()
         self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
-        self.addButton = QPushButton(self.page2)
+        self.addButton = QPushButton(self.groupBox)
         self.penButtonGroup = QButtonGroup(MainWindow)
         self.penButtonGroup.setObjectName(u"penButtonGroup")
         self.penButtonGroup.addButton(self.addButton)
@@ -493,10 +558,11 @@ class Ui_MainWindow(object):
         self.addButton.setIcon(icon12)
         self.addButton.setIconSize(QSize(23, 23))
         self.addButton.setCheckable(True)
+        self.addButton.setChecked(True)
 
         self.horizontalLayout_4.addWidget(self.addButton)
 
-        self.deleteButton = QPushButton(self.page2)
+        self.deleteButton = QPushButton(self.groupBox)
         self.penButtonGroup.addButton(self.deleteButton)
         self.deleteButton.setObjectName(u"deleteButton")
         icon13 = QIcon()
@@ -508,69 +574,72 @@ class Ui_MainWindow(object):
         self.horizontalLayout_4.addWidget(self.deleteButton)
 
 
-        self.verticalLayout_6.addLayout(self.horizontalLayout_4)
+        self.verticalLayout_15.addLayout(self.horizontalLayout_4)
+
+        self.horizontalLayout_7 = QHBoxLayout()
+        self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
+        self.label_2 = QLabel(self.groupBox)
+        self.label_2.setObjectName(u"label_2")
+
+        self.horizontalLayout_7.addWidget(self.label_2)
+
+        self.penShapeComboBox = QComboBox(self.groupBox)
+        self.penShapeComboBox.addItem("")
+        self.penShapeComboBox.addItem("")
+        self.penShapeComboBox.setObjectName(u"penShapeComboBox")
+        sizePolicy3.setHeightForWidth(self.penShapeComboBox.sizePolicy().hasHeightForWidth())
+        self.penShapeComboBox.setSizePolicy(sizePolicy3)
+
+        self.horizontalLayout_7.addWidget(self.penShapeComboBox)
+
+
+        self.verticalLayout_15.addLayout(self.horizontalLayout_7)
 
         self.horizontalLayout_6 = QHBoxLayout()
         self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
-        self.label = QLabel(self.page2)
+        self.label = QLabel(self.groupBox)
         self.label.setObjectName(u"label")
 
         self.horizontalLayout_6.addWidget(self.label)
 
-        self.penSizeSlider = QSlider(self.page2)
+        self.penSizeSlider = QSlider(self.groupBox)
         self.penSizeSlider.setObjectName(u"penSizeSlider")
         self.penSizeSlider.setOrientation(Qt.Horizontal)
 
         self.horizontalLayout_6.addWidget(self.penSizeSlider)
 
 
-        self.verticalLayout_6.addLayout(self.horizontalLayout_6)
-
-        self.horizontalLayout_7 = QHBoxLayout()
-        self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
-        self.label_2 = QLabel(self.page2)
-        self.label_2.setObjectName(u"label_2")
-
-        self.horizontalLayout_7.addWidget(self.label_2)
-
-        self.penShapeComboBox = QComboBox(self.page2)
-        self.penShapeComboBox.addItem("")
-        self.penShapeComboBox.addItem("")
-        self.penShapeComboBox.setObjectName(u"penShapeComboBox")
-        sizePolicy2.setHeightForWidth(self.penShapeComboBox.sizePolicy().hasHeightForWidth())
-        self.penShapeComboBox.setSizePolicy(sizePolicy2)
-
-        self.horizontalLayout_7.addWidget(self.penShapeComboBox)
-
-
-        self.verticalLayout_6.addLayout(self.horizontalLayout_7)
+        self.verticalLayout_15.addLayout(self.horizontalLayout_6)
 
         self.horizontalLayout_3 = QHBoxLayout()
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
         self.horizontalLayout_3.setContentsMargins(-1, 0, -1, -1)
-        self.label_8 = QLabel(self.page2)
+        self.label_8 = QLabel(self.groupBox)
         self.label_8.setObjectName(u"label_8")
 
         self.horizontalLayout_3.addWidget(self.label_8)
 
-        self.labelOriginal = QLabel(self.page2)
+        self.labelOriginal = QLabel(self.groupBox)
         self.labelOriginal.setObjectName(u"labelOriginal")
 
         self.horizontalLayout_3.addWidget(self.labelOriginal)
 
-        self.opacitySlider = QSlider(self.page2)
+        self.opacitySlider = QSlider(self.groupBox)
         self.opacitySlider.setObjectName(u"opacitySlider")
         self.opacitySlider.setOrientation(Qt.Horizontal)
 
         self.horizontalLayout_3.addWidget(self.opacitySlider)
 
-        self.labelMask = QLabel(self.page2)
+        self.labelMask = QLabel(self.groupBox)
         self.labelMask.setObjectName(u"labelMask")
 
         self.horizontalLayout_3.addWidget(self.labelMask)
 
 
-        self.verticalLayout_6.addLayout(self.horizontalLayout_3)
+        self.verticalLayout_15.addLayout(self.horizontalLayout_3)
+
+
+        self.verticalLayout_6.addWidget(self.groupBox)
 
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
@@ -642,59 +711,81 @@ class Ui_MainWindow(object):
         self.verticalLayout_11.setObjectName(u"verticalLayout_11")
         self.verticalLayout_10 = QVBoxLayout()
         self.verticalLayout_10.setObjectName(u"verticalLayout_10")
+        self.groupBox_4 = QGroupBox(self.page4)
+        self.groupBox_4.setObjectName(u"groupBox_4")
+        self.groupBox_4.setStyleSheet(u"QGroupBox{\n"
+"    font-weight: bold;\n"
+"}\n"
+"")
+        self.verticalLayout_18 = QVBoxLayout(self.groupBox_4)
+        self.verticalLayout_18.setObjectName(u"verticalLayout_18")
         self.horizontalLayout_16 = QHBoxLayout()
         self.horizontalLayout_16.setObjectName(u"horizontalLayout_16")
-        self.label_12 = QLabel(self.page4)
+        self.label_12 = QLabel(self.groupBox_4)
         self.label_12.setObjectName(u"label_12")
 
         self.horizontalLayout_16.addWidget(self.label_12)
 
-        self.fileNameLabel = QLabel(self.page4)
+        self.fileNameLabel = QLabel(self.groupBox_4)
         self.fileNameLabel.setObjectName(u"fileNameLabel")
 
         self.horizontalLayout_16.addWidget(self.fileNameLabel)
 
 
-        self.verticalLayout_10.addLayout(self.horizontalLayout_16)
+        self.verticalLayout_18.addLayout(self.horizontalLayout_16)
 
         self.horizontalLayout_15 = QHBoxLayout()
         self.horizontalLayout_15.setObjectName(u"horizontalLayout_15")
-        self.label_11 = QLabel(self.page4)
+        self.label_11 = QLabel(self.groupBox_4)
         self.label_11.setObjectName(u"label_11")
 
         self.horizontalLayout_15.addWidget(self.label_11)
 
-        self.crackWidthLabel = QLabel(self.page4)
+        self.crackWidthLabel = QLabel(self.groupBox_4)
         self.crackWidthLabel.setObjectName(u"crackWidthLabel")
 
         self.horizontalLayout_15.addWidget(self.crackWidthLabel)
 
 
-        self.verticalLayout_10.addLayout(self.horizontalLayout_15)
+        self.verticalLayout_18.addLayout(self.horizontalLayout_15)
 
-        self.verticalSpacer_3 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
-        self.verticalLayout_10.addItem(self.verticalSpacer_3)
+        self.verticalLayout_10.addWidget(self.groupBox_4)
 
+        self.line_2 = QFrame(self.page4)
+        self.line_2.setObjectName(u"line_2")
+        self.line_2.setFrameShape(QFrame.HLine)
+        self.line_2.setFrameShadow(QFrame.Sunken)
+
+        self.verticalLayout_10.addWidget(self.line_2)
+
+        self.groupBox_5 = QGroupBox(self.page4)
+        self.groupBox_5.setObjectName(u"groupBox_5")
+        self.groupBox_5.setStyleSheet(u"QGroupBox{\n"
+"    font-weight: bold;\n"
+"}\n"
+"")
+        self.verticalLayout_19 = QVBoxLayout(self.groupBox_5)
+        self.verticalLayout_19.setObjectName(u"verticalLayout_19")
         self.horizontalLayout_10 = QHBoxLayout()
         self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
-        self.label_6 = QLabel(self.page4)
+        self.label_6 = QLabel(self.groupBox_5)
         self.label_6.setObjectName(u"label_6")
 
         self.horizontalLayout_10.addWidget(self.label_6)
 
-        self.exportPathLineEdit = QLineEdit(self.page4)
+        self.exportPathLineEdit = QLineEdit(self.groupBox_5)
         self.exportPathLineEdit.setObjectName(u"exportPathLineEdit")
 
         self.horizontalLayout_10.addWidget(self.exportPathLineEdit)
 
-        self.browseButton = QPushButton(self.page4)
+        self.browseButton = QPushButton(self.groupBox_5)
         self.browseButton.setObjectName(u"browseButton")
 
         self.horizontalLayout_10.addWidget(self.browseButton)
 
 
-        self.verticalLayout_10.addLayout(self.horizontalLayout_10)
+        self.verticalLayout_19.addLayout(self.horizontalLayout_10)
 
         self.horizontalLayout_18 = QHBoxLayout()
         self.horizontalLayout_18.setObjectName(u"horizontalLayout_18")
@@ -702,18 +793,25 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_18.addItem(self.horizontalSpacer_6)
 
-        self.exportButton = QPushButton(self.page4)
+        self.exportButton = QPushButton(self.groupBox_5)
         self.exportButton.setObjectName(u"exportButton")
 
         self.horizontalLayout_18.addWidget(self.exportButton)
 
 
-        self.verticalLayout_10.addLayout(self.horizontalLayout_18)
+        self.verticalLayout_19.addLayout(self.horizontalLayout_18)
 
-        self.label_5 = QLabel(self.page4)
+        self.label_5 = QLabel(self.groupBox_5)
         self.label_5.setObjectName(u"label_5")
 
-        self.verticalLayout_10.addWidget(self.label_5)
+        self.verticalLayout_19.addWidget(self.label_5)
+
+
+        self.verticalLayout_10.addWidget(self.groupBox_5)
+
+        self.verticalSpacer_5 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.verticalLayout_10.addItem(self.verticalSpacer_5)
 
         self.nextButton4 = QPushButton(self.page4)
         self.nextButton4.setObjectName(u"nextButton4")
@@ -810,7 +908,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(4)
+        self.stackedWidget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -838,26 +936,33 @@ class Ui_MainWindow(object):
         self.zoomInButton.setText("")
         self.zoomOutButton.setText("")
         self.deleteImageButton.setText("")
-        self.label_10.setText(QCoreApplication.translate("MainWindow", u"Calibration", None))
+        self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", u"Calibration", None))
+        self.label_10.setText(QCoreApplication.translate("MainWindow", u"Select an image for calibration.", None))
+#if QT_CONFIG(tooltip)
+        self.caliUploadButton.setToolTip(QCoreApplication.translate("MainWindow", u"Select an image with two red markers to calculate pixel distance.", None))
+#endif // QT_CONFIG(tooltip)
         self.caliUploadButton.setText("")
         self.distanceLabel.setText(QCoreApplication.translate("MainWindow", u"Distance(mm)", None))
         self.pixelLabel.setText(QCoreApplication.translate("MainWindow", u"Pixel(px)", None))
         self.resolutionLabel.setText(QCoreApplication.translate("MainWindow", u"Resolution(mm/px)", None))
         self.calculateButton.setText(QCoreApplication.translate("MainWindow", u"Calculate", None))
         self.confirmButton.setText(QCoreApplication.translate("MainWindow", u"Confirm", None))
+        self.groupBox_3.setTitle(QCoreApplication.translate("MainWindow", u"Upload Images", None))
+        self.label_13.setText(QCoreApplication.translate("MainWindow", u"Click", None))
         self.plusButton.setText("")
-        self.label_3.setText(QCoreApplication.translate("MainWindow", u"Click \"+\" to upload figures.", None))
+        self.label_3.setText(QCoreApplication.translate("MainWindow", u" to upload figures.", None))
         self.nextButton0.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
         self.label_9.setText(QCoreApplication.translate("MainWindow", u"Model", None))
         self.label_7.setText(QCoreApplication.translate("MainWindow", u"Select a Model to do detection.", None))
         self.runModelButton.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
+        self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"Editing Tools", None))
         self.addButton.setText(QCoreApplication.translate("MainWindow", u"Add", None))
         self.deleteButton.setText(QCoreApplication.translate("MainWindow", u"Delete", None))
-        self.label.setText(QCoreApplication.translate("MainWindow", u"Size", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"Shape", None))
         self.penShapeComboBox.setItemText(0, QCoreApplication.translate("MainWindow", u"Round", None))
         self.penShapeComboBox.setItemText(1, QCoreApplication.translate("MainWindow", u"Square", None))
 
+        self.label.setText(QCoreApplication.translate("MainWindow", u"Size", None))
         self.label_8.setText(QCoreApplication.translate("MainWindow", u"Opacity:", None))
         self.labelOriginal.setText(QCoreApplication.translate("MainWindow", u"Original", None))
         self.labelMask.setText(QCoreApplication.translate("MainWindow", u"Mask", None))
@@ -868,10 +973,12 @@ class Ui_MainWindow(object):
         self.adjustNodeButton.setText(QCoreApplication.translate("MainWindow", u"adjust node", None))
         self.label_4.setText(QCoreApplication.translate("MainWindow", u"Select skeleton to analysis.", None))
         self.nextButton3.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
+        self.groupBox_4.setTitle(QCoreApplication.translate("MainWindow", u"Calculation Results", None))
         self.label_12.setText(QCoreApplication.translate("MainWindow", u"File Name:", None))
         self.fileNameLabel.setText("")
         self.label_11.setText(QCoreApplication.translate("MainWindow", u"Crack Width:", None))
         self.crackWidthLabel.setText("")
+        self.groupBox_5.setTitle(QCoreApplication.translate("MainWindow", u"Export Settings", None))
         self.label_6.setText(QCoreApplication.translate("MainWindow", u"Export Path", None))
         self.browseButton.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
         self.exportButton.setText(QCoreApplication.translate("MainWindow", u"Export", None))
