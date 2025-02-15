@@ -15,48 +15,6 @@ from frontend.ui.uimain import Ui_MainWindow
 from skimage.morphology import skeletonize
 
 
-def calculate_pixel_distance(image_path):
-	image = cv2.imread(image_path)
-	if image is None:
-		return None
-
-	hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-
-	lower_red1 = np.array([0, 70, 50])
-	upper_red1 = np.array([10, 255, 255])
-	lower_red2 = np.array([170, 70, 50])
-	upper_red2 = np.array([180, 255, 255])
-
-	mask1 = cv2.inRange(hsv, lower_red1, upper_red1)
-	mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
-	mask = mask1 + mask2
-
-	kernel = np.ones((5, 5), np.uint8)
-	mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
-
-	contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-	if len(contours) != 2:
-		print(f"Found {len(contours)} red points, expect 2")
-		return None
-
-	red_points = []
-	for cnt in contours:
-		M = cv2.moments(cnt)
-		if M['m00'] != 0:
-			cx = int(M['m10'] / M['m00'])
-			cy = int(M['m01'] / M['m00'])
-			red_points.append((cx, cy))
-
-	if len(red_points) != 2:
-		print("Unable to get the center of the two red points.")
-		return None
-
-	pixel_distance = abs(red_points[0][0] - red_points[1][0])
-
-	return pixel_distance
-
-
 class MainWindow(QMainWindow):
 	r"""
 	Main User Interface for the application.
@@ -90,19 +48,21 @@ class MainWindow(QMainWindow):
 
 		self.progress_manager = ProgressManager(
 			buttons=[
+				self.ui.calibrationProcessButton,
 				self.ui.uploadProcessButton,
 				self.ui.detectProcessButton,
 				self.ui.editProcessButton,
 				self.ui.selectProcessButton,
 				self.ui.exportProcessButton
 			],
-			lines=[self.ui.line1, self.ui.line2, self.ui.line3, self.ui.line4]
+			lines=[self.ui.line0, self.ui.line1, self.ui.line2, self.ui.line3, self.ui.line4]
 		)
-		self.ui.uploadProcessButton.clicked.connect(lambda: self.set_stage(0))
-		self.ui.detectProcessButton.clicked.connect(lambda: self.set_stage(1))
-		self.ui.editProcessButton.clicked.connect(lambda: self.set_stage(2))
-		self.ui.selectProcessButton.clicked.connect(lambda: self.set_stage(3))
-		self.ui.exportProcessButton.clicked.connect(lambda: self.set_stage(4))
+		self.ui.calibrationProcessButton.clicked.connect(lambda: self.set_stage(0))
+		self.ui.uploadProcessButton.clicked.connect(lambda: self.set_stage(1))
+		self.ui.detectProcessButton.clicked.connect(lambda: self.set_stage(2))
+		self.ui.editProcessButton.clicked.connect(lambda: self.set_stage(3))
+		self.ui.selectProcessButton.clicked.connect(lambda: self.set_stage(4))
+		self.ui.exportProcessButton.clicked.connect(lambda: self.set_stage(5))
 
 		self.ui.zoomInButton.clicked.connect(lambda: self.zoom_image(zoom_in=True))
 		self.ui.zoomOutButton.clicked.connect(lambda: self.zoom_image(zoom_in=False))
@@ -123,6 +83,8 @@ class MainWindow(QMainWindow):
 		self.dragged_node = None
 
 		self.resolution = None
+		self.cali_image = None
+		self.cali_points = []
 
 	def init_image_label(self):
 		self.ui.imageLabel.setMouseTracking(True)
@@ -131,19 +93,23 @@ class MainWindow(QMainWindow):
 	def init_stacked_widget(self):
 		self.ui.stackedWidget.setCurrentIndex(self.progress_stage)
 		self.ui.nextButton0.clicked.connect(lambda: self.set_stage(1))
-		# self.ui.nextButton1.clicked.connect(lambda: self.set_stage(2))
-		self.ui.nextButton2.clicked.connect(lambda: self.set_stage(3))
+		self.ui.nextButton1.clicked.connect(lambda: self.set_stage(2))
+		self.ui.nextButton2.clicked.connect(self.run_model_detection)
 		self.ui.nextButton3.clicked.connect(lambda: self.set_stage(4))
-		self.ui.nextButton4.clicked.connect(lambda: self.set_stage(0))
+		self.ui.nextButton4.clicked.connect(lambda: self.set_stage(5))
+		self.ui.nextButton5.clicked.connect(lambda: self.set_stage(0))
+
+		# calibration stage
+		self.ui.caliUploadButton.clicked.connect(self.upload_calibration_image)
+		self.ui.confirmButton.clicked.connect(self.confirm_resolution)
+		self.ui.distanceLineEdit.textChanged.connect(self.update_resolution)
+		self.ui.pixelLineEdit.textChanged.connect(self.update_resolution)
 
 		# upload image stage
 		self.ui.plusButton.clicked.connect(self.upload_figures)
-		self.ui.calculateButton.clicked.connect(self.calculate_resolution)
-		self.ui.confirmButton.clicked.connect(self.confirm_resolution)
-		self.ui.caliUploadButton.clicked.connect(self.upload_calibration_image)
 
 		# model detection stage
-		self.ui.runModelButton.clicked.connect(self.run_model_detection)
+		# self.ui.runModelButton.clicked.connect(self.run_model_detection)
 
 		# skeleton select stage
 		self.ui.skeletonButton.clicked.connect(self.apply_skeletonization)
@@ -175,30 +141,54 @@ class MainWindow(QMainWindow):
 		self.ui.exportButton.clicked.connect(self.export_to_csv)
 
 	def upload_calibration_image(self):
-
-		cali_path, _ = QFileDialog.getOpenFileName(self, "Select a Calibration Picture", "", "Images (*.png *.jpg *.jpeg *.bmp)")
+		cali_path, _ = QFileDialog.getOpenFileName(
+			self, "Select a Calibration Picture", "", "Images (*.png *.jpg *.jpeg *.bmp)"
+		)
 		if not cali_path:
 			return
+		self.cali_image = cv2.imread(cali_path)
+		if self.cali_image is None:
+			QMessageBox.warning(self, "Error", "Failed to load the image.")
+			return
+		self.cali_points.clear()
+		self.display_cali_image()
 
-		pixel_value = calculate_pixel_distance(cali_path)
+	def calculate_pixel_distance(self):
+		if len(self.cali_points) != 2:
+			self.ui.pixelLineEdit.clear()
+			return
+		pixel_distance = abs(self.cali_points[0][0] - self.cali_points[1][0])
+		self.ui.pixelLineEdit.setText(str(pixel_distance))
 
-		if pixel_value:
-			self.ui.pixelLineEdit.setText(str(pixel_value))
+	def display_cali_image(self):
+		if self.cali_image is not None:
+			img = self.cali_image.copy()
+			img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+			for point in self.cali_points:
+				cv2.circle(img, point, 10, (255, 0, 0), -1)
+			height, width, channel = img.shape
+			bytes_per_line = 3 * width
+			q_img = QImage(img.data, width, height, bytes_per_line, QImage.Format_RGB888)
+			pixmap = QPixmap.fromImage(q_img)
+			self.ui.imageLabel.setPixmap(pixmap)
+
+	def update_resolution(self):
+		distance_text = self.ui.distanceLineEdit.text().strip()
+		pixel_text = self.ui.pixelLineEdit.text().strip()
+
+		if distance_text and pixel_text:
+			try:
+				distance = float(distance_text)
+				pixel = float(pixel_text)
+				if pixel > 0:
+					resolution = distance / pixel
+					self.ui.resolutionLineEdit.setText(f"{resolution:.6f}")
+				else:
+					self.ui.resolutionLineEdit.clear()
+			except ValueError:
+				self.ui.resolutionLineEdit.clear()
 		else:
-			QMessageBox.warning(self, "Calibration Failure", "Failed to detect a red marker, please check the image!")
-
-	def calculate_resolution(self):
-		try:
-			pixel_value = float(self.ui.pixelLineEdit.text())
-			distance_value = float(self.ui.distanceLineEdit.text())
-
-			if pixel_value > 0:
-				resolution = distance_value / pixel_value
-				self.ui.resolutionLineEdit.setText(f"{resolution:.6f}")
-			else:
-				QMessageBox.warning(self, "Error", "Please enter a valid pixel distance.")
-		except ValueError:
-			pass
+			self.ui.resolutionLineEdit.clear()
 
 	def confirm_resolution(self):
 		resolution_text = self.ui.resolutionLineEdit.text().strip()
@@ -273,6 +263,7 @@ class MainWindow(QMainWindow):
 			)
 			# clean_skeleton = self.skeleton_processor.extract_main_skeleton(skeleton)
 
+			# todo: longest path define?
 			longest_path = self.get_longest_skeleton(clean_skeleton)
 			branch_points = self.skeleton_processor.find_branch_points(clean_skeleton)
 			end_points = self.skeleton_processor.find_end_points(clean_skeleton)
@@ -307,11 +298,43 @@ class MainWindow(QMainWindow):
 		return longest_path
 
 	# ------------------------ Event Handling ----------------------------------------------------------------------
+	def convert_to_image_coords(self, pos, img_size):
+		label_size = self.ui.imageLabel.size()
+		scale = min(label_size.width() / img_size[1], label_size.height() / img_size[0])
+		display_width = scale * img_size[1]
+		display_height = scale * img_size[0]
+		x_offset = (label_size.width() - display_width) / 2
+		y_offset = (label_size.height() - display_height) / 2
+		img_x = (pos.x() - x_offset) / scale
+		img_y = (pos.y() - y_offset) / scale
+		return int(img_x), int(img_y)
+
 	def eventFilter(self, source, event):
 		if source != self.ui.imageLabel:
 			return super().eventFilter(source, event)
 
-		if self.progress_stage == 2:
+		if self.progress_stage == 0:
+			if event.type() == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
+				clicked_pos = event.pos()
+				img_size = self.cali_image.shape if self.cali_image is not None else (1, 1, 1)
+				img_x, img_y = self.convert_to_image_coords(clicked_pos, img_size)
+
+				if self.ui.clickAddButton.isChecked():
+					if len(self.cali_points) < 2:
+						self.cali_points.append((int(img_x), int(img_y)))
+					else:
+						self.cali_points = [(img_x, img_y)]
+					# QMessageBox.warning(self, "Warning", "Only two points can be marked!")
+				elif self.ui.clickDeleteButton.isChecked():
+					for point in self.cali_points:
+						if abs(point[0] - img_x) < 10 and abs(point[1] - img_y) < 10:
+							self.cali_points.remove(point)
+							break
+				self.calculate_pixel_distance()
+				self.display_cali_image()
+				return True
+
+		if self.progress_stage == 3:
 			if event.type() == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
 				self.drawing = True
 				self.last_point = event.pos()
@@ -324,7 +347,7 @@ class MainWindow(QMainWindow):
 					updated_array = updated_array.astype(np.float32) / 255.0
 					self.prediction_results[self.current_image_path] = updated_array
 
-		elif self.progress_stage == 3:
+		elif self.progress_stage == 4:
 			if self.creating_node and event.type() == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
 				clicked_pos = event.pos()
 				if self.image:
@@ -353,51 +376,6 @@ class MainWindow(QMainWindow):
 	def move_node(self, old_pos, new_pos):
 		return
 
-	def create_node(self, clicked_pos):
-		skeleton_data = self.skeleton_results.get(self.current_image_path)
-		if not skeleton_data:
-			return None
-
-		skeleton = skeleton_data["skeleton"]
-		branch_points = skeleton_data["branch_points"]
-
-		if branch_points is None:
-			branch_points = np.zeros_like(skeleton)
-
-		label_size = self.ui.imageLabel.size()
-		skeleton_shape = skeleton.shape
-
-		scale = min(label_size.width() / skeleton_shape[1], label_size.height() / skeleton_shape[0])
-		display_width = scale * skeleton_shape[1]
-		display_height = scale * skeleton_shape[0]
-
-		x_offset = (label_size.width() - display_width) / 2
-		y_offset = (label_size.height() - display_height) / 2
-
-		img_x = (clicked_pos.x() - x_offset) / scale
-		img_y = (clicked_pos.y() - y_offset) / scale
-
-		skeleton_coords = np.argwhere(skeleton > 0)
-		min_dist = float('inf')
-		closest_point = None
-
-		for node in skeleton_coords:
-			node_x, node_y = node[1], node[0]
-			dist = np.sqrt((img_x - node_x) ** 2 + (img_y - node_y) ** 2)
-			if dist < 5 and dist < min_dist:
-				min_dist = dist
-				closest_point = (node_x, node_y)
-
-		if closest_point is None:
-			return None
-
-		branch_points[closest_point[1], closest_point[0]] = 1
-		skeleton_data["branch_points"] = branch_points
-
-		self.refresh_display_image()
-
-		return closest_point
-
 	def get_clicked_node(self, position):
 		skeleton_data = self.skeleton_results.get(self.current_image_path)
 		if not skeleton_data:
@@ -407,18 +385,8 @@ class MainWindow(QMainWindow):
 		end_points = np.argwhere(skeleton_data["end_points"] > 0)
 		all_nodes = np.vstack((branch_points, end_points))
 
-		label_size = self.ui.imageLabel.size()
-		skeleton_shape = skeleton_data["skeleton"].shape
-
-		scale = min(label_size.width() / skeleton_shape[1], label_size.height() / skeleton_shape[0])
-		display_width = scale * skeleton_shape[1]
-		display_height = scale * skeleton_shape[0]
-
-		x_offset = (label_size.width() - display_width) / 2
-		y_offset = (label_size.height() - display_height) / 2
-
-		img_x = (position.x() - x_offset) / scale
-		img_y = (position.y() - y_offset) / scale
+		img_size = skeleton_data["skeleton"].shape
+		img_x, img_y = self.convert_to_image_coords(position, img_size)
 
 		for node in all_nodes:
 			node_x, node_y = node[1], node[0]
@@ -444,21 +412,9 @@ class MainWindow(QMainWindow):
 		if self.image is None:
 			return
 
-		label_size = self.ui.imageLabel.size()
 		image_size = self.image.size()
-
-		scale = min(label_size.width() / image_size.width(), label_size.height() / image_size.height())
-
-		display_width = scale * image_size.width()
-		display_height = scale * image_size.height()
-
-		x_offset = (label_size.width() - display_width) / 2
-		y_offset = (label_size.height() - display_height) / 2
-
-		x1 = (self.last_point.x() - x_offset) / scale
-		y1 = (self.last_point.y() - y_offset) / scale
-		x2 = (current_point.x() - x_offset) / scale
-		y2 = (current_point.y() - y_offset) / scale
+		x1, y1 = self.convert_to_image_coords(self.last_point, (image_size.height(), image_size.width()))
+		x2, y2 = self.convert_to_image_coords(current_point, (image_size.height(), image_size.width()))
 
 		if not (0 <= x1 < image_size.width() and 0 <= y1 < image_size.height()):
 			return
@@ -475,7 +431,6 @@ class MainWindow(QMainWindow):
 		painter.end()
 
 		self.last_point = current_point
-
 		self.refresh_display_after_draw()
 
 	def activate_add_mode(self):
@@ -577,6 +532,7 @@ class MainWindow(QMainWindow):
 		Update the QLabel display with the combined original image and prediction.
 		"""
 		if not self.current_image_path:
+			self.ui.imageLabel.clear()
 			return
 
 		original_image = cv2.imread(self.current_image_path)
@@ -592,13 +548,13 @@ class MainWindow(QMainWindow):
 		if original_pixmap.isNull():
 			return
 
-		if self.progress_stage in [0, 1]:
+		if self.progress_stage in [1, 2]:
 			self.display_original_image(original_pixmap)
-		elif self.progress_stage == 2:
-			self.display_prediction_overlay(original_pixmap)
 		elif self.progress_stage == 3:
-			self.display_skeleton_overlay(original_image)
+			self.display_prediction_overlay(original_pixmap)
 		elif self.progress_stage == 4:
+			self.display_skeleton_overlay(original_image)
+		elif self.progress_stage == 5:
 			self.display_original_image(original_pixmap)
 			if self.crack_results and self.current_image_path in self.crack_results:
 				file_name = os.path.basename(self.current_image_path)
@@ -755,26 +711,34 @@ class MainWindow(QMainWindow):
 
 	def set_stage(self, stage):
 
-		if stage < 0 or stage > 4:
+		if stage < 0 or stage > 5:
 			return
 		self.progress_stage = stage
 		self.ui.stackedWidget.setCurrentIndex(stage)
 		self.progress_manager.update_progress(self.progress_stage)
 
-		if self.progress_stage == 2:
+		if self.progress_stage == 3:
 			self.update_cursor()
 		else:
 			self.ui.imageLabel.unsetCursor()
 
 		if self.progress_stage == 0:
-			print("Upload stage")
+			self.display_cali_image()
+			print("Calibration stage")
 		elif self.progress_stage == 1:
-			print("Model detection stage")
+			self.refresh_display_image()
+			print("Upload stage")
 		elif self.progress_stage == 2:
-			print("Edit stage")
+			self.refresh_display_image()
+			print("Model detection stage")
 		elif self.progress_stage == 3:
-			print("Select skeleton stage")
+			self.refresh_display_image()
+			print("Edit stage")
 		elif self.progress_stage == 4:
+			self.refresh_display_image()
+			print("Select skeleton stage")
+		elif self.progress_stage == 5:
+			self.refresh_display_image()
 			self.crack_results = self.calculate_crack_properties()
 			print("File export stage")
 

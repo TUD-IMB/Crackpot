@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>706</width>
-    <height>597</height>
+    <height>656</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -34,6 +34,55 @@
         <property name="bottomMargin">
          <number>0</number>
         </property>
+        <item>
+         <widget class="QPushButton" name="calibrationProcessButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QPushButton {
+    border: none; 
+    background: transparent;
+}
+QPushButton:hover {
+    background-color: lightgray;
+}
+QPushButton:pressed {
+    background-color: lightblue;
+}
+</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../icon.qrc">
+            <normaloff>:/icons/icons/ruler.svg</normaloff>:/icons/icons/ruler.svg</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>50</width>
+            <height>50</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="line0">
+          <property name="frameShape">
+           <enum>QFrame::HLine</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <property name="lineWidth">
+           <number>3</number>
+          </property>
+         </widget>
+        </item>
         <item>
          <widget class="QPushButton" name="uploadProcessButton">
           <property name="sizePolicy">
@@ -291,8 +340,8 @@ QPushButton:pressed {
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>382</width>
-               <height>332</height>
+               <width>349</width>
+               <height>326</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_13">
@@ -458,13 +507,13 @@ QPushButton:pressed {
              <number>0</number>
             </property>
             <widget class="QWidget" name="page0">
-             <layout class="QVBoxLayout" name="verticalLayout_2">
+             <layout class="QVBoxLayout" name="verticalLayout_24">
               <item>
-               <layout class="QVBoxLayout" name="verticalLayout">
+               <layout class="QVBoxLayout" name="verticalLayout_20">
                 <item>
-                 <layout class="QVBoxLayout" name="verticalLayout_14">
+                 <layout class="QVBoxLayout" name="verticalLayout_21">
                   <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_13">
+                   <layout class="QHBoxLayout" name="horizontalLayout_21">
                     <property name="rightMargin">
                      <number>0</number>
                     </property>
@@ -474,7 +523,13 @@ QPushButton:pressed {
                    </layout>
                   </item>
                   <item>
-                   <widget class="QGroupBox" name="groupBox_2">
+                   <widget class="QGroupBox" name="groupBox_6">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>200</height>
+                     </size>
+                    </property>
                     <property name="styleSheet">
                      <string notr="true">QGroupBox{
     font-weight: bold;
@@ -484,14 +539,14 @@ QPushButton:pressed {
                     <property name="title">
                      <string>Calibration</string>
                     </property>
-                    <layout class="QVBoxLayout" name="verticalLayout_16">
+                    <layout class="QVBoxLayout" name="verticalLayout_22">
                      <item>
-                      <layout class="QHBoxLayout" name="horizontalLayout_20">
+                      <layout class="QHBoxLayout" name="horizontalLayout_22">
                        <property name="bottomMargin">
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="QLabel" name="label_10">
+                        <widget class="QLabel" name="label_14">
                          <property name="text">
                           <string>Select an image for calibration.</string>
                          </property>
@@ -499,22 +554,100 @@ QPushButton:pressed {
                        </item>
                        <item>
                         <widget class="QPushButton" name="caliUploadButton">
-                         <property name="toolTip">
-                          <string>Select an image with two red markers to calculate pixel distance.</string>
+                         <property name="text">
+                          <string>Browse</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <spacer name="horizontalSpacer_7">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>40</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_13">
+                       <property name="bottomMargin">
+                        <number>0</number>
+                       </property>
+                       <item>
+                        <widget class="QLabel" name="label_10">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="text">
+                          <string>Mark Calibration Points:</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QPushButton" name="clickAddButton">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
                          </property>
                          <property name="text">
                           <string/>
                          </property>
                          <property name="icon">
                           <iconset resource="../icon.qrc">
-                           <normaloff>:/icons/icons/ruler.svg</normaloff>:/icons/icons/ruler.svg</iconset>
+                           <normaloff>:/icons/icons/caliadd.svg</normaloff>:/icons/icons/caliadd.svg</iconset>
                          </property>
                          <property name="iconSize">
                           <size>
-                           <width>30</width>
-                           <height>30</height>
+                           <width>40</width>
+                           <height>40</height>
                           </size>
                          </property>
+                         <property name="checkable">
+                          <bool>true</bool>
+                         </property>
+                         <attribute name="buttonGroup">
+                          <string notr="true">caliButtonGroup</string>
+                         </attribute>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QPushButton" name="clickDeleteButton">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="text">
+                          <string/>
+                         </property>
+                         <property name="icon">
+                          <iconset resource="../icon.qrc">
+                           <normaloff>:/icons/icons/calidelete.svg</normaloff>:/icons/icons/calidelete.svg</iconset>
+                         </property>
+                         <property name="iconSize">
+                          <size>
+                           <width>40</width>
+                           <height>40</height>
+                          </size>
+                         </property>
+                         <property name="checkable">
+                          <bool>true</bool>
+                         </property>
+                         <attribute name="buttonGroup">
+                          <string notr="true">caliButtonGroup</string>
+                         </attribute>
                         </widget>
                        </item>
                        <item>
@@ -533,7 +666,14 @@ QPushButton:pressed {
                       </layout>
                      </item>
                      <item>
-                      <layout class="QFormLayout" name="formLayout">
+                      <widget class="Line" name="line">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <layout class="QFormLayout" name="formLayout_2">
                        <property name="bottomMargin">
                         <number>0</number>
                        </property>
@@ -570,16 +710,22 @@ QPushButton:pressed {
                       </layout>
                      </item>
                      <item>
-                      <layout class="QHBoxLayout" name="horizontalLayout_14">
+                      <layout class="QHBoxLayout" name="horizontalLayout_23">
                        <property name="bottomMargin">
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="QPushButton" name="calculateButton">
-                         <property name="text">
-                          <string>Calculate</string>
+                        <spacer name="horizontalSpacer_9">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
                          </property>
-                        </widget>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>40</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
                        </item>
                        <item>
                         <widget class="QPushButton" name="confirmButton">
@@ -593,17 +739,51 @@ QPushButton:pressed {
                     </layout>
                    </widget>
                   </item>
+                 </layout>
+                </item>
+                <item>
+                 <spacer name="verticalSpacer_6">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_25">
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
                   <item>
-                   <widget class="Line" name="line">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
+                   <widget class="QPushButton" name="nextButton0">
+                    <property name="text">
+                     <string>Next Stage</string>
                     </property>
                    </widget>
                   </item>
                  </layout>
                 </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="page1">
+             <layout class="QVBoxLayout" name="verticalLayout_2">
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout">
                 <item>
                  <widget class="QGroupBox" name="groupBox_3">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>100</height>
+                   </size>
+                  </property>
                   <property name="styleSheet">
                    <string notr="true">QGroupBox{
     font-weight: bold;
@@ -692,7 +872,7 @@ QPushButton:pressed {
                    <number>0</number>
                   </property>
                   <item>
-                   <widget class="QPushButton" name="nextButton0">
+                   <widget class="QPushButton" name="nextButton1">
                     <property name="text">
                      <string>Next Stage</string>
                     </property>
@@ -704,10 +884,17 @@ QPushButton:pressed {
               </item>
              </layout>
             </widget>
-            <widget class="QWidget" name="page1">
+            <widget class="QWidget" name="page2">
              <layout class="QHBoxLayout" name="horizontalLayout_11">
               <item>
                <layout class="QVBoxLayout" name="verticalLayout_12">
+                <item>
+                 <widget class="QLabel" name="label_7">
+                  <property name="text">
+                   <string>Select a Model to do crack detection.</string>
+                  </property>
+                 </widget>
+                </item>
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_12">
                   <item>
@@ -730,14 +917,20 @@ QPushButton:pressed {
                  </layout>
                 </item>
                 <item>
-                 <widget class="QLabel" name="label_7">
-                  <property name="text">
-                   <string>Select a Model to do detection.</string>
+                 <spacer name="verticalSpacer_2">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
                   </property>
-                 </widget>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="runModelButton">
+                 <widget class="QPushButton" name="nextButton2">
                   <property name="text">
                    <string>Next Stage</string>
                   </property>
@@ -747,7 +940,7 @@ QPushButton:pressed {
               </item>
              </layout>
             </widget>
-            <widget class="QWidget" name="page2">
+            <widget class="QWidget" name="page3">
              <layout class="QVBoxLayout" name="verticalLayout_7">
               <item>
                <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -756,6 +949,12 @@ QPushButton:pressed {
                 </property>
                 <item>
                  <widget class="QGroupBox" name="groupBox">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>150</height>
+                   </size>
+                  </property>
                   <property name="styleSheet">
                    <string notr="true">QGroupBox{
     font-weight: bold;
@@ -820,6 +1019,24 @@ QPushButton:pressed {
                     </layout>
                    </item>
                    <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_6">
+                     <item>
+                      <widget class="QLabel" name="label">
+                       <property name="text">
+                        <string>Size</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QSlider" name="penSizeSlider">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
                     <layout class="QHBoxLayout" name="horizontalLayout_7">
                      <item>
                       <widget class="QLabel" name="label_2">
@@ -846,24 +1063,6 @@ QPushButton:pressed {
                          <string>Square</string>
                         </property>
                        </item>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item>
-                    <layout class="QHBoxLayout" name="horizontalLayout_6">
-                     <item>
-                      <widget class="QLabel" name="label">
-                       <property name="text">
-                        <string>Size</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QSlider" name="penSizeSlider">
-                       <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
-                       </property>
                       </widget>
                      </item>
                     </layout>
@@ -922,7 +1121,7 @@ QPushButton:pressed {
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_9">
                   <item>
-                   <widget class="QPushButton" name="nextButton2">
+                   <widget class="QPushButton" name="nextButton3">
                     <property name="text">
                      <string>Next Stage</string>
                     </property>
@@ -947,7 +1146,7 @@ QPushButton:pressed {
               </item>
              </layout>
             </widget>
-            <widget class="QWidget" name="page3">
+            <widget class="QWidget" name="page4">
              <layout class="QVBoxLayout" name="verticalLayout_9">
               <item>
                <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -993,7 +1192,7 @@ QPushButton:pressed {
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="nextButton3">
+                 <widget class="QPushButton" name="nextButton4">
                   <property name="text">
                    <string>Next Stage</string>
                   </property>
@@ -1003,12 +1202,18 @@ QPushButton:pressed {
               </item>
              </layout>
             </widget>
-            <widget class="QWidget" name="page4">
+            <widget class="QWidget" name="page5">
              <layout class="QVBoxLayout" name="verticalLayout_11">
               <item>
                <layout class="QVBoxLayout" name="verticalLayout_10">
                 <item>
                  <widget class="QGroupBox" name="groupBox_4">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>100</height>
+                   </size>
+                  </property>
                   <property name="styleSheet">
                    <string notr="true">QGroupBox{
     font-weight: bold;
@@ -1060,6 +1265,12 @@ QPushButton:pressed {
                 </item>
                 <item>
                  <widget class="Line" name="line_2">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>
@@ -1067,6 +1278,12 @@ QPushButton:pressed {
                 </item>
                 <item>
                  <widget class="QGroupBox" name="groupBox_5">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>150</height>
+                   </size>
+                  </property>
                   <property name="styleSheet">
                    <string notr="true">QGroupBox{
     font-weight: bold;
@@ -1146,7 +1363,7 @@ QPushButton:pressed {
                  </spacer>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="nextButton4">
+                 <widget class="QPushButton" name="nextButton5">
                   <property name="text">
                    <string>Next Stage</string>
                   </property>
@@ -1360,5 +1577,6 @@ QPushButton:pressed {
  <connections/>
  <buttongroups>
   <buttongroup name="penButtonGroup"/>
+  <buttongroup name="caliButtonGroup"/>
  </buttongroups>
 </ui>
