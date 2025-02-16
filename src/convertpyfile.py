@@ -19,7 +19,7 @@ def convert_ui_files():
 			py_file_path = os.path.join(py_target_dir, py_file_name).replace("\\", "/")
 
 			if os.path.exists(ui_file_path):
-				command = f'pyside2-uic "{ui_file_path}" -o "{py_file_path}"'
+				command = f'pyside6-uic "{ui_file_path}" -o "{py_file_path}"'
 				try:
 					result = subprocess.run(command, check=True, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 					print(f"Successfully converted {ui_file_path} to {py_file_path}.")
@@ -49,7 +49,7 @@ def convert_qrc_files():
 			py_file_path = os.path.join(py_target_dir, py_file_name).replace("\\", "/")
 
 			if os.path.exists(qrc_file_path):
-				command = f'pyside2-rcc "{qrc_file_path}" -o "{py_file_path}"'
+				command = f'pyside6-rcc "{qrc_file_path}" -o "{py_file_path}"'
 				try:
 					result = subprocess.run(command, check=True, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 					print(f"Successfully converted {qrc_file_path} to {py_file_path}")

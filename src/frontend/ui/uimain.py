@@ -3,15 +3,25 @@
 ################################################################################
 ## Form generated from reading UI file 'main.ui'
 ##
-## Created by: Qt User Interface Compiler version 5.15.2
+## Created by: Qt User Interface Compiler version 6.8.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide2.QtCore import *
-from PySide2.QtGui import *
-from PySide2.QtWidgets import *
-
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
+    QCursor, QFont, QFontDatabase, QGradient,
+    QIcon, QImage, QKeySequence, QLinearGradient,
+    QPainter, QPalette, QPixmap, QRadialGradient,
+    QTransform)
+from PySide6.QtWidgets import (QApplication, QButtonGroup, QComboBox, QFormLayout,
+    QFrame, QGroupBox, QHBoxLayout, QLabel,
+    QLineEdit, QListWidget, QListWidgetItem, QMainWindow,
+    QMenu, QMenuBar, QPushButton, QScrollArea,
+    QSizePolicy, QSlider, QSpacerItem, QStackedWidget,
+    QStatusBar, QVBoxLayout, QWidget)
 from frontend.ui import icon_rc
 
 class Ui_MainWindow(object):
@@ -28,12 +38,12 @@ class Ui_MainWindow(object):
         self.actionBackward = QAction(MainWindow)
         self.actionBackward.setObjectName(u"actionBackward")
         icon = QIcon()
-        icon.addFile(u":/icons/icons/backward.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon.addFile(u":/icons/icons/backward.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.actionBackward.setIcon(icon)
         self.actionForward = QAction(MainWindow)
         self.actionForward.setObjectName(u"actionForward")
         icon1 = QIcon()
-        icon1.addFile(u":/icons/icons/forward.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon1.addFile(u":/icons/icons/forward.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.actionForward.setIcon(icon1)
         self.actionExportResults = QAction(MainWindow)
         self.actionExportResults.setObjectName(u"actionExportResults")
@@ -60,7 +70,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_5.setContentsMargins(-1, 0, -1, 0)
         self.calibrationProcessButton = QPushButton(self.centralwidget)
         self.calibrationProcessButton.setObjectName(u"calibrationProcessButton")
-        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.calibrationProcessButton.sizePolicy().hasHeightForWidth())
@@ -77,16 +87,16 @@ class Ui_MainWindow(object):
 "}\n"
 "")
         icon2 = QIcon()
-        icon2.addFile(u":/icons/icons/ruler.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon2.addFile(u":/icons/icons/ruler.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.calibrationProcessButton.setIcon(icon2)
-        self.calibrationProcessButton.setIconSize(QSize(50, 50))
+        self.calibrationProcessButton.setIconSize(QSize(30, 30))
 
         self.horizontalLayout_5.addWidget(self.calibrationProcessButton)
 
         self.line0 = QFrame(self.centralwidget)
         self.line0.setObjectName(u"line0")
-        self.line0.setFrameShape(QFrame.HLine)
-        self.line0.setFrameShadow(QFrame.Raised)
+        self.line0.setFrameShape(QFrame.Shape.HLine)
+        self.line0.setFrameShadow(QFrame.Shadow.Raised)
         self.line0.setLineWidth(3)
 
         self.horizontalLayout_5.addWidget(self.line0)
@@ -107,16 +117,16 @@ class Ui_MainWindow(object):
 "}\n"
 "")
         icon3 = QIcon()
-        icon3.addFile(u":/icons/icons/imageupload.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon3.addFile(u":/icons/icons/imageupload.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.uploadProcessButton.setIcon(icon3)
-        self.uploadProcessButton.setIconSize(QSize(50, 50))
+        self.uploadProcessButton.setIconSize(QSize(30, 30))
 
         self.horizontalLayout_5.addWidget(self.uploadProcessButton)
 
         self.line1 = QFrame(self.centralwidget)
         self.line1.setObjectName(u"line1")
-        self.line1.setFrameShape(QFrame.HLine)
-        self.line1.setFrameShadow(QFrame.Raised)
+        self.line1.setFrameShape(QFrame.Shape.HLine)
+        self.line1.setFrameShadow(QFrame.Shadow.Raised)
         self.line1.setLineWidth(3)
 
         self.horizontalLayout_5.addWidget(self.line1)
@@ -137,16 +147,16 @@ class Ui_MainWindow(object):
 "}\n"
 "")
         icon4 = QIcon()
-        icon4.addFile(u":/icons/icons/imagestar.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon4.addFile(u":/icons/icons/imagestar.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.detectProcessButton.setIcon(icon4)
-        self.detectProcessButton.setIconSize(QSize(50, 50))
+        self.detectProcessButton.setIconSize(QSize(30, 30))
 
         self.horizontalLayout_5.addWidget(self.detectProcessButton)
 
         self.line2 = QFrame(self.centralwidget)
         self.line2.setObjectName(u"line2")
-        self.line2.setFrameShape(QFrame.HLine)
-        self.line2.setFrameShadow(QFrame.Raised)
+        self.line2.setFrameShape(QFrame.Shape.HLine)
+        self.line2.setFrameShadow(QFrame.Shadow.Raised)
         self.line2.setLineWidth(3)
 
         self.horizontalLayout_5.addWidget(self.line2)
@@ -167,16 +177,16 @@ class Ui_MainWindow(object):
 "}\n"
 "")
         icon5 = QIcon()
-        icon5.addFile(u":/icons/icons/edit.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon5.addFile(u":/icons/icons/edit.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.editProcessButton.setIcon(icon5)
-        self.editProcessButton.setIconSize(QSize(50, 50))
+        self.editProcessButton.setIconSize(QSize(30, 30))
 
         self.horizontalLayout_5.addWidget(self.editProcessButton)
 
         self.line3 = QFrame(self.centralwidget)
         self.line3.setObjectName(u"line3")
-        self.line3.setFrameShape(QFrame.HLine)
-        self.line3.setFrameShadow(QFrame.Raised)
+        self.line3.setFrameShape(QFrame.Shape.HLine)
+        self.line3.setFrameShadow(QFrame.Shadow.Raised)
         self.line3.setLineWidth(3)
 
         self.horizontalLayout_5.addWidget(self.line3)
@@ -197,16 +207,16 @@ class Ui_MainWindow(object):
 "}\n"
 "")
         icon6 = QIcon()
-        icon6.addFile(u":/icons/icons/cursoredit.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon6.addFile(u":/icons/icons/cursoredit.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.selectProcessButton.setIcon(icon6)
-        self.selectProcessButton.setIconSize(QSize(50, 50))
+        self.selectProcessButton.setIconSize(QSize(30, 30))
 
         self.horizontalLayout_5.addWidget(self.selectProcessButton)
 
         self.line4 = QFrame(self.centralwidget)
         self.line4.setObjectName(u"line4")
-        self.line4.setFrameShape(QFrame.HLine)
-        self.line4.setFrameShadow(QFrame.Raised)
+        self.line4.setFrameShape(QFrame.Shape.HLine)
+        self.line4.setFrameShadow(QFrame.Shadow.Raised)
         self.line4.setLineWidth(3)
 
         self.horizontalLayout_5.addWidget(self.line4)
@@ -227,9 +237,9 @@ class Ui_MainWindow(object):
 "}\n"
 "")
         icon7 = QIcon()
-        icon7.addFile(u":/icons/icons/csv.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon7.addFile(u":/icons/icons/csv.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.exportProcessButton.setIcon(icon7)
-        self.exportProcessButton.setIconSize(QSize(50, 50))
+        self.exportProcessButton.setIconSize(QSize(30, 30))
 
         self.horizontalLayout_5.addWidget(self.exportProcessButton)
 
@@ -247,19 +257,19 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 349, 326))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 363, 347))
         self.verticalLayout_13 = QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_13.setObjectName(u"verticalLayout_13")
         self.imageLabel = QLabel(self.scrollAreaWidgetContents)
         self.imageLabel.setObjectName(u"imageLabel")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.imageLabel.sizePolicy().hasHeightForWidth())
         self.imageLabel.setSizePolicy(sizePolicy1)
         self.imageLabel.setMinimumSize(QSize(0, 0))
         self.imageLabel.setMaximumSize(QSize(16777215, 16777215))
-        self.imageLabel.setAlignment(Qt.AlignCenter)
+        self.imageLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.verticalLayout_13.addWidget(self.imageLabel)
 
@@ -269,7 +279,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_8 = QHBoxLayout()
         self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
-        self.horizontalSpacer_3 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_3 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_8.addItem(self.horizontalSpacer_3)
 
@@ -287,9 +297,9 @@ class Ui_MainWindow(object):
 "}\n"
 "")
         icon8 = QIcon()
-        icon8.addFile(u":/icons/icons/zoomin.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon8.addFile(u":/icons/icons/zoomin.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.zoomInButton.setIcon(icon8)
-        self.zoomInButton.setIconSize(QSize(50, 50))
+        self.zoomInButton.setIconSize(QSize(30, 30))
 
         self.horizontalLayout_8.addWidget(self.zoomInButton)
 
@@ -307,9 +317,9 @@ class Ui_MainWindow(object):
 "}\n"
 "")
         icon9 = QIcon()
-        icon9.addFile(u":/icons/icons/zoomout.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon9.addFile(u":/icons/icons/zoomout.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.zoomOutButton.setIcon(icon9)
-        self.zoomOutButton.setIconSize(QSize(50, 50))
+        self.zoomOutButton.setIconSize(QSize(30, 30))
 
         self.horizontalLayout_8.addWidget(self.zoomOutButton)
 
@@ -327,13 +337,13 @@ class Ui_MainWindow(object):
 "}\n"
 "")
         icon10 = QIcon()
-        icon10.addFile(u":/icons/icons/delete.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon10.addFile(u":/icons/icons/delete.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.deleteImageButton.setIcon(icon10)
-        self.deleteImageButton.setIconSize(QSize(50, 50))
+        self.deleteImageButton.setIconSize(QSize(30, 30))
 
         self.horizontalLayout_8.addWidget(self.deleteImageButton)
 
-        self.horizontalSpacer_4 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_4 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_8.addItem(self.horizontalSpacer_4)
 
@@ -383,7 +393,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_22.addWidget(self.caliUploadButton)
 
-        self.horizontalSpacer_7 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_7 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_22.addItem(self.horizontalSpacer_7)
 
@@ -395,7 +405,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_13.setContentsMargins(-1, -1, -1, 0)
         self.label_10 = QLabel(self.groupBox_6)
         self.label_10.setObjectName(u"label_10")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy2.setHorizontalStretch(0)
         sizePolicy2.setVerticalStretch(0)
         sizePolicy2.setHeightForWidth(self.label_10.sizePolicy().hasHeightForWidth())
@@ -411,9 +421,9 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.clickAddButton.sizePolicy().hasHeightForWidth())
         self.clickAddButton.setSizePolicy(sizePolicy)
         icon11 = QIcon()
-        icon11.addFile(u":/icons/icons/caliadd.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon11.addFile(u":/icons/icons/caliadd.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.clickAddButton.setIcon(icon11)
-        self.clickAddButton.setIconSize(QSize(40, 40))
+        self.clickAddButton.setIconSize(QSize(25, 25))
         self.clickAddButton.setCheckable(True)
 
         self.horizontalLayout_13.addWidget(self.clickAddButton)
@@ -424,14 +434,14 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.clickDeleteButton.sizePolicy().hasHeightForWidth())
         self.clickDeleteButton.setSizePolicy(sizePolicy)
         icon12 = QIcon()
-        icon12.addFile(u":/icons/icons/calidelete.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon12.addFile(u":/icons/icons/calidelete.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.clickDeleteButton.setIcon(icon12)
-        self.clickDeleteButton.setIconSize(QSize(40, 40))
+        self.clickDeleteButton.setIconSize(QSize(25, 25))
         self.clickDeleteButton.setCheckable(True)
 
         self.horizontalLayout_13.addWidget(self.clickDeleteButton)
 
-        self.horizontalSpacer_5 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_5 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_13.addItem(self.horizontalSpacer_5)
 
@@ -440,8 +450,8 @@ class Ui_MainWindow(object):
 
         self.line = QFrame(self.groupBox_6)
         self.line.setObjectName(u"line")
-        self.line.setFrameShape(QFrame.HLine)
-        self.line.setFrameShadow(QFrame.Sunken)
+        self.line.setFrameShape(QFrame.Shape.HLine)
+        self.line.setFrameShadow(QFrame.Shadow.Sunken)
 
         self.verticalLayout_22.addWidget(self.line)
 
@@ -484,7 +494,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_23 = QHBoxLayout()
         self.horizontalLayout_23.setObjectName(u"horizontalLayout_23")
         self.horizontalLayout_23.setContentsMargins(-1, -1, -1, 0)
-        self.horizontalSpacer_9 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_9 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_23.addItem(self.horizontalSpacer_9)
 
@@ -502,7 +512,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_20.addLayout(self.verticalLayout_21)
 
-        self.verticalSpacer_6 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.verticalSpacer_6 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_20.addItem(self.verticalSpacer_6)
 
@@ -541,7 +551,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_19.setContentsMargins(-1, -1, -1, 0)
         self.label_13 = QLabel(self.groupBox_3)
         self.label_13.setObjectName(u"label_13")
-        sizePolicy3 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
+        sizePolicy3 = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred)
         sizePolicy3.setHorizontalStretch(0)
         sizePolicy3.setVerticalStretch(0)
         sizePolicy3.setHeightForWidth(self.label_13.sizePolicy().hasHeightForWidth())
@@ -555,7 +565,7 @@ class Ui_MainWindow(object):
         self.plusButton.setSizePolicy(sizePolicy)
         self.plusButton.setMinimumSize(QSize(80, 80))
         icon13 = QIcon()
-        icon13.addFile(u":/icons/icons/plus.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon13.addFile(u":/icons/icons/plus.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.plusButton.setIcon(icon13)
         self.plusButton.setIconSize(QSize(50, 50))
 
@@ -572,7 +582,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout.addWidget(self.groupBox_3)
 
-        self.verticalSpacer_4 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.verticalSpacer_4 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout.addItem(self.verticalSpacer_4)
 
@@ -611,7 +621,7 @@ class Ui_MainWindow(object):
 
         self.modelComboBox = QComboBox(self.page2)
         self.modelComboBox.setObjectName(u"modelComboBox")
-        sizePolicy4 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        sizePolicy4 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         sizePolicy4.setHorizontalStretch(0)
         sizePolicy4.setVerticalStretch(0)
         sizePolicy4.setHeightForWidth(self.modelComboBox.sizePolicy().hasHeightForWidth())
@@ -622,7 +632,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_12.addLayout(self.horizontalLayout_12)
 
-        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_12.addItem(self.verticalSpacer_2)
 
@@ -659,7 +669,7 @@ class Ui_MainWindow(object):
         self.penButtonGroup.addButton(self.addButton)
         self.addButton.setObjectName(u"addButton")
         icon14 = QIcon()
-        icon14.addFile(u":/icons/icons/penadd.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon14.addFile(u":/icons/icons/penadd.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.addButton.setIcon(icon14)
         self.addButton.setIconSize(QSize(23, 23))
         self.addButton.setCheckable(True)
@@ -671,7 +681,7 @@ class Ui_MainWindow(object):
         self.penButtonGroup.addButton(self.deleteButton)
         self.deleteButton.setObjectName(u"deleteButton")
         icon15 = QIcon()
-        icon15.addFile(u":/icons/icons/penminus.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon15.addFile(u":/icons/icons/penminus.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.deleteButton.setIcon(icon15)
         self.deleteButton.setIconSize(QSize(23, 23))
         self.deleteButton.setCheckable(True)
@@ -690,7 +700,7 @@ class Ui_MainWindow(object):
 
         self.penSizeSlider = QSlider(self.groupBox)
         self.penSizeSlider.setObjectName(u"penSizeSlider")
-        self.penSizeSlider.setOrientation(Qt.Horizontal)
+        self.penSizeSlider.setOrientation(Qt.Orientation.Horizontal)
 
         self.horizontalLayout_6.addWidget(self.penSizeSlider)
 
@@ -731,7 +741,7 @@ class Ui_MainWindow(object):
 
         self.opacitySlider = QSlider(self.groupBox)
         self.opacitySlider.setObjectName(u"opacitySlider")
-        self.opacitySlider.setOrientation(Qt.Horizontal)
+        self.opacitySlider.setOrientation(Qt.Orientation.Horizontal)
 
         self.horizontalLayout_3.addWidget(self.opacitySlider)
 
@@ -746,7 +756,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_6.addWidget(self.groupBox)
 
-        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_6.addItem(self.verticalSpacer)
 
@@ -757,7 +767,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_9.addWidget(self.nextButton3)
 
-        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_9.addItem(self.horizontalSpacer_2)
 
@@ -862,8 +872,8 @@ class Ui_MainWindow(object):
         self.line_2.setObjectName(u"line_2")
         sizePolicy.setHeightForWidth(self.line_2.sizePolicy().hasHeightForWidth())
         self.line_2.setSizePolicy(sizePolicy)
-        self.line_2.setFrameShape(QFrame.HLine)
-        self.line_2.setFrameShadow(QFrame.Sunken)
+        self.line_2.setFrameShape(QFrame.Shape.HLine)
+        self.line_2.setFrameShadow(QFrame.Shadow.Sunken)
 
         self.verticalLayout_10.addWidget(self.line_2)
 
@@ -898,7 +908,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_18 = QHBoxLayout()
         self.horizontalLayout_18.setObjectName(u"horizontalLayout_18")
-        self.horizontalSpacer_6 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_6 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_18.addItem(self.horizontalSpacer_6)
 
@@ -918,7 +928,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_10.addWidget(self.groupBox_5)
 
-        self.verticalSpacer_5 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.verticalSpacer_5 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_10.addItem(self.verticalSpacer_5)
 
@@ -934,7 +944,7 @@ class Ui_MainWindow(object):
 
         self.toolLayout.addWidget(self.stackedWidget)
 
-        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.toolLayout.addItem(self.horizontalSpacer)
 
@@ -952,7 +962,7 @@ class Ui_MainWindow(object):
         self.previousFigButton.setObjectName(u"previousFigButton")
         self.previousFigButton.setMaximumSize(QSize(16777215, 100))
         icon16 = QIcon()
-        icon16.addFile(u":/icons/icons/arrowleft.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon16.addFile(u":/icons/icons/arrowleft.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.previousFigButton.setIcon(icon16)
         self.previousFigButton.setIconSize(QSize(20, 20))
 
@@ -968,7 +978,7 @@ class Ui_MainWindow(object):
         self.nextFigButton.setObjectName(u"nextFigButton")
         self.nextFigButton.setMaximumSize(QSize(16777215, 100))
         icon17 = QIcon()
-        icon17.addFile(u":/icons/icons/arrowright.svg", QSize(), QIcon.Normal, QIcon.Off)
+        icon17.addFile(u":/icons/icons/arrowright.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.nextFigButton.setIcon(icon17)
         self.nextFigButton.setIconSize(QSize(20, 20))
 
@@ -986,7 +996,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
         self.menuBar = QMenuBar(MainWindow)
         self.menuBar.setObjectName(u"menuBar")
-        self.menuBar.setGeometry(QRect(0, 0, 706, 22))
+        self.menuBar.setGeometry(QRect(0, 0, 706, 33))
         self.menuFile = QMenu(self.menuBar)
         self.menuFile.setObjectName(u"menuFile")
         self.menuHelp = QMenu(self.menuBar)
@@ -1017,7 +1027,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(0)
+        self.stackedWidget.setCurrentIndex(3)
 
 
         QMetaObject.connectSlotsByName(MainWindow)

@@ -3,10 +3,10 @@ import sys
 import cv2
 import numpy as np
 import pandas as pd
-from PySide2.QtCore import Qt, QEvent, QPoint
-from PySide2.QtGui import QPixmap, QIcon, QImage, QPainter, QColor, QPen, QCursor
-from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog, QListWidgetItem, QListWidget, QSlider, \
-	QMessageBox, QToolTip, QAbstractItemView
+from PySide6.QtCore import Qt, QEvent, QPoint
+from PySide6.QtGui import QPixmap, QIcon, QImage, QPainter, QColor, QPen, QCursor
+from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QListWidgetItem, QListWidget, QSlider, \
+	QMessageBox, QToolTip
 from skimage.measure import regionprops,label
 from backend.edgedetection import EdgeDetection
 from backend.skeletonprocessor import SkeletonProcessor
@@ -33,9 +33,9 @@ class MainWindow(QMainWindow):
 		self.crack_results = {}
 		self.skeleton_processor = SkeletonProcessor()
 
-		self.ui.listWidget.setViewMode(QListWidget.IconMode)
+		self.ui.listWidget.setViewMode(QListWidget.ViewMode.IconMode)
 		self.ui.listWidget.setSpacing(10)
-		self.ui.listWidget.setResizeMode(QListWidget.Adjust)
+		self.ui.listWidget.setResizeMode(QListWidget.ResizeMode.Adjust)
 		# todo: multi selection
 		# self.ui.listWidget.setSelectionMode(QAbstractItemView.MultiSelection)
 
@@ -43,7 +43,6 @@ class MainWindow(QMainWindow):
 		self.ui.previousFigButton.clicked.connect(self.show_previous_image)
 		self.ui.nextFigButton.clicked.connect(self.show_next_image)
 
-		self.resize(2000, 1600)
 		self.edge_detector = None
 
 		self.progress_manager = ProgressManager(
@@ -71,8 +70,8 @@ class MainWindow(QMainWindow):
 		self.drawing = False
 		self.last_point = QPoint()
 		self.brush_color = QColor(255, 255, 255)
-		self.brush_size = 5
-		self.pen_cap_style = Qt.RoundCap
+		self.brush_size = 10
+		self.pen_cap_style = Qt.PenCapStyle.RoundCap
 		self.image = None
 
 		self.init_stacked_widget()
@@ -85,6 +84,17 @@ class MainWindow(QMainWindow):
 		self.resolution = None
 		self.cali_image = None
 		self.cali_points = []
+
+		self.adjust_window_size()
+
+	def adjust_window_size(self):
+		screen = self.screen()
+		screen_size = screen.availableGeometry()
+
+		width = int(screen_size.width() * 0.7)
+		height = int(screen_size.height() * 0.8)
+
+		self.resize(width, height)
 
 	def init_image_label(self):
 		self.ui.imageLabel.setMouseTracking(True)
@@ -122,7 +132,7 @@ class MainWindow(QMainWindow):
 		self.ui.penSizeSlider.setRange(1, 50)
 		self.ui.penSizeSlider.setValue(10)
 		self.ui.penSizeSlider.setTickInterval(10)
-		self.ui.penSizeSlider.setTickPosition(QSlider.TicksBelow)
+		self.ui.penSizeSlider.setTickPosition(QSlider.TickPosition.TicksBelow)
 		self.ui.penSizeSlider.valueChanged.connect(self.update_brush_size)
 
 		self.ui.penShapeComboBox.currentTextChanged.connect(self.update_pen_shape)
@@ -168,9 +178,15 @@ class MainWindow(QMainWindow):
 				cv2.circle(img, point, 10, (255, 0, 0), -1)
 			height, width, channel = img.shape
 			bytes_per_line = 3 * width
-			q_img = QImage(img.data, width, height, bytes_per_line, QImage.Format_RGB888)
+			q_img = QImage(img.data, width, height, bytes_per_line, QImage.Format.Format_RGB888)
 			pixmap = QPixmap.fromImage(q_img)
-			self.ui.imageLabel.setPixmap(pixmap)
+			label_size = self.ui.imageLabel.size()
+			scaled_pixmap = pixmap.scaled(
+				label_size.width(), label_size.height(),
+				Qt.AspectRatioMode.KeepAspectRatio,
+				Qt.TransformationMode.SmoothTransformation
+			)
+			self.ui.imageLabel.setPixmap(scaled_pixmap)
 
 	def update_resolution(self):
 		distance_text = self.ui.distanceLineEdit.text().strip()
@@ -314,7 +330,7 @@ class MainWindow(QMainWindow):
 			return super().eventFilter(source, event)
 
 		if self.progress_stage == 0:
-			if event.type() == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
+			if event.type() == QEvent.Type.MouseButtonPress and event.button() == Qt.MouseButton.LeftButton:
 				clicked_pos = event.pos()
 				img_size = self.cali_image.shape if self.cali_image is not None else (1, 1, 1)
 				img_x, img_y = self.convert_to_image_coords(clicked_pos, img_size)
@@ -335,12 +351,12 @@ class MainWindow(QMainWindow):
 				return True
 
 		if self.progress_stage == 3:
-			if event.type() == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
+			if event.type() == QEvent.Type.MouseButtonPress and event.button() == Qt.MouseButton.LeftButton:
 				self.drawing = True
 				self.last_point = event.pos()
-			elif event.type() == QEvent.MouseMove and self.drawing:
+			elif event.type() == QEvent.Type.MouseMove and self.drawing:
 				self.draw_on_image(event.pos())
-			elif event.type() == QEvent.MouseButtonRelease and event.button() == Qt.LeftButton:
+			elif event.type() == QEvent.Type.MouseButtonRelease and event.button() == Qt.MouseButton.LeftButton:
 				self.drawing = False
 				if self.image is not None and self.current_image_path is not None:
 					updated_array = self.qimage_to_np(self.image)
@@ -348,14 +364,14 @@ class MainWindow(QMainWindow):
 					self.prediction_results[self.current_image_path] = updated_array
 
 		elif self.progress_stage == 4:
-			if self.creating_node and event.type() == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
+			if self.creating_node and event.type() == QEvent.Type.MouseButtonPress and event.button() == Qt.MouseButton.LeftButton:
 				clicked_pos = event.pos()
 				if self.image:
 					selected_node = self.create_node(clicked_pos)
 					if selected_node:
 						self.dragged_node = selected_node
 
-			elif self.adjusting_node and event.type() == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
+			elif self.adjusting_node and event.type() == QEvent.Type.MouseButtonPress and event.button() == Qt.MouseButton.LeftButton:
 				clicked_pos = event.pos()
 				skeleton_data = self.skeleton_results.get(self.current_image_path)
 
@@ -366,7 +382,7 @@ class MainWindow(QMainWindow):
 						self.refresh_display_image()
 						self.dragged_node = selected_node
 
-			elif self.adjusting_node and event.type() == QEvent.MouseMove and self.dragged_node:
+			elif self.adjusting_node and event.type() == QEvent.Type.MouseMove and self.dragged_node:
 				new_pos = event.pos()
 				skeleton_data = self.skeleton_results.get(self.current_image_path)
 				# todo: drag node to new pos and refresh skeleton path
@@ -375,6 +391,9 @@ class MainWindow(QMainWindow):
 
 	def move_node(self, old_pos, new_pos):
 		return
+
+	def create_node(self, pos):
+		return 0
 
 	def get_clicked_node(self, position):
 		skeleton_data = self.skeleton_results.get(self.current_image_path)
@@ -395,7 +414,7 @@ class MainWindow(QMainWindow):
 		return None
 
 	def qimage_to_np(self, qimage: QImage):
-		qimage = qimage.convertToFormat(QImage.Format_Grayscale8)
+		qimage = qimage.convertToFormat(QImage.Format.Format_Grayscale8)
 		width = qimage.width()
 		height = qimage.height()
 		ptr = qimage.bits()
@@ -461,13 +480,13 @@ class MainWindow(QMainWindow):
 		size = self.brush_size
 
 		cursor_pixmap = QPixmap(size, size)
-		cursor_pixmap.fill(Qt.transparent)
+		cursor_pixmap.fill(Qt.GlobalColor.transparent)
 		painter = QPainter(cursor_pixmap)
-		pen = QPen(Qt.yellow)
+		pen = QPen(Qt.GlobalColor.yellow)
 		pen.setWidth(3)
 		painter.setPen(pen)
 
-		if self.pen_cap_style == Qt.RoundCap:
+		if self.pen_cap_style == Qt.PenCapStyle.RoundCap:
 			painter.drawEllipse(1, 1, size - 2, size - 2)
 		else:
 			painter.drawRect(1, 1, size - 2, size - 2)
@@ -478,9 +497,10 @@ class MainWindow(QMainWindow):
 
 	def update_pen_shape(self, shape):
 		if shape == "Round":
-			self.pen_cap_style = Qt.RoundCap
+			self.pen_cap_style = Qt.PenCapStyle.RoundCap
 		elif shape == "Square":
-			self.pen_cap_style = Qt.SquareCap
+			self.pen_cap_style = Qt.PenCapStyle.SquareCap
+		self.update_cursor()
 
 	# ------------------------ Image Display ----------------------------------------------------------------------
 	def upload_figures(self):
@@ -499,8 +519,8 @@ class MainWindow(QMainWindow):
 				self.prediction_results[image_path] = None
 
 				item = QListWidgetItem()
-				item.setIcon(QIcon(pixmap.scaled(100, 100, aspectRatioMode=Qt.KeepAspectRatio)))
-				item.setData(Qt.UserRole, image_path)
+				item.setIcon(QIcon(pixmap.scaled(100, 100, Qt.AspectRatioMode.KeepAspectRatio)))
+				item.setData(Qt.ItemDataRole.UserRole, image_path)
 				self.ui.listWidget.addItem(item)
 
 		if not self.ui.listWidget.currentItem() and self.ui.listWidget.count() > 0:
@@ -522,7 +542,7 @@ class MainWindow(QMainWindow):
 
 	def display_large_image(self, item):
 		# Retrieve the file path from the clicked item's UserRole
-		file_path = item.data(Qt.UserRole)
+		file_path = item.data(Qt.ItemDataRole.UserRole)
 		if file_path:
 			self.current_image_path = file_path
 			self.refresh_display_image()
@@ -542,7 +562,7 @@ class MainWindow(QMainWindow):
 
 		original_qimage = QImage(
 			original_image.data, original_image.shape[1], original_image.shape[0],
-			original_image.shape[1] * 3, QImage.Format_RGB888
+			original_image.shape[1] * 3, QImage.Format.Format_RGB888
 		)
 		original_pixmap = QPixmap.fromImage(original_qimage)
 		if original_pixmap.isNull():
@@ -570,7 +590,7 @@ class MainWindow(QMainWindow):
 		label_height = self.ui.imageLabel.height()
 
 		scaled_pixmap = original_pixmap.scaled(
-			label_width, label_height, Qt.KeepAspectRatio, Qt.SmoothTransformation
+			label_width, label_height, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
 		)
 		self.ui.imageLabel.setPixmap(scaled_pixmap)
 		self.image = None
@@ -589,7 +609,7 @@ class MainWindow(QMainWindow):
 		prediction = (prediction * 255).astype(np.uint8)
 		prediction_qimage = QImage(
 			prediction, prediction.shape[1], prediction.shape[0],
-			prediction.shape[1], QImage.Format_Grayscale8
+			prediction.shape[1], QImage.Format.Format_Grayscale8
 		)
 
 		prediction_pixmap = QPixmap.fromImage(prediction_qimage)
@@ -597,14 +617,14 @@ class MainWindow(QMainWindow):
 			return
 
 		combined_pixmap = QPixmap(original_pixmap.size())
-		combined_pixmap.fill(Qt.transparent)
+		combined_pixmap.fill(Qt.GlobalColor.transparent)
 		painter = QPainter(combined_pixmap)
 		painter.setOpacity(1.0)
 		painter.drawPixmap(0, 0, original_pixmap)
 		opacity = self.ui.opacitySlider.value() / 100.0
 		painter.setOpacity(opacity)
 		painter.drawPixmap(0, 0, prediction_pixmap.scaled(
-			original_pixmap.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation
+			original_pixmap.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
 		))
 		painter.end()
 
@@ -612,7 +632,7 @@ class MainWindow(QMainWindow):
 		label_height = self.ui.imageLabel.height()
 
 		scaled_pixmap = combined_pixmap.scaled(
-			label_width, label_height, Qt.KeepAspectRatio, Qt.SmoothTransformation
+			label_width, label_height, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
 		)
 		self.ui.imageLabel.setPixmap(scaled_pixmap)
 
@@ -658,14 +678,14 @@ class MainWindow(QMainWindow):
 			overlay_image.shape[1],
 			overlay_image.shape[0],
 			overlay_image.shape[1] * 3,
-			QImage.Format_RGB888
+			QImage.Format.Format_RGB888
 		)
 		overlay_pixmap = QPixmap.fromImage(overlay_qimage)
 
 		label_width = self.ui.imageLabel.width()
 		label_height = self.ui.imageLabel.height()
 		scaled_pixmap = overlay_pixmap.scaled(
-			label_width, label_height, Qt.KeepAspectRatio, Qt.SmoothTransformation
+			label_width, label_height, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
 		)
 		self.ui.imageLabel.setPixmap(scaled_pixmap)
 
@@ -680,7 +700,7 @@ class MainWindow(QMainWindow):
 		original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
 		original_qimage = QImage(
 			original_image.data, original_image.shape[1], original_image.shape[0],
-			original_image.shape[1] * 3, QImage.Format_RGB888
+			original_image.shape[1] * 3, QImage. Format.Format_RGB888
 		)
 		original_pixmap = QPixmap.fromImage(original_qimage)
 		if original_pixmap.isNull():
@@ -689,7 +709,7 @@ class MainWindow(QMainWindow):
 		prediction_pixmap = QPixmap.fromImage(self.image)
 
 		combined_pixmap = QPixmap(original_pixmap.size())
-		combined_pixmap.fill(Qt.transparent)
+		combined_pixmap.fill(Qt.GlobalColor.transparent)
 		painter = QPainter(combined_pixmap)
 		painter.setOpacity(1.0)
 		painter.drawPixmap(0, 0, original_pixmap)
@@ -697,14 +717,14 @@ class MainWindow(QMainWindow):
 		opacity = self.ui.opacitySlider.value() / 100.0
 		painter.setOpacity(opacity)
 		painter.drawPixmap(0, 0, prediction_pixmap.scaled(
-			original_pixmap.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation
+			original_pixmap.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
 		))
 		painter.end()
 
 		label_width = self.ui.imageLabel.width()
 		label_height = self.ui.imageLabel.height()
 		scaled_pixmap = combined_pixmap.scaled(
-			label_width, label_height, Qt.KeepAspectRatio, Qt.SmoothTransformation
+			label_width, label_height, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
 		)
 		self.ui.imageLabel.setPixmap(scaled_pixmap)
 	# ------------------------ Progress Management ----------------------------------------------------------------------
@@ -775,7 +795,7 @@ class MainWindow(QMainWindow):
 		return crack_results
 
 	def browse_export_path(self):
-		options = QFileDialog.Options()
+		options = QFileDialog.Option(0)
 		file_path, _ = QFileDialog.getSaveFileName(
 			self, "Select Export File", "", "CSV Files (*.csv);;All Files (*)", options=options
 		)
@@ -835,7 +855,7 @@ class MainWindow(QMainWindow):
 		if new_width > 5000 or new_height > 5000:
 			return
 
-		scaled_pixmap = original_pixmap.scaled(new_width, new_height, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+		scaled_pixmap = original_pixmap.scaled(new_width, new_height, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
 
 		self.ui.imageLabel.setPixmap(scaled_pixmap)
 		self.ui.imageLabel.adjustSize()
@@ -847,13 +867,13 @@ class MainWindow(QMainWindow):
 			QMessageBox.warning(self, "Error", "No image selected!")
 			return
 
-		image_path = selected_item.data(Qt.UserRole)
+		image_path = selected_item.data(Qt.ItemDataRole.UserRole)
 
 		reply = QMessageBox.question(self, "Confirm Delete",
 									 f"Are you sure you want to delete {os.path.basename(image_path)}?",
-									 QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+									 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
 
-		if reply == QMessageBox.No:
+		if reply == QMessageBox.StandardButton.No:
 			return
 
 		row = self.ui.listWidget.row(selected_item)
@@ -863,7 +883,7 @@ class MainWindow(QMainWindow):
 		self.skeleton_results.pop(image_path, None)
 		self.crack_results.pop(image_path, None)
 
-		self.ui.listWidget.update()
+		self.ui.listWidget.repaint()
 
 		if self.ui.listWidget.count() > 0:
 			new_index = min(row, self.ui.listWidget.count() - 1)
