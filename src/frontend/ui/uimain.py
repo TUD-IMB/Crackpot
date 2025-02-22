@@ -784,32 +784,90 @@ class Ui_MainWindow(object):
         self.verticalLayout_9.setObjectName(u"verticalLayout_9")
         self.verticalLayout_8 = QVBoxLayout()
         self.verticalLayout_8.setObjectName(u"verticalLayout_8")
-        self.skeletonButton = QPushButton(self.page4)
+        self.groupBox_2 = QGroupBox(self.page4)
+        self.groupBox_2.setObjectName(u"groupBox_2")
+        self.verticalLayout_16 = QVBoxLayout(self.groupBox_2)
+        self.verticalLayout_16.setObjectName(u"verticalLayout_16")
+        self.label_16 = QLabel(self.groupBox_2)
+        self.label_16.setObjectName(u"label_16")
+
+        self.verticalLayout_16.addWidget(self.label_16)
+
+        self.skeletonButton = QPushButton(self.groupBox_2)
         self.skeletonButton.setObjectName(u"skeletonButton")
 
-        self.verticalLayout_8.addWidget(self.skeletonButton)
+        self.verticalLayout_16.addWidget(self.skeletonButton)
 
-        self.cleanBranchButton = QPushButton(self.page4)
+        self.cleanBranchButton = QPushButton(self.groupBox_2)
         self.cleanBranchButton.setObjectName(u"cleanBranchButton")
 
-        self.verticalLayout_8.addWidget(self.cleanBranchButton)
+        self.verticalLayout_16.addWidget(self.cleanBranchButton)
 
-        self.addNodeButton = QPushButton(self.page4)
-        self.addNodeButton.setObjectName(u"addNodeButton")
-        self.addNodeButton.setCheckable(True)
+        self.verticalLayout_14 = QVBoxLayout()
+        self.verticalLayout_14.setObjectName(u"verticalLayout_14")
+        self.line_3 = QFrame(self.groupBox_2)
+        self.line_3.setObjectName(u"line_3")
+        self.line_3.setFrameShape(QFrame.Shape.HLine)
+        self.line_3.setFrameShadow(QFrame.Shadow.Sunken)
 
-        self.verticalLayout_8.addWidget(self.addNodeButton)
+        self.verticalLayout_14.addWidget(self.line_3)
 
-        self.adjustNodeButton = QPushButton(self.page4)
-        self.adjustNodeButton.setObjectName(u"adjustNodeButton")
-        self.adjustNodeButton.setCheckable(True)
+        self.horizontalLayout_14 = QHBoxLayout()
+        self.horizontalLayout_14.setObjectName(u"horizontalLayout_14")
+        self.label_15 = QLabel(self.groupBox_2)
+        self.label_15.setObjectName(u"label_15")
+        sizePolicy5 = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Preferred)
+        sizePolicy5.setHorizontalStretch(0)
+        sizePolicy5.setVerticalStretch(0)
+        sizePolicy5.setHeightForWidth(self.label_15.sizePolicy().hasHeightForWidth())
+        self.label_15.setSizePolicy(sizePolicy5)
 
-        self.verticalLayout_8.addWidget(self.adjustNodeButton)
+        self.horizontalLayout_14.addWidget(self.label_15)
 
-        self.label_4 = QLabel(self.page4)
-        self.label_4.setObjectName(u"label_4")
+        self.nodeAddButton = QPushButton(self.groupBox_2)
+        self.skeletonButtonGroup = QButtonGroup(MainWindow)
+        self.skeletonButtonGroup.setObjectName(u"skeletonButtonGroup")
+        self.skeletonButtonGroup.addButton(self.nodeAddButton)
+        self.nodeAddButton.setObjectName(u"nodeAddButton")
+        sizePolicy.setHeightForWidth(self.nodeAddButton.sizePolicy().hasHeightForWidth())
+        self.nodeAddButton.setSizePolicy(sizePolicy)
+        icon16 = QIcon()
+        icon16.addFile(u":/icons/icons/routeadd.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.nodeAddButton.setIcon(icon16)
+        self.nodeAddButton.setIconSize(QSize(25, 25))
+        self.nodeAddButton.setCheckable(True)
 
-        self.verticalLayout_8.addWidget(self.label_4)
+        self.horizontalLayout_14.addWidget(self.nodeAddButton)
+
+        self.nodeDeleteButton = QPushButton(self.groupBox_2)
+        self.skeletonButtonGroup.addButton(self.nodeDeleteButton)
+        self.nodeDeleteButton.setObjectName(u"nodeDeleteButton")
+        sizePolicy.setHeightForWidth(self.nodeDeleteButton.sizePolicy().hasHeightForWidth())
+        self.nodeDeleteButton.setSizePolicy(sizePolicy)
+        icon17 = QIcon()
+        icon17.addFile(u":/icons/icons/routedelete.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.nodeDeleteButton.setIcon(icon17)
+        self.nodeDeleteButton.setIconSize(QSize(25, 25))
+        self.nodeDeleteButton.setCheckable(True)
+
+        self.horizontalLayout_14.addWidget(self.nodeDeleteButton)
+
+        self.horizontalSpacer_8 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_14.addItem(self.horizontalSpacer_8)
+
+
+        self.verticalLayout_14.addLayout(self.horizontalLayout_14)
+
+
+        self.verticalLayout_16.addLayout(self.verticalLayout_14)
+
+
+        self.verticalLayout_8.addWidget(self.groupBox_2)
+
+        self.verticalSpacer_3 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+
+        self.verticalLayout_8.addItem(self.verticalSpacer_3)
 
         self.nextButton4 = QPushButton(self.page4)
         self.nextButton4.setObjectName(u"nextButton4")
@@ -961,9 +1019,9 @@ class Ui_MainWindow(object):
         self.previousFigButton = QPushButton(self.centralwidget)
         self.previousFigButton.setObjectName(u"previousFigButton")
         self.previousFigButton.setMaximumSize(QSize(16777215, 100))
-        icon16 = QIcon()
-        icon16.addFile(u":/icons/icons/arrowleft.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.previousFigButton.setIcon(icon16)
+        icon18 = QIcon()
+        icon18.addFile(u":/icons/icons/arrowleft.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.previousFigButton.setIcon(icon18)
         self.previousFigButton.setIconSize(QSize(20, 20))
 
         self.horizontalLayout.addWidget(self.previousFigButton)
@@ -977,9 +1035,9 @@ class Ui_MainWindow(object):
         self.nextFigButton = QPushButton(self.centralwidget)
         self.nextFigButton.setObjectName(u"nextFigButton")
         self.nextFigButton.setMaximumSize(QSize(16777215, 100))
-        icon17 = QIcon()
-        icon17.addFile(u":/icons/icons/arrowright.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.nextFigButton.setIcon(icon17)
+        icon19 = QIcon()
+        icon19.addFile(u":/icons/icons/arrowright.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.nextFigButton.setIcon(icon19)
         self.nextFigButton.setIconSize(QSize(20, 20))
 
         self.horizontalLayout.addWidget(self.nextFigButton)
@@ -1027,7 +1085,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(3)
+        self.stackedWidget.setCurrentIndex(4)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -1087,11 +1145,13 @@ class Ui_MainWindow(object):
         self.labelOriginal.setText(QCoreApplication.translate("MainWindow", u"Original", None))
         self.labelMask.setText(QCoreApplication.translate("MainWindow", u"Mask", None))
         self.nextButton3.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
+        self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", u"Skeletonization", None))
+        self.label_16.setText(QCoreApplication.translate("MainWindow", u"Extracting crack skeleton information.", None))
         self.skeletonButton.setText(QCoreApplication.translate("MainWindow", u"Skeletonization", None))
         self.cleanBranchButton.setText(QCoreApplication.translate("MainWindow", u"Remove small branches", None))
-        self.addNodeButton.setText(QCoreApplication.translate("MainWindow", u"Add Node", None))
-        self.adjustNodeButton.setText(QCoreApplication.translate("MainWindow", u"adjust node", None))
-        self.label_4.setText(QCoreApplication.translate("MainWindow", u"Select skeleton to analysis.", None))
+        self.label_15.setText(QCoreApplication.translate("MainWindow", u"Skeleton Edit:", None))
+        self.nodeAddButton.setText("")
+        self.nodeDeleteButton.setText("")
         self.nextButton4.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
         self.groupBox_4.setTitle(QCoreApplication.translate("MainWindow", u"Calculation Results", None))
         self.label_12.setText(QCoreApplication.translate("MainWindow", u"File Name:", None))
@@ -1103,7 +1163,7 @@ class Ui_MainWindow(object):
         self.browseButton.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
         self.exportButton.setText(QCoreApplication.translate("MainWindow", u"Export", None))
         self.label_5.setText(QCoreApplication.translate("MainWindow", u"Select path to export", None))
-        self.nextButton5.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
+        self.nextButton5.setText(QCoreApplication.translate("MainWindow", u"Finished", None))
         self.previousFigButton.setText("")
         self.nextFigButton.setText("")
         self.menuFile.setTitle(QCoreApplication.translate("MainWindow", u"File", None))

@@ -77,7 +77,7 @@ class MainWindow(QMainWindow):
 		self.init_stacked_widget()
 		self.init_image_label()
 
-		self.adjusting_node = None
+		self.deleting_node = None
 		self.creating_node = None
 		self.dragged_node = None
 
@@ -92,7 +92,7 @@ class MainWindow(QMainWindow):
 		screen_size = screen.availableGeometry()
 
 		width = int(screen_size.width() * 0.7)
-		height = int(screen_size.height() * 0.8)
+		height = int(screen_size.height() * 0.9)
 
 		self.resize(width, height)
 
@@ -143,8 +143,9 @@ class MainWindow(QMainWindow):
 		self.ui.opacitySlider.valueChanged.connect(self.refresh_display_image)
 
 		# skeleton stage
-		self.ui.addNodeButton.clicked.connect(self.toggle_add_node_mode)
-		self.ui.adjustNodeButton.clicked.connect(self.toggle_adjust_node_mode)
+		self.ui.nodeAddButton.clicked.connect(self.toggle_add_node_mode)
+		self.ui.nodeDeleteButton.clicked.connect(self.toggle_delete_node_mode)
+		# self.ui.adjustNodeButton.clicked.connect(self.toggle_adjust_node_mode)
 
 		# export stage
 		self.ui.browseButton.clicked.connect(self.browse_export_path)
@@ -212,27 +213,27 @@ class MainWindow(QMainWindow):
 		if resolution_text:
 			try:
 				self.resolution = float(resolution_text)
-				QMessageBox.information(self, "Success", f"Current resolution: {self.resolution:.6f} mm/px saved")
+				QMessageBox.information(self, "Success", f"Current resolution: {self.resolution:.6f} mm/px saved", QMessageBox.StandardButton.Ok)
 			except ValueError:
 				QMessageBox.warning(self, "Error", "....")
 		else:
 			QMessageBox.warning(self, "Error", "....")
 
 	def toggle_add_node_mode(self):
-		if self.ui.addNodeButton.isChecked():
+		if self.ui.nodeAddButton.isChecked():
 			self.creating_node = True
-			self.adjusting_node = False
-			self.ui.adjustNodeButton.setChecked(False)
+			self.deleting_node = False
+			self.ui.nodeDeleteButton.setChecked(False)
 		else:
 			self.creating_node = False
 
-	def toggle_adjust_node_mode(self):
-		if self.ui.adjustNodeButton.isChecked():
-			self.adjusting_node = True
+	def toggle_delete_node_mode(self):
+		if self.ui.nodeDeleteButton.isChecked():
+			self.deleting_node = True
 			self.creating_node = False
-			self.ui.addNodeButton.setChecked(False)
+			self.ui.nodeAddButton.setChecked(False)
 		else:
-			self.adjusting_node = False
+			self.deleting_node = False
 
 	def apply_skeletonization(self):
 		if not self.prediction_results or len(self.prediction_results) == 0:
@@ -256,7 +257,10 @@ class MainWindow(QMainWindow):
 				"branch_points": branch_points,
 				"end_points": end_points,
 				"longest_path": None,
-				"selected_points": []
+				"selected_points": [],
+				"created_nodes": [],
+				"created_lines": []
+
 			}
 
 		if self.ui.listWidget.currentItem():
@@ -289,7 +293,10 @@ class MainWindow(QMainWindow):
 				"branch_points": branch_points,
 				"end_points": end_points,
 				"longest_path": longest_path,
-				"selected_points": []
+				"selected_points": [],
+				"created_nodes": [],
+				"created_lines": []
+
 			}
 
 		if self.ui.listWidget.currentItem():
@@ -367,50 +374,89 @@ class MainWindow(QMainWindow):
 			if self.creating_node and event.type() == QEvent.Type.MouseButtonPress and event.button() == Qt.MouseButton.LeftButton:
 				clicked_pos = event.pos()
 				if self.image:
-					selected_node = self.create_node(clicked_pos)
-					if selected_node:
-						self.dragged_node = selected_node
-
-			elif self.adjusting_node and event.type() == QEvent.Type.MouseButtonPress and event.button() == Qt.MouseButton.LeftButton:
+					self.create_node(clicked_pos)
+			elif self.deleting_node and event.type() == QEvent.Type.MouseButtonPress and event.button() == Qt.MouseButton.LeftButton:
 				clicked_pos = event.pos()
-				skeleton_data = self.skeleton_results.get(self.current_image_path)
-
-				if skeleton_data:
-					selected_node = self.get_clicked_node(clicked_pos)
-					if selected_node:
-						skeleton_data["selected_points"] = [selected_node]
-						self.refresh_display_image()
-						self.dragged_node = selected_node
-
-			elif self.adjusting_node and event.type() == QEvent.Type.MouseMove and self.dragged_node:
-				new_pos = event.pos()
-				skeleton_data = self.skeleton_results.get(self.current_image_path)
-				# todo: drag node to new pos and refresh skeleton path
+				if self.image:
+					self.delete_node(clicked_pos)
 
 		return super().eventFilter(source, event)
 
 	def move_node(self, old_pos, new_pos):
 		return
 
-	def create_node(self, pos):
-		return 0
+	def create_node(self, clicked_pos):
+		if self.current_image_path not in self.skeleton_results:
+			self.skeleton_results[self.current_image_path] = {
+				"created_nodes": [],
+				"created_lines": []
+			}
+
+		skeleton_data = self.skeleton_results[self.current_image_path]
+
+		img_size = skeleton_data["skeleton"].shape
+		img_x, img_y = self.convert_to_image_coords(clicked_pos, img_size)
+
+		new_node = (int(img_x), int(img_y))
+		skeleton_data["created_nodes"].append(new_node)
+
+		if len(skeleton_data["created_nodes"]) > 1:
+			last_node = skeleton_data["created_nodes"][-2]
+			skeleton_data.setdefault("created_lines", []).append((last_node, new_node))
+
+		self.refresh_display_image()
+
+		return new_node
+
+	def delete_node(self, clicked_pos):
+		skeleton_data = self.skeleton_results.get(self.current_image_path)
+		if not skeleton_data:
+			return
+
+		closest_node = self.get_clicked_node(clicked_pos)
+
+		if not closest_node or closest_node not in skeleton_data["created_nodes"]:
+			return
+
+		connected_lines = [line for line in skeleton_data["created_lines"] if closest_node in line]
+
+		connected_nodes = set()
+		for line in connected_lines:
+			start, end = line
+			connected_nodes.add(start if end == closest_node else end)
+
+		skeleton_data["created_nodes"].remove(closest_node)
+		skeleton_data["created_lines"] = [line for line in skeleton_data["created_lines"] if closest_node not in line]
+
+		for node in connected_nodes:
+			is_isolated = not any(node in line for line in skeleton_data["created_lines"])
+			if is_isolated and node in skeleton_data["created_nodes"]:
+				skeleton_data["created_nodes"].remove(node)
+
+		self.refresh_display_image()
 
 	def get_clicked_node(self, position):
 		skeleton_data = self.skeleton_results.get(self.current_image_path)
 		if not skeleton_data:
 			return None
 
-		branch_points = np.argwhere(skeleton_data["branch_points"] > 0)
-		end_points = np.argwhere(skeleton_data["end_points"] > 0)
-		all_nodes = np.vstack((branch_points, end_points))
+		created_nodes = skeleton_data.get("created_nodes", [])
+		if not created_nodes:
+			return None
 
-		img_size = skeleton_data["skeleton"].shape
+		img_size = skeleton_data["skeleton"].shape if "skeleton" in skeleton_data else (1, 1)
 		img_x, img_y = self.convert_to_image_coords(position, img_size)
 
-		for node in all_nodes:
-			node_x, node_y = node[1], node[0]
-			if abs(img_x - node_x) < 5 and abs(img_y - node_y) < 5:
-				return (node_x, node_y)
+		threshold = 5
+
+		nodes = np.array(created_nodes)
+		distances = np.linalg.norm(nodes - np.array([img_x, img_y]), axis=1)
+		min_index = np.argmin(distances)
+		min_dist = distances[min_index]
+
+		if min_dist < threshold:
+			return tuple(created_nodes[min_index])
+
 		return None
 
 	def qimage_to_np(self, qimage: QImage):
@@ -653,23 +699,32 @@ class MainWindow(QMainWindow):
 
 		overlay_image = original_image.copy()
 		skeleton_coords = np.where(skeleton == 1)
-		overlay_image[skeleton_coords[0], skeleton_coords[1]] = [255, 255, 0]
+		overlay_image[skeleton_coords[0], skeleton_coords[1]] = [255, 0, 0]
 
-		if longest_path is not None and len(longest_path) > 0:
-			for point in longest_path:
-				overlay_image[point[0], point[1]] = [255, 0, 0]
+		created_nodes = skeleton_data.get("created_nodes", [])
+		for node in created_nodes:
+			cv2.circle(overlay_image, (node[0], node[1]), radius=5, color=(255, 251, 13), thickness=-1)
+
+		lines = skeleton_data.get("created_lines", [])
+		for line in lines:
+			start, end = line
+			cv2.line(overlay_image, (start[0], start[1]), (end[0], end[1]), color=(255, 251, 13), thickness=1)
+
+		# if longest_path is not None and len(longest_path) > 0:
+		# 	for point in longest_path:
+		# 		overlay_image[point[0], point[1]] = [255, 0, 0]
 
 		# if branch_points is not None and np.any(branch_points):
 		# 	branch_coords = np.argwhere(branch_points > 0)
 		# 	for coord in branch_coords:
-		# 		point_tuple = (coord[1], coord[0])  # (x, y)
+		# 		point_tuple = (coord[1], coord[0])
 		# 		color = (0, 255, 0) if point_tuple in selected_points else (255, 255, 255)
 		# 		cv2.circle(overlay_image, point_tuple, radius=5, color=color, thickness=2)
 
 		if end_points is not None and np.any(end_points):
 			end_coords = np.argwhere(end_points > 0)
 			for coord in end_coords:
-				point_tuple = (coord[1], coord[0])  # (x, y)
+				point_tuple = (coord[1], coord[0])
 				color = (0, 255, 0) if point_tuple in selected_points else (255, 255, 255)
 				cv2.circle(overlay_image, point_tuple, radius=5, color=color, thickness=2)
 
@@ -688,6 +743,7 @@ class MainWindow(QMainWindow):
 			label_width, label_height, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
 		)
 		self.ui.imageLabel.setPixmap(scaled_pixmap)
+		self.image = overlay_qimage.copy()
 
 	def refresh_display_after_draw(self):
 		if not self.current_image_path or self.image is None:
@@ -784,11 +840,23 @@ class MainWindow(QMainWindow):
 			clean_skeleton = skeleton_data.get("skeleton")
 			skeleton_length = np.sum(clean_skeleton == 1)
 
-			avg_crack_width_pixels = (crack_region_pixels / skeleton_length) if skeleton_length > 0 else 0
+			manual_line_length = 0
+			created_lines = skeleton_data.get("created_lines", [])
+
+			for line in created_lines:
+				start, end = line
+				line_length = np.linalg.norm(np.array(start) - np.array(end))
+				manual_line_length += line_length
+
+			total_skeleton_length = skeleton_length + manual_line_length
+
+			print(total_skeleton_length)
+
+			avg_crack_width_pixels = (crack_region_pixels / total_skeleton_length) if total_skeleton_length > 0 else 0
 
 			crack_results[image_path] = {
 				"crack_pixels": crack_region_pixels,
-				"skeleton_pixels": skeleton_length,
+				"skeleton_pixels": total_skeleton_length,
 				"crack_width": avg_crack_width_pixels * self.resolution
 			}
 
@@ -833,7 +901,7 @@ class MainWindow(QMainWindow):
 
 		try:
 			df.to_csv(file_path, index=False, encoding="utf-8-sig")
-			QMessageBox.information(self, "Success", f"File exported successfully:\n{file_path}")
+			QMessageBox.information(self, "Success", f"File exported successfully:\n{file_path}", QMessageBox.StandardButton.Ok)
 		except Exception as e:
 			QMessageBox.critical(self, "Export Failed", f"Error:\n{str(e)}")
 	# ------------------------ Global UI Functions ----------------------------------------------------------------------
@@ -921,7 +989,3 @@ def main():
 	window = MainWindow()
 	window.show_and_check_config()
 	sys.exit(app.exec_())
-
-#
-# if __name__ == "__main__":
-# 	main()

@@ -34,7 +34,6 @@ def modify_import_statement(py_file_path):
 	with open(py_file_path, 'r', encoding='utf-8') as file:
 		content = file.read()
 
-	# 'import toolicons_rc' -> 'from frontend.ui import toolicons_rc'
 	content = re.sub(r'import (\w+_rc)', r'from frontend.ui import \1', content)
 
 	with open(py_file_path, 'w', encoding='utf-8') as file:
