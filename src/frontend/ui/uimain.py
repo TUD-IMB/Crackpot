@@ -18,10 +18,10 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QTransform)
 from PySide6.QtWidgets import (QApplication, QButtonGroup, QComboBox, QFormLayout,
     QFrame, QGroupBox, QHBoxLayout, QLabel,
-    QLineEdit, QListWidget, QListWidgetItem, QMainWindow,
-    QMenu, QMenuBar, QPushButton, QScrollArea,
-    QSizePolicy, QSlider, QSpacerItem, QStackedWidget,
-    QStatusBar, QVBoxLayout, QWidget)
+    QLineEdit, QListView, QListWidget, QListWidgetItem,
+    QMainWindow, QMenu, QMenuBar, QPushButton,
+    QScrollArea, QSizePolicy, QSlider, QSpacerItem,
+    QStackedWidget, QStatusBar, QVBoxLayout, QWidget)
 from frontend.ui import icon_rc
 
 class Ui_MainWindow(object):
@@ -1049,7 +1049,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.previousFigButton = QPushButton(self.centralwidget)
         self.previousFigButton.setObjectName(u"previousFigButton")
-        self.previousFigButton.setMaximumSize(QSize(16777215, 100))
+        self.previousFigButton.setMaximumSize(QSize(16777215, 80))
         icon18 = QIcon()
         icon18.addFile(u":/icons/icons/arrowleft.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.previousFigButton.setIcon(icon18)
@@ -1059,13 +1059,18 @@ class Ui_MainWindow(object):
 
         self.listWidget = QListWidget(self.centralwidget)
         self.listWidget.setObjectName(u"listWidget")
-        self.listWidget.setMaximumSize(QSize(16777215, 100))
+        self.listWidget.setMaximumSize(QSize(16777215, 80))
+        self.listWidget.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.listWidget.setIconSize(QSize(70, 70))
+        self.listWidget.setResizeMode(QListView.ResizeMode.Adjust)
+        self.listWidget.setGridSize(QSize(80, 80))
+        self.listWidget.setItemAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.horizontalLayout.addWidget(self.listWidget)
 
         self.nextFigButton = QPushButton(self.centralwidget)
         self.nextFigButton.setObjectName(u"nextFigButton")
-        self.nextFigButton.setMaximumSize(QSize(16777215, 100))
+        self.nextFigButton.setMaximumSize(QSize(16777215, 80))
         icon19 = QIcon()
         icon19.addFile(u":/icons/icons/arrowright.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.nextFigButton.setIcon(icon19)

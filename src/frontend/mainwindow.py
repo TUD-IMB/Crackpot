@@ -3,7 +3,7 @@ import sys
 import cv2
 import numpy as np
 import pandas as pd
-from PySide6.QtCore import Qt, QEvent, QPoint
+from PySide6.QtCore import Qt, QEvent, QPoint, QSize
 from PySide6.QtGui import QPixmap, QIcon, QImage, QPainter, QColor, QPen, QCursor
 from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QListWidgetItem, QListWidget, QSlider, \
 	QMessageBox, QToolTip
@@ -563,12 +563,10 @@ class MainWindow(QMainWindow):
 		for image_path in image_paths:
 			pixmap = QPixmap(image_path)
 			if not pixmap.isNull():
-				# predicted_mask = self.edge_detector.detect_edges(image_path)
-				# self.prediction_results[image_path] = predicted_mask
 				self.prediction_results[image_path] = None
 
 				item = QListWidgetItem()
-				item.setIcon(QIcon(pixmap.scaled(100, 100, Qt.AspectRatioMode.KeepAspectRatio)))
+				item.setIcon(QIcon(pixmap.scaled(80, 80, Qt.AspectRatioMode.KeepAspectRatio)))
 				item.setData(Qt.ItemDataRole.UserRole, image_path)
 				self.ui.listWidget.addItem(item)
 
