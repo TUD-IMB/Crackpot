@@ -341,7 +341,7 @@ QPushButton:pressed {
                <x>0</x>
                <y>0</y>
                <width>363</width>
-               <height>347</height>
+               <height>372</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_13">
@@ -504,7 +504,7 @@ QPushButton:pressed {
           <item>
            <widget class="QStackedWidget" name="stackedWidget">
             <property name="currentIndex">
-             <number>4</number>
+             <number>5</number>
             </property>
             <widget class="QWidget" name="page0">
              <layout class="QVBoxLayout" name="verticalLayout_24">
@@ -1344,6 +1344,45 @@ QPushButton:pressed {
                     </layout>
                    </item>
                    <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_20">
+                     <item>
+                      <widget class="QLabel" name="label_4">
+                       <property name="text">
+                        <string>Crack Area:</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="crackAreaLabel">
+                       <property name="text">
+                        <string/>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_24">
+                     <property name="bottomMargin">
+                      <number>0</number>
+                     </property>
+                     <item>
+                      <widget class="QLabel" name="label_17">
+                       <property name="text">
+                        <string>Skeleton Length:</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="skeletonLengthLabel">
+                       <property name="text">
+                        <string/>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
                     <layout class="QHBoxLayout" name="horizontalLayout_15">
                      <item>
                       <widget class="QLabel" name="label_11">
@@ -1677,8 +1716,8 @@ QPushButton:pressed {
  </resources>
  <connections/>
  <buttongroups>
-  <buttongroup name="penButtonGroup"/>
   <buttongroup name="caliButtonGroup"/>
   <buttongroup name="skeletonButtonGroup"/>
+  <buttongroup name="penButtonGroup"/>
  </buttongroups>
 </ui>

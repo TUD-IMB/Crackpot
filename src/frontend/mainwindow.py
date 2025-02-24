@@ -151,6 +151,7 @@ class MainWindow(QMainWindow):
 		self.ui.browseButton.clicked.connect(self.browse_export_path)
 		self.ui.exportButton.clicked.connect(self.export_to_csv)
 
+	# ------------------------ Calibration ----------------------------------------------------------------------
 	def upload_calibration_image(self):
 		cali_path, _ = QFileDialog.getOpenFileName(
 			self, "Select a Calibration Picture", "", "Images (*.png *.jpg *.jpeg *.bmp)"
@@ -218,6 +219,8 @@ class MainWindow(QMainWindow):
 				QMessageBox.warning(self, "Error", "....")
 		else:
 			QMessageBox.warning(self, "Error", "....")
+
+	# ------------------------ Skeleton Adjust ----------------------------------------------------------------------
 
 	def toggle_add_node_mode(self):
 		if self.ui.nodeAddButton.isChecked():
@@ -622,13 +625,7 @@ class MainWindow(QMainWindow):
 			self.display_skeleton_overlay(original_image)
 		elif self.progress_stage == 5:
 			self.display_original_image(original_pixmap)
-			if self.crack_results and self.current_image_path in self.crack_results:
-				file_name = os.path.basename(self.current_image_path)
-				self.ui.fileNameLabel.setText(file_name)
-				crack_width_mm = self.crack_results[self.current_image_path]["crack_width"]
-				self.ui.crackWidthLabel.setText(f"{crack_width_mm:.6f} mm")
-			else:
-				self.ui.crackWidthLabel.setText("")
+			self.display_calcu_results()
 
 	def display_original_image(self, original_pixmap):
 		"""Display the original image scaled to fit the label."""
@@ -745,6 +742,34 @@ class MainWindow(QMainWindow):
 		self.ui.imageLabel.setPixmap(scaled_pixmap)
 		self.image = overlay_qimage.copy()
 
+	def display_calcu_results(self):
+		if not self.crack_results or self.current_image_path not in self.crack_results:
+			self.ui.fileNameLabel.setText("")
+			self.ui.crackWidthLabel.setText("")
+			self.ui.skeletonLengthLabel.setText("")
+			self.ui.crackAreaLabel.setText("")
+			return
+
+		full_path = self.current_image_path
+		parent_1 = os.path.basename(os.path.dirname(full_path))
+		parent_2 = os.path.basename(os.path.dirname(os.path.dirname(full_path)))
+
+		if parent_2:
+			display_name = f"/{parent_2}/{parent_1}/{os.path.basename(full_path)}"
+		else:
+			display_name = f"/{parent_1}/{os.path.basename(full_path)}"
+
+		display_name = f"{display_name}"
+		self.ui.fileNameLabel.setText(display_name)
+
+		crack_width_mm = self.crack_results[self.current_image_path]["crack_width"]
+		crack_area_px = self.crack_results[self.current_image_path]["crack_pixels"]
+		skeleton_length_px = self.crack_results[self.current_image_path]["skeleton_pixels"]
+
+		self.ui.crackWidthLabel.setText(f"{crack_width_mm:.6f} mm")
+		self.ui.crackAreaLabel.setText(f"{int(crack_area_px)} px")
+		self.ui.skeletonLengthLabel.setText(f"{int(skeleton_length_px)} px")
+
 	def refresh_display_after_draw(self):
 		if not self.current_image_path or self.image is None:
 			return
@@ -849,8 +874,6 @@ class MainWindow(QMainWindow):
 				manual_line_length += line_length
 
 			total_skeleton_length = skeleton_length + manual_line_length
-
-			print(total_skeleton_length)
 
 			avg_crack_width_pixels = (crack_region_pixels / total_skeleton_length) if total_skeleton_length > 0 else 0
 

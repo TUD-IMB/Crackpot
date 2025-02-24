@@ -257,7 +257,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 363, 347))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 363, 372))
         self.verticalLayout_13 = QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_13.setObjectName(u"verticalLayout_13")
         self.imageLabel = QLabel(self.scrollAreaWidgetContents)
@@ -908,6 +908,37 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_18.addLayout(self.horizontalLayout_16)
 
+        self.horizontalLayout_20 = QHBoxLayout()
+        self.horizontalLayout_20.setObjectName(u"horizontalLayout_20")
+        self.label_4 = QLabel(self.groupBox_4)
+        self.label_4.setObjectName(u"label_4")
+
+        self.horizontalLayout_20.addWidget(self.label_4)
+
+        self.crackAreaLabel = QLabel(self.groupBox_4)
+        self.crackAreaLabel.setObjectName(u"crackAreaLabel")
+
+        self.horizontalLayout_20.addWidget(self.crackAreaLabel)
+
+
+        self.verticalLayout_18.addLayout(self.horizontalLayout_20)
+
+        self.horizontalLayout_24 = QHBoxLayout()
+        self.horizontalLayout_24.setObjectName(u"horizontalLayout_24")
+        self.horizontalLayout_24.setContentsMargins(-1, -1, -1, 0)
+        self.label_17 = QLabel(self.groupBox_4)
+        self.label_17.setObjectName(u"label_17")
+
+        self.horizontalLayout_24.addWidget(self.label_17)
+
+        self.skeletonLengthLabel = QLabel(self.groupBox_4)
+        self.skeletonLengthLabel.setObjectName(u"skeletonLengthLabel")
+
+        self.horizontalLayout_24.addWidget(self.skeletonLengthLabel)
+
+
+        self.verticalLayout_18.addLayout(self.horizontalLayout_24)
+
         self.horizontalLayout_15 = QHBoxLayout()
         self.horizontalLayout_15.setObjectName(u"horizontalLayout_15")
         self.label_11 = QLabel(self.groupBox_4)
@@ -1085,7 +1116,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(4)
+        self.stackedWidget.setCurrentIndex(5)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -1156,6 +1187,10 @@ class Ui_MainWindow(object):
         self.groupBox_4.setTitle(QCoreApplication.translate("MainWindow", u"Calculation Results", None))
         self.label_12.setText(QCoreApplication.translate("MainWindow", u"File Name:", None))
         self.fileNameLabel.setText("")
+        self.label_4.setText(QCoreApplication.translate("MainWindow", u"Crack Area:", None))
+        self.crackAreaLabel.setText("")
+        self.label_17.setText(QCoreApplication.translate("MainWindow", u"Skeleton Length:", None))
+        self.skeletonLengthLabel.setText("")
         self.label_11.setText(QCoreApplication.translate("MainWindow", u"Crack Width:", None))
         self.crackWidthLabel.setText("")
         self.groupBox_5.setTitle(QCoreApplication.translate("MainWindow", u"Export Settings", None))
