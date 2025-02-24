@@ -504,7 +504,7 @@ QPushButton:pressed {
           <item>
            <widget class="QStackedWidget" name="stackedWidget">
             <property name="currentIndex">
-             <number>5</number>
+             <number>4</number>
             </property>
             <widget class="QWidget" name="page0">
              <layout class="QVBoxLayout" name="verticalLayout_24">
@@ -1127,19 +1127,6 @@ QPushButton:pressed {
                     </property>
                    </widget>
                   </item>
-                  <item>
-                   <spacer name="horizontalSpacer_2">
-                    <property name="orientation">
-                     <enum>Qt::Orientation::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
                  </layout>
                 </item>
                </layout>
@@ -1152,6 +1139,12 @@ QPushButton:pressed {
                <layout class="QVBoxLayout" name="verticalLayout_8">
                 <item>
                  <widget class="QGroupBox" name="groupBox_2">
+                  <property name="styleSheet">
+                   <string notr="true">QGroupBox{
+    font-weight: bold;
+}
+</string>
+                  </property>
                   <property name="title">
                    <string>Skeletonization</string>
                   </property>
@@ -1505,7 +1498,7 @@ QPushButton:pressed {
                 <item>
                  <widget class="QPushButton" name="nextButton5">
                   <property name="text">
-                   <string>Finished</string>
+                   <string>Finish</string>
                   </property>
                  </widget>
                 </item>

@@ -3,7 +3,7 @@ import sys
 import cv2
 import numpy as np
 import pandas as pd
-from PySide6.QtCore import Qt, QEvent, QPoint, QSize
+from PySide6.QtCore import Qt, QEvent, QPoint
 from PySide6.QtGui import QPixmap, QIcon, QImage, QPainter, QColor, QPen, QCursor
 from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QListWidgetItem, QListWidget, QSlider, \
 	QMessageBox, QToolTip
@@ -107,7 +107,7 @@ class MainWindow(QMainWindow):
 		self.ui.nextButton2.clicked.connect(self.run_model_detection)
 		self.ui.nextButton3.clicked.connect(lambda: self.set_stage(4))
 		self.ui.nextButton4.clicked.connect(lambda: self.set_stage(5))
-		self.ui.nextButton5.clicked.connect(lambda: self.set_stage(0))
+		self.ui.nextButton5.clicked.connect(self.reset_all_data)
 
 		# calibration stage
 		self.ui.caliUploadButton.clicked.connect(self.upload_calibration_image)
@@ -843,6 +843,36 @@ class MainWindow(QMainWindow):
 
 		if self.ui.listWidget.currentItem():
 			self.display_large_image(self.ui.listWidget.currentItem())
+
+	def reset_all_data(self):
+		self.set_stage(0)
+		self.current_image_path = None
+		self.prediction_results.clear()
+		self.skeleton_results.clear()
+		self.crack_results.clear()
+
+		self.ui.listWidget.clear()
+		self.ui.imageLabel.clear()
+		self.ui.imageLabel.repaint()
+		self.ui.listWidget.repaint()
+
+		self.ui.fileNameLabel.setText("")
+		self.ui.crackWidthLabel.setText("")
+		self.ui.skeletonLengthLabel.setText("")
+		self.ui.crackAreaLabel.setText("")
+
+		self.ui.distanceLineEdit.clear()
+		self.ui.pixelLineEdit.clear()
+		self.ui.resolutionLineEdit.clear()
+
+		self.drawing = False
+		self.image = None
+		self.resolution = None
+		self.cali_image = None
+		self.cali_points = []
+		self.creating_node = None
+		self.deleting_node = None
+		self.dragged_node = None
 
 	# ------------------------ Results Export ----------------------------------------------------------------------
 	def calculate_crack_properties(self):

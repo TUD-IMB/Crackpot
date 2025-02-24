@@ -767,10 +767,6 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_9.addWidget(self.nextButton3)
 
-        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.horizontalLayout_9.addItem(self.horizontalSpacer_2)
-
 
         self.verticalLayout_6.addLayout(self.horizontalLayout_9)
 
@@ -786,6 +782,10 @@ class Ui_MainWindow(object):
         self.verticalLayout_8.setObjectName(u"verticalLayout_8")
         self.groupBox_2 = QGroupBox(self.page4)
         self.groupBox_2.setObjectName(u"groupBox_2")
+        self.groupBox_2.setStyleSheet(u"QGroupBox{\n"
+"    font-weight: bold;\n"
+"}\n"
+"")
         self.verticalLayout_16 = QVBoxLayout(self.groupBox_2)
         self.verticalLayout_16.setObjectName(u"verticalLayout_16")
         self.label_16 = QLabel(self.groupBox_2)
@@ -1121,7 +1121,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(5)
+        self.stackedWidget.setCurrentIndex(4)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -1203,7 +1203,7 @@ class Ui_MainWindow(object):
         self.browseButton.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
         self.exportButton.setText(QCoreApplication.translate("MainWindow", u"Export", None))
         self.label_5.setText(QCoreApplication.translate("MainWindow", u"Select path to export", None))
-        self.nextButton5.setText(QCoreApplication.translate("MainWindow", u"Finished", None))
+        self.nextButton5.setText(QCoreApplication.translate("MainWindow", u"Finish", None))
         self.previousFigButton.setText("")
         self.nextFigButton.setText("")
         self.menuFile.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
