@@ -504,7 +504,7 @@ QPushButton:pressed {
           <item>
            <widget class="QStackedWidget" name="stackedWidget">
             <property name="currentIndex">
-             <number>4</number>
+             <number>2</number>
             </property>
             <widget class="QWidget" name="page0">
              <layout class="QVBoxLayout" name="verticalLayout_24">
@@ -912,6 +912,11 @@ QPushButton:pressed {
                       <verstretch>0</verstretch>
                      </sizepolicy>
                     </property>
+                    <item>
+                     <property name="text">
+                      <string>Default</string>
+                     </property>
+                    </item>
                    </widget>
                   </item>
                  </layout>
@@ -1696,8 +1701,6 @@ QPushButton:pressed {
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionUploadImages"/>
-    <addaction name="actionExportResults"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -1724,7 +1727,6 @@ QPushButton:pressed {
       <string>Model</string>
      </property>
      <addaction name="actionCrackSeg"/>
-     <addaction name="actionDeepCrack"/>
     </widget>
     <addaction name="menuModel"/>
     <addaction name="menuLanguage"/>
@@ -1802,8 +1804,8 @@ QPushButton:pressed {
  </resources>
  <connections/>
  <buttongroups>
+  <buttongroup name="penButtonGroup"/>
   <buttongroup name="caliButtonGroup"/>
   <buttongroup name="skeletonButtonGroup"/>
-  <buttongroup name="penButtonGroup"/>
  </buttongroups>
 </ui>

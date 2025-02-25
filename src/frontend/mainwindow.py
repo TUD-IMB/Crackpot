@@ -784,12 +784,12 @@ class MainWindow(QMainWindow):
 		self.ui.fileNameLabel.setText(display_name)
 
 		crack_width_mm = self.crack_results[self.current_image_path]["crack_width"]
-		crack_area_px = self.crack_results[self.current_image_path]["crack_pixels"]
-		skeleton_length_px = self.crack_results[self.current_image_path]["skeleton_pixels"]
+		crack_area_mm = self.crack_results[self.current_image_path]["crack_area"]
+		skeleton_length_mm = self.crack_results[self.current_image_path]["skeleton_length"]
 
 		self.ui.crackWidthLabel.setText(f"{crack_width_mm:.6f} mm")
-		self.ui.crackAreaLabel.setText(f"{int(crack_area_px)} px")
-		self.ui.skeletonLengthLabel.setText(f"{int(skeleton_length_px)} px")
+		self.ui.crackAreaLabel.setText(f"{crack_area_mm:.6f} mm²")
+		self.ui.skeletonLengthLabel.setText(f"{skeleton_length_mm:.6f} mm")
 
 	def refresh_display_after_draw(self):
 		if not self.current_image_path or self.image is None:
@@ -911,6 +911,7 @@ class MainWindow(QMainWindow):
 		for image_path, prediction in self.prediction_results.items():
 
 			crack_region_pixels = np.sum(prediction == 1)
+			crack_area_mm2 = crack_region_pixels * (self.resolution ** 2)
 
 			skeleton_data = self.skeleton_results.get(image_path)
 			clean_skeleton = skeleton_data.get("skeleton")
@@ -925,12 +926,15 @@ class MainWindow(QMainWindow):
 				manual_line_length += line_length
 
 			total_skeleton_length = skeleton_length + manual_line_length
+			skeleton_length_mm = total_skeleton_length * self.resolution
 
 			avg_crack_width_pixels = (crack_region_pixels / total_skeleton_length) if total_skeleton_length > 0 else 0
 
 			crack_results[image_path] = {
 				"crack_pixels": crack_region_pixels,
 				"skeleton_pixels": total_skeleton_length,
+				"crack_area": crack_area_mm2,
+				"skeleton_length": skeleton_length_mm,
 				"crack_width": avg_crack_width_pixels * self.resolution
 			}
 
@@ -964,11 +968,23 @@ class MainWindow(QMainWindow):
 		data_list = []
 		for image_path, result in self.crack_results.items():
 			file_name = os.path.basename(image_path)
+			full_path = os.path.abspath(image_path)
+
+			crack_pixels = result["crack_pixels"]
+			skeleton_pixels = result["skeleton_pixels"]
+			crack_area = result["crack_area"]
+			skeleton_length = result["skeleton_length"]
 			crack_width = result["crack_width"]
 
 			data_list.append({
+				"File Path": full_path,
 				"File Name": file_name,
-				"Crack Width (mm)": crack_width
+				"Crack Pixel (px²)": crack_pixels,
+				"Skeleton Pixel (px)": skeleton_pixels,
+				"Crack Area (mm²)": crack_area,
+				"Skeleton length (mm)": skeleton_length,
+				"Crack Width (mm)": crack_width,
+				"Resolution (mm/px)": self.resolution
 			})
 
 		df = pd.DataFrame(data_list)

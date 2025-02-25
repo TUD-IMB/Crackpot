@@ -620,6 +620,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_12.addWidget(self.label_9)
 
         self.modelComboBox = QComboBox(self.page2)
+        self.modelComboBox.addItem("")
         self.modelComboBox.setObjectName(u"modelComboBox")
         sizePolicy4 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         sizePolicy4.setHorizontalStretch(0)
@@ -1150,8 +1151,6 @@ class Ui_MainWindow(object):
         self.menuBar.addAction(self.menuFile.menuAction())
         self.menuBar.addAction(self.menuSetting.menuAction())
         self.menuBar.addAction(self.menuHelp.menuAction())
-        self.menuFile.addAction(self.actionUploadImages)
-        self.menuFile.addAction(self.actionExportResults)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionExit)
         self.menuHelp.addAction(self.actionDocumentation)
@@ -1161,11 +1160,10 @@ class Ui_MainWindow(object):
         self.menuLanguage.addAction(self.actionEnglish)
         self.menuLanguage.addAction(self.actionGerman)
         self.menuModel.addAction(self.actionCrackSeg)
-        self.menuModel.addAction(self.actionDeepCrack)
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(4)
+        self.stackedWidget.setCurrentIndex(2)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -1212,6 +1210,8 @@ class Ui_MainWindow(object):
         self.nextButton1.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
         self.label_7.setText(QCoreApplication.translate("MainWindow", u"Select a Model to do crack detection.", None))
         self.label_9.setText(QCoreApplication.translate("MainWindow", u"Model", None))
+        self.modelComboBox.setItemText(0, QCoreApplication.translate("MainWindow", u"Default", None))
+
         self.nextButton2.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
         self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"Editing Tools", None))
         self.addButton.setText(QCoreApplication.translate("MainWindow", u"Add", None))
