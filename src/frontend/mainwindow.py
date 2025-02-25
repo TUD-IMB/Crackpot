@@ -146,6 +146,10 @@ class MainWindow(QMainWindow):
 		self.ui.nodeAddButton.clicked.connect(self.toggle_add_node_mode)
 		self.ui.nodeDeleteButton.clicked.connect(self.toggle_delete_node_mode)
 		# self.ui.adjustNodeButton.clicked.connect(self.toggle_adjust_node_mode)
+		self.ui.hintsButton.setVisible(False)
+		self.ui.hintsLabel1.setVisible(False)
+		self.ui.hintsLabel2.setVisible(False)
+		self.ui.hintsLabel3.setVisible(False)
 
 		# export stage
 		self.ui.browseButton.clicked.connect(self.browse_export_path)
@@ -227,16 +231,32 @@ class MainWindow(QMainWindow):
 			self.creating_node = True
 			self.deleting_node = False
 			self.ui.nodeDeleteButton.setChecked(False)
+			self.ui.hintsButton.setVisible(True)
+			self.ui.hintsLabel1.setVisible(True)
+			self.ui.hintsLabel2.setVisible(True)
+			self.ui.hintsLabel3.setVisible(False)
 		else:
 			self.creating_node = False
+			self.ui.hintsButton.setVisible(False)
+			self.ui.hintsLabel1.setVisible(False)
+			self.ui.hintsLabel2.setVisible(False)
+			self.ui.hintsLabel3.setVisible(False)
 
 	def toggle_delete_node_mode(self):
 		if self.ui.nodeDeleteButton.isChecked():
 			self.deleting_node = True
 			self.creating_node = False
 			self.ui.nodeAddButton.setChecked(False)
+			self.ui.hintsButton.setVisible(True)
+			self.ui.hintsLabel1.setVisible(False)
+			self.ui.hintsLabel2.setVisible(False)
+			self.ui.hintsLabel3.setVisible(True)
 		else:
 			self.deleting_node = False
+			self.ui.hintsButton.setVisible(False)
+			self.ui.hintsLabel1.setVisible(False)
+			self.ui.hintsLabel2.setVisible(False)
+			self.ui.hintsLabel3.setVisible(False)
 
 	def apply_skeletonization(self):
 		if not self.prediction_results or len(self.prediction_results) == 0:
@@ -374,10 +394,13 @@ class MainWindow(QMainWindow):
 					self.prediction_results[self.current_image_path] = updated_array
 
 		elif self.progress_stage == 4:
-			if self.creating_node and event.type() == QEvent.Type.MouseButtonPress and event.button() == Qt.MouseButton.LeftButton:
+			if self.creating_node and event.type() == QEvent.Type.MouseButtonPress:
 				clicked_pos = event.pos()
 				if self.image:
-					self.create_node(clicked_pos)
+					if event.button() == Qt.MouseButton.LeftButton:
+						self.create_node(clicked_pos, connect_to_previous=True)
+					elif event.button() == Qt.MouseButton.RightButton:
+						self.create_node(clicked_pos, connect_to_previous=False)
 			elif self.deleting_node and event.type() == QEvent.Type.MouseButtonPress and event.button() == Qt.MouseButton.LeftButton:
 				clicked_pos = event.pos()
 				if self.image:
@@ -385,10 +408,7 @@ class MainWindow(QMainWindow):
 
 		return super().eventFilter(source, event)
 
-	def move_node(self, old_pos, new_pos):
-		return
-
-	def create_node(self, clicked_pos):
+	def create_node(self, clicked_pos, connect_to_previous=True):
 		if self.current_image_path not in self.skeleton_results:
 			self.skeleton_results[self.current_image_path] = {
 				"created_nodes": [],
@@ -401,15 +421,18 @@ class MainWindow(QMainWindow):
 		img_x, img_y = self.convert_to_image_coords(clicked_pos, img_size)
 
 		new_node = (int(img_x), int(img_y))
-		skeleton_data["created_nodes"].append(new_node)
 
-		if len(skeleton_data["created_nodes"]) > 1:
-			last_node = skeleton_data["created_nodes"][-2]
+		if not connect_to_previous:
+			skeleton_data["created_nodes"].append(new_node)
+			self.refresh_display_image()
+			return
+
+		if len(skeleton_data["created_nodes"]) > 0:
+			last_node = skeleton_data["created_nodes"][-1]
 			skeleton_data.setdefault("created_lines", []).append((last_node, new_node))
 
+		skeleton_data["created_nodes"].append(new_node)
 		self.refresh_display_image()
-
-		return new_node
 
 	def delete_node(self, clicked_pos):
 		skeleton_data = self.skeleton_results.get(self.current_image_path)

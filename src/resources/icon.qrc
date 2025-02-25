@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="icons">
+    <file>icons/hints.svg</file>
     <file>icons/routeadd.svg</file>
     <file>icons/routedelete.svg</file>
     <file>icons/caliadd.svg</file>

@@ -1267,6 +1267,78 @@ QPushButton:pressed {
                        </item>
                       </layout>
                      </item>
+                     <item>
+                      <widget class="QPushButton" name="hintsButton">
+                       <property name="enabled">
+                        <bool>false</bool>
+                       </property>
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">QPushButton {
+    border: none; 
+    background: transparent;
+}
+QPushButton:hover {
+    background-color: lightgray;
+}
+QPushButton:pressed {
+    background-color: lightblue;
+}
+</string>
+                       </property>
+                       <property name="text">
+                        <string>Hints:</string>
+                       </property>
+                       <property name="icon">
+                        <iconset resource="../icon.qrc">
+                         <normaloff>:/icons/icons/hints.svg</normaloff>:/icons/icons/hints.svg</iconset>
+                       </property>
+                       <property name="iconSize">
+                        <size>
+                         <width>18</width>
+                         <height>18</height>
+                        </size>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="hintsLabel1">
+                       <property name="styleSheet">
+                        <string notr="true">color: gray;
+</string>
+                       </property>
+                       <property name="text">
+                        <string>Left-click to add and connect nodes.</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="hintsLabel2">
+                       <property name="styleSheet">
+                        <string notr="true">color: gray;
+</string>
+                       </property>
+                       <property name="text">
+                        <string>Right-click to start a new segment.</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="hintsLabel3">
+                       <property name="styleSheet">
+                        <string notr="true">color: gray;
+</string>
+                       </property>
+                       <property name="text">
+                        <string>Click a node to delete it and its lines.</string>
+                       </property>
+                      </widget>
+                     </item>
                     </layout>
                    </item>
                   </layout>

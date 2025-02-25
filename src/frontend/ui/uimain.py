@@ -859,6 +859,50 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_14.addLayout(self.horizontalLayout_14)
 
+        self.hintsButton = QPushButton(self.groupBox_2)
+        self.hintsButton.setObjectName(u"hintsButton")
+        self.hintsButton.setEnabled(False)
+        sizePolicy.setHeightForWidth(self.hintsButton.sizePolicy().hasHeightForWidth())
+        self.hintsButton.setSizePolicy(sizePolicy)
+        self.hintsButton.setStyleSheet(u"QPushButton {\n"
+"    border: none; \n"
+"    background: transparent;\n"
+"}\n"
+"QPushButton:hover {\n"
+"    background-color: lightgray;\n"
+"}\n"
+"QPushButton:pressed {\n"
+"    background-color: lightblue;\n"
+"}\n"
+"")
+        icon18 = QIcon()
+        icon18.addFile(u":/icons/icons/hints.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.hintsButton.setIcon(icon18)
+        self.hintsButton.setIconSize(QSize(18, 18))
+
+        self.verticalLayout_14.addWidget(self.hintsButton)
+
+        self.hintsLabel1 = QLabel(self.groupBox_2)
+        self.hintsLabel1.setObjectName(u"hintsLabel1")
+        self.hintsLabel1.setStyleSheet(u"color: gray;\n"
+"")
+
+        self.verticalLayout_14.addWidget(self.hintsLabel1)
+
+        self.hintsLabel2 = QLabel(self.groupBox_2)
+        self.hintsLabel2.setObjectName(u"hintsLabel2")
+        self.hintsLabel2.setStyleSheet(u"color: gray;\n"
+"")
+
+        self.verticalLayout_14.addWidget(self.hintsLabel2)
+
+        self.hintsLabel3 = QLabel(self.groupBox_2)
+        self.hintsLabel3.setObjectName(u"hintsLabel3")
+        self.hintsLabel3.setStyleSheet(u"color: gray;\n"
+"")
+
+        self.verticalLayout_14.addWidget(self.hintsLabel3)
+
 
         self.verticalLayout_16.addLayout(self.verticalLayout_14)
 
@@ -1050,9 +1094,9 @@ class Ui_MainWindow(object):
         self.previousFigButton = QPushButton(self.centralwidget)
         self.previousFigButton.setObjectName(u"previousFigButton")
         self.previousFigButton.setMaximumSize(QSize(16777215, 80))
-        icon18 = QIcon()
-        icon18.addFile(u":/icons/icons/arrowleft.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.previousFigButton.setIcon(icon18)
+        icon19 = QIcon()
+        icon19.addFile(u":/icons/icons/arrowleft.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.previousFigButton.setIcon(icon19)
         self.previousFigButton.setIconSize(QSize(20, 20))
 
         self.horizontalLayout.addWidget(self.previousFigButton)
@@ -1071,9 +1115,9 @@ class Ui_MainWindow(object):
         self.nextFigButton = QPushButton(self.centralwidget)
         self.nextFigButton.setObjectName(u"nextFigButton")
         self.nextFigButton.setMaximumSize(QSize(16777215, 80))
-        icon19 = QIcon()
-        icon19.addFile(u":/icons/icons/arrowright.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.nextFigButton.setIcon(icon19)
+        icon20 = QIcon()
+        icon20.addFile(u":/icons/icons/arrowright.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.nextFigButton.setIcon(icon20)
         self.nextFigButton.setIconSize(QSize(20, 20))
 
         self.horizontalLayout.addWidget(self.nextFigButton)
@@ -1188,6 +1232,10 @@ class Ui_MainWindow(object):
         self.label_15.setText(QCoreApplication.translate("MainWindow", u"Skeleton Edit:", None))
         self.nodeAddButton.setText("")
         self.nodeDeleteButton.setText("")
+        self.hintsButton.setText(QCoreApplication.translate("MainWindow", u"Hints:", None))
+        self.hintsLabel1.setText(QCoreApplication.translate("MainWindow", u"Left-click to add and connect nodes.", None))
+        self.hintsLabel2.setText(QCoreApplication.translate("MainWindow", u"Right-click to start a new segment.", None))
+        self.hintsLabel3.setText(QCoreApplication.translate("MainWindow", u"Click a node to delete it and its lines.", None))
         self.nextButton4.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
         self.groupBox_4.setTitle(QCoreApplication.translate("MainWindow", u"Calculation Results", None))
         self.label_12.setText(QCoreApplication.translate("MainWindow", u"File Name:", None))
