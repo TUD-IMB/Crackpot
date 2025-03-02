@@ -1,16 +1,35 @@
-import networkx as nx
 import numpy as np
 from scipy.ndimage import convolve
 
 
 class SkeletonProcessor:
+	r"""
+	Process and analyze skeletonized images. Provides functions to detect endpoints, branch points, main endpoints,
+	and remove small branches from a skeletonized image.
+	"""
 	def __init__(self):
+		r"""
+		Initialize the SkeletonProcessor with an empty dictionary to store skeleton data.
+		"""
 		self.skeletons = {}
 
 	def add_skeleton(self, image_path, skeleton):
+		r"""
+		Store a skeletonized image associated with its image path.
+
+		\param image_path: The file path of the image.
+		\param skeleton: The skeletonized image as a NumPy array.
+		"""
 		self.skeletons[image_path] = skeleton
 
 	def find_end_points(self, skeleton):
+		r"""
+		Detect endpoints in a skeletonized image.
+		Apply a convolution kernel to identify pixels with only one connected neighbor.
+
+		\param skeleton: A binary skeletonized image.
+		\return: A boolean array marking endpoint locations.
+		"""
 		kernel = np.array([[1, 1, 1],
 						   [1, 10, 1],
 						   [1, 1, 1]])
@@ -19,6 +38,13 @@ class SkeletonProcessor:
 		return end_points
 
 	def find_branch_points(self, skeleton):
+		r"""
+		Identify branch points in a skeletonized image.
+		Apply a convolution kernel to detect pixels with three or more connected neighbors.
+
+		\param skeleton: A binary skeletonized image.
+		\return: A boolean array marking branch point locations.
+		"""
 		kernel = np.array([[1, 1, 1],
 						   [1, 10, 1],
 						   [1, 1, 1]])
@@ -27,6 +53,13 @@ class SkeletonProcessor:
 		return branch_points
 
 	def find_main_endpoints(self, skeleton):
+		r"""
+		Determine the two most distant endpoints in the skeleton.
+		Find all endpoints and calculate the pair with the maximum Euclidean distance.
+
+		\param skeleton: A binary skeletonized image.
+		\return: A NumPy array containing the two main endpoints.
+		"""
 		end_points = np.column_stack(np.where(self.find_end_points(skeleton)))
 		if len(end_points) < 2:
 			return end_points
@@ -41,6 +74,16 @@ class SkeletonProcessor:
 		return np.array(main_endpoints)
 
 	def remove_small_branches(self, skeleton, max_branch_length, main_endpoints):
+		r"""
+		Remove small branches from the skeleton.
+		Iterate through endpoints, trace branches, and remove those small branches shorter than
+		the specified length threshold.
+
+		\param skeleton: A binary skeletonized image.
+		\param max_branch_length: The maximum length of branches to remove.
+		\param main_endpoints: The two main endpoints to preserve.
+		\return: The cleaned skeleton image with small branches removed.
+		"""
 		branch_points = self.find_branch_points(skeleton)
 		end_points = self.find_end_points(skeleton)
 		skeleton_copy = skeleton.copy()

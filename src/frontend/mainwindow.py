@@ -88,6 +88,9 @@ class MainWindow(QMainWindow):
 		self.adjust_window_size()
 
 	def adjust_window_size(self):
+		r"""
+		Adjust the main window size based on the available screen geometry.
+		"""
 		screen = self.screen()
 		screen_size = screen.availableGeometry()
 
@@ -97,10 +100,16 @@ class MainWindow(QMainWindow):
 		self.resize(width, height)
 
 	def init_image_label(self):
+		r"""
+		Initialize the image label, enabling mouse tracking and event filtering.
+		"""
 		self.ui.imageLabel.setMouseTracking(True)
 		self.ui.imageLabel.installEventFilter(self)
 
 	def init_stacked_widget(self):
+		r"""
+		Initialize the stacked widget and connect tool components to their respective functions.
+		"""
 		self.ui.stackedWidget.setCurrentIndex(self.progress_stage)
 		self.ui.nextButton0.clicked.connect(lambda: self.set_stage(1))
 		self.ui.nextButton1.clicked.connect(lambda: self.set_stage(2))
@@ -157,6 +166,9 @@ class MainWindow(QMainWindow):
 
 	# ------------------------ Calibration ----------------------------------------------------------------------
 	def upload_calibration_image(self):
+		r"""
+		Open a file dialog to select a calibration image, load it, and initialize calibration points list.
+		"""
 		cali_path, _ = QFileDialog.getOpenFileName(
 			self, "Select a Calibration Picture", "", "Images (*.png *.jpg *.jpeg *.bmp)"
 		)
@@ -170,6 +182,11 @@ class MainWindow(QMainWindow):
 		self.display_cali_image()
 
 	def calculate_pixel_distance(self):
+		r"""
+		Calculate the pixel distance between two selected calibration points.
+		Update the pixel distance value in the UI if exactly two points are selected.
+		Clear the pixel distance field if the number of points is incorrect.
+		"""
 		if len(self.cali_points) != 2:
 			self.ui.pixelLineEdit.clear()
 			return
@@ -177,6 +194,9 @@ class MainWindow(QMainWindow):
 		self.ui.pixelLineEdit.setText(str(pixel_distance))
 
 	def display_cali_image(self):
+		r"""
+		Display the calibration image with marked calibration points.
+		"""
 		if self.cali_image is not None:
 			img = self.cali_image.copy()
 			img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -195,6 +215,10 @@ class MainWindow(QMainWindow):
 			self.ui.imageLabel.setPixmap(scaled_pixmap)
 
 	def update_resolution(self):
+		r"""
+		Retrieve the real-world distance and pixel distance from the UI,
+		calculate resolution (mm per pixel), and update the resolution field.
+		"""
 		distance_text = self.ui.distanceLineEdit.text().strip()
 		pixel_text = self.ui.pixelLineEdit.text().strip()
 
@@ -213,6 +237,9 @@ class MainWindow(QMainWindow):
 			self.ui.resolutionLineEdit.clear()
 
 	def confirm_resolution(self):
+		r"""
+		Confirm and save the calculated resolution.
+		"""
 		resolution_text = self.ui.resolutionLineEdit.text().strip()
 
 		if resolution_text:
@@ -227,6 +254,9 @@ class MainWindow(QMainWindow):
 	# ------------------------ Skeleton Adjust ----------------------------------------------------------------------
 
 	def toggle_add_node_mode(self):
+		r"""
+		Toggle the mode for adding skeleton nodes in the skeleton editing process.
+		"""
 		if self.ui.nodeAddButton.isChecked():
 			self.creating_node = True
 			self.deleting_node = False
@@ -243,6 +273,9 @@ class MainWindow(QMainWindow):
 			self.ui.hintsLabel3.setVisible(False)
 
 	def toggle_delete_node_mode(self):
+		r"""
+		Toggle the mode for deleting skeleton nodes in the skeleton editing process.
+		"""
 		if self.ui.nodeDeleteButton.isChecked():
 			self.deleting_node = True
 			self.creating_node = False
@@ -259,6 +292,9 @@ class MainWindow(QMainWindow):
 			self.ui.hintsLabel3.setVisible(False)
 
 	def apply_skeletonization(self):
+		r"""
+		Apply skeletonization to the predicted crack results.
+		"""
 		if not self.prediction_results or len(self.prediction_results) == 0:
 			return
 
@@ -292,6 +328,10 @@ class MainWindow(QMainWindow):
 		self.skeleton_processor.skeletons = self.skeleton_results
 
 	def clean_skeleton_branches(self):
+		r"""
+		Remove small branches from the skeletonized images.
+		Identify main endpoints, clean unnecessary small branches, and extract the longest path.
+		"""
 		if not hasattr(self, "skeleton_results") or not self.skeleton_results:
 			return
 
@@ -328,7 +368,14 @@ class MainWindow(QMainWindow):
 		self.skeleton_processor.skeletons = self.skeleton_results
 
 	def get_longest_skeleton(self, skeleton):
+		r"""
+		Find and return the longest connected path in the skeletonized results.
+		Label connected components in the skeleton and determine the longest one
+		based on the number of pixels in each region.
 
+		\param skeleton: A binary skeletonized image.
+		\return: A list of coordinates representing the longest skeleton path.
+		"""
 		labeled_skeleton = label(skeleton, connectivity=2)
 
 		longest_path = []
@@ -345,6 +392,14 @@ class MainWindow(QMainWindow):
 
 	# ------------------------ Event Handling ----------------------------------------------------------------------
 	def convert_to_image_coords(self, pos, img_size):
+		r"""
+		Calculate the corresponding position in the image based on the
+		displayed image's scale and offsets within the QLabel.
+
+		\param pos: The QPoint position of the cursor in the UI.
+		\param img_size: The size of the original image (height, width).
+		\return: The converted image coordinates (x, y).
+		"""
 		label_size = self.ui.imageLabel.size()
 		scale = min(label_size.width() / img_size[1], label_size.height() / img_size[0])
 		display_width = scale * img_size[1]
@@ -356,6 +411,14 @@ class MainWindow(QMainWindow):
 		return int(img_x), int(img_y)
 
 	def eventFilter(self, source, event):
+		r"""
+		Handle various mouse interactions based on the progressing stage.
+		e.g. calibration clicks, crack drawing actions, and skeleton node creation/deletion.
+
+		\param source: The object generating the event.
+		\param event: The event being processed.
+		\return: A boolean indicating whether the event was handled.
+		"""
 		if source != self.ui.imageLabel:
 			return super().eventFilter(source, event)
 
@@ -409,6 +472,12 @@ class MainWindow(QMainWindow):
 		return super().eventFilter(source, event)
 
 	def create_node(self, clicked_pos, connect_to_previous=True):
+		r"""
+		Create a skeleton node at the clicked position and optionally connect it to the previous node.
+
+		\param clicked_pos: The QPoint position where the user clicked.
+		\param connect_to_previous: Boolean indicating whether to connect to the last node.
+		"""
 		if self.current_image_path not in self.skeleton_results:
 			self.skeleton_results[self.current_image_path] = {
 				"created_nodes": [],
@@ -435,6 +504,12 @@ class MainWindow(QMainWindow):
 		self.refresh_display_image()
 
 	def delete_node(self, clicked_pos):
+		r"""
+		Identify the closest node, remove it from the created skeleton nodes, and
+		clean up any isolated nodes.
+
+		\param clicked_pos: The QPoint position where the user clicked.
+		"""
 		skeleton_data = self.skeleton_results.get(self.current_image_path)
 		if not skeleton_data:
 			return
@@ -462,6 +537,12 @@ class MainWindow(QMainWindow):
 		self.refresh_display_image()
 
 	def get_clicked_node(self, position):
+		r"""
+		Find the closest node to the given position within a threshold.
+
+		\param position: The QPoint position where the user clicked.
+		\return: The nearest node's coordinates or None if no node is close enough.
+		"""
 		skeleton_data = self.skeleton_results.get(self.current_image_path)
 		if not skeleton_data:
 			return None
@@ -486,6 +567,12 @@ class MainWindow(QMainWindow):
 		return None
 
 	def qimage_to_np(self, qimage: QImage):
+		r"""
+		Convert a QImage object to a NumPy array.
+
+		\param qimage: The QImage to be converted.
+		\return: A NumPy array representing the image.
+		"""
 		qimage = qimage.convertToFormat(QImage.Format.Format_Grayscale8)
 		width = qimage.width()
 		height = qimage.height()
@@ -494,12 +581,22 @@ class MainWindow(QMainWindow):
 		return arr
 
 	def resizeEvent(self, event):
+		r"""
+		Handle the resize event and refresh the displayed image.
+
+		\param event: The QResizeEvent triggered by the resize action.
+		"""
 		if self.current_image_path:
 			self.refresh_display_image()
 		super().resizeEvent(event)
 
 # ------------------------ Drawing Functions ----------------------------------------------------------------------
 	def draw_on_image(self, current_point):
+		r"""
+		Draw a line using the selected brush properties and update the display after drawing.
+
+		\param current_point: The QPoint representing the current mouse position.
+		"""
 		if self.image is None:
 			return
 
@@ -525,19 +622,36 @@ class MainWindow(QMainWindow):
 		self.refresh_display_after_draw()
 
 	def activate_add_mode(self):
+		r"""
+		Activate the add mode for drawing by setting the brush color to white.
+		"""
 		self.brush_color = QColor(255, 255, 255)
 		self.update_cursor()
 
 	def activate_delete_mode(self):
+		r"""
+		Activate the delete mode by setting the brush color to black.
+		"""
 		self.brush_color = QColor(0, 0, 0)
 		self.update_cursor()
 
 	def update_brush_size(self, value):
+		r"""
+		Update the brush size based on the slider value, display a tooltip showing the selected size,
+		and update the brush cursor accordingly.
+
+		\param value: The new brush size value from the slider.
+		"""
 		self.brush_size = value
 		self.show_brush_size_tooltip(value)
 		self.update_cursor()
 
 	def show_brush_size_tooltip(self, value):
+		r"""
+		Display a tooltip near the slider to show the selected brush size.
+
+		\param value: The current brush size value.
+		"""
 		slider = self.ui.penSizeSlider
 		slider_pos = slider.mapToGlobal(QPoint(0, 0))
 
@@ -549,6 +663,9 @@ class MainWindow(QMainWindow):
 		QToolTip.showText(QPoint(handle_x, handle_y), f"{value} px", slider)
 
 	def update_cursor(self):
+		r"""
+		Update a custom transparent cursor to visually represent the current brush size and shape.
+		"""
 		size = self.brush_size
 
 		cursor_pixmap = QPixmap(size, size)
@@ -568,6 +685,11 @@ class MainWindow(QMainWindow):
 		self.ui.imageLabel.setCursor(custom_cursor)
 
 	def update_pen_shape(self, shape):
+		r"""
+		Update the pen shape based on the selected option in the UI and refresh the cursor appearance accordingly.
+
+		\param shape: A string indicating the selected pen shape ("Round" or "Square").
+		"""
 		if shape == "Round":
 			self.pen_cap_style = Qt.PenCapStyle.RoundCap
 		elif shape == "Square":
@@ -576,6 +698,9 @@ class MainWindow(QMainWindow):
 
 	# ------------------------ Image Display ----------------------------------------------------------------------
 	def upload_figures(self):
+		r"""
+		Open a file dialog to select and upload multiple images and display their thumbnails in the QListWidget.
+		"""
 		image_paths, _ = QFileDialog.getOpenFileNames(
 			self, "Select Images", "", "Images (*.png *.jpg *.jpeg *.bmp)"
 		)
@@ -598,6 +723,9 @@ class MainWindow(QMainWindow):
 			self.display_large_image(self.ui.listWidget.currentItem())
 
 	def run_model_detection(self):
+		r"""
+		Perform edge detection on uploaded images.
+		"""
 		self.edge_detector = EdgeDetection()
 		for file_name, prediction in self.prediction_results.items():
 			if prediction is None:
@@ -611,15 +739,21 @@ class MainWindow(QMainWindow):
 			self.display_large_image(self.ui.listWidget.currentItem())
 
 	def display_large_image(self, item):
-		# Retrieve the file path from the clicked item's UserRole
+		r"""
+		Retrieve the file path from the clicked item in the QListWidget and
+		update the current image path before refreshing the display.
+
+		\param item: The selected QListWidgetItem.
+		"""
 		file_path = item.data(Qt.ItemDataRole.UserRole)
 		if file_path:
 			self.current_image_path = file_path
 			self.refresh_display_image()
 
 	def refresh_display_image(self):
-		"""
-		Update the QLabel display with the combined original image and prediction.
+		r"""
+		Depending on the stage, display the original image, overlay predictions,
+		or skeletonization results. Clear the label if no image is selected.
 		"""
 		if not self.current_image_path:
 			self.ui.imageLabel.clear()
@@ -649,7 +783,11 @@ class MainWindow(QMainWindow):
 			self.display_calcu_results()
 
 	def display_original_image(self, original_pixmap):
-		"""Display the original image scaled to fit the label."""
+		r"""
+		Display the original image scaled to fit the QLabel.
+
+		\param original_pixmap: The QPixmap representation of the original image.
+		"""
 		label_width = self.ui.imageLabel.width()
 		label_height = self.ui.imageLabel.height()
 
@@ -660,7 +798,11 @@ class MainWindow(QMainWindow):
 		self.image = None
 
 	def display_prediction_overlay(self, original_pixmap):
-		"""Display the original image with the prediction overlay."""
+		r"""
+		Overlay the predicted mask on the original image.
+
+		\param original_pixmap: The QPixmap representation of the original image.
+		"""
 		prediction = self.prediction_results.get(self.current_image_path)
 		if prediction is None:
 			return
@@ -703,7 +845,11 @@ class MainWindow(QMainWindow):
 		self.image = prediction_qimage.copy()
 
 	def display_skeleton_overlay(self, original_image):
-		"""Display the original image with skeleton overlay."""
+		r"""
+		Overlay the skeletonized result onto the original image.
+
+		\param original_image: The original image in NumPy array format.
+		"""
 		skeleton_data = self.skeleton_results.get(self.current_image_path)
 		if not skeleton_data:
 			print("No skeletonization result found.")
@@ -764,6 +910,10 @@ class MainWindow(QMainWindow):
 		self.image = overlay_qimage.copy()
 
 	def display_calcu_results(self):
+		r"""
+		Display calculated crack width, area, and skeleton length in the UI.
+		If no results exist for the current image, clear the labels.
+		"""
 		if not self.crack_results or self.current_image_path not in self.crack_results:
 			self.ui.fileNameLabel.setText("")
 			self.ui.crackWidthLabel.setText("")
@@ -792,6 +942,10 @@ class MainWindow(QMainWindow):
 		self.ui.skeletonLengthLabel.setText(f"{skeleton_length_mm:.6f} mm")
 
 	def refresh_display_after_draw(self):
+		r"""
+		Refresh the QLabel display after a drawing operation.
+		Overlay the manually drawn mask onto the original image and update the UI.
+		"""
 		if not self.current_image_path or self.image is None:
 			return
 
@@ -832,6 +986,11 @@ class MainWindow(QMainWindow):
 	# ------------------------ Progress Management ----------------------------------------------------------------------
 
 	def set_stage(self, stage):
+		r"""
+		Change the application workflow to the specified stage and switch the stacked widget index to the corresponding tool page.
+
+		\param stage: The target stage index (0 to 5).
+		"""
 
 		if stage < 0 or stage > 5:
 			return
@@ -868,6 +1027,11 @@ class MainWindow(QMainWindow):
 			self.display_large_image(self.ui.listWidget.currentItem())
 
 	def reset_all_data(self):
+		r"""
+		Reset all stored data and UI elements to their initial state.
+		Clear image paths, prediction results, skeleton results, and crack results.
+		Reset UI components such as labels, input fields, and the list widget.
+		"""
 		self.set_stage(0)
 		self.current_image_path = None
 		self.prediction_results.clear()
@@ -899,8 +1063,13 @@ class MainWindow(QMainWindow):
 
 	# ------------------------ Results Export ----------------------------------------------------------------------
 	def calculate_crack_properties(self):
+		r"""
+		Calculate crack properties including area, skeleton length, and average crack width.
+
+		\return: A dictionary containing calculated crack properties for each image.
+		"""
 		if not self.prediction_results or not self.skeleton_results:
-			return {}
+			return
 
 		if self.resolution is None or self.resolution <= 0:
 			print("No valid resolution.")
@@ -941,6 +1110,10 @@ class MainWindow(QMainWindow):
 		return crack_results
 
 	def browse_export_path(self):
+		r"""
+		Open a file dialog to select the export file path, ensure it has a .csv extension and update the export path field.
+		"""
+
 		options = QFileDialog.Option(0)
 		file_path, _ = QFileDialog.getSaveFileName(
 			self, "Select Export File", "", "CSV Files (*.csv);;All Files (*)", options=options
@@ -953,6 +1126,9 @@ class MainWindow(QMainWindow):
 			self.ui.exportPathLineEdit.setText(file_path)
 
 	def export_to_csv(self):
+		r"""
+		Export crack analysis results to a CSV file.
+		"""
 		file_path = self.ui.exportPathLineEdit.text().strip()
 
 		if not file_path:
@@ -997,6 +1173,11 @@ class MainWindow(QMainWindow):
 	# ------------------------ Global UI Functions ----------------------------------------------------------------------
 
 	def zoom_image(self, zoom_in=True):
+		r"""
+		Zoom in or out on the displayed image.
+
+		\param zoom_in: Boolean flag to determine zoom direction (True for in, False for out).
+		"""
 		if not self.ui.imageLabel.pixmap():
 			return
 
@@ -1019,7 +1200,10 @@ class MainWindow(QMainWindow):
 		self.ui.imageLabel.adjustSize()
 
 	def delete_current_image(self):
-
+		r"""
+		Delete the currently selected image from the list and clear associated data (prediction results,
+		skeleton results, and crack results). It will prompt the user for confirmation before delete it.
+		"""
 		selected_item = self.ui.listWidget.currentItem()
 		if not selected_item:
 			QMessageBox.warning(self, "Error", "No image selected!")
@@ -1056,19 +1240,29 @@ class MainWindow(QMainWindow):
 				self.ui.crackWidthLabel.clear()
 
 	def show_previous_image(self):
+		r"""
+		Navigate to and display the previous image in the list.
+		"""
 		current_row = self.ui.listWidget.currentRow()
 		if current_row > 0:
 			self.ui.listWidget.setCurrentRow(current_row - 1)
 			self.display_large_image(self.ui.listWidget.currentItem())
 
 	def show_next_image(self):
+		r"""
+		Navigate to and display the next image in the list.
+		"""
 		current_row = self.ui.listWidget.currentRow()
 		if current_row < self.ui.listWidget.count() - 1:
 			self.ui.listWidget.setCurrentRow(current_row + 1)
 			self.display_large_image(self.ui.listWidget.currentItem())
 
 	def show_and_check_config(self):
+		r"""
+		Display the main window and verify configuration settings.
+		"""
 		self.show()
+		# todo: config file
 
 
 def main():

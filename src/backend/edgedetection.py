@@ -34,6 +34,60 @@ def IOU(y_true, y_pred):
 	return iou
 
 
+class EdgeDetection:
+	r"""
+	Load a pre-trained edge detection model to detect crack edges in images
+	and resize the results back to the original image size.
+	"""
+	def __init__(self):
+		r"""
+		Initialize the EdgeDetection class and load the pre-trained model.
+		"""
+		current_file_dir = os.path.dirname(os.path.abspath(__file__))
+		model_path = os.path.join(current_file_dir, '../resources/model/my_model.keras')
+
+		self.model = keras.models.load_model(
+			model_path,
+			custom_objects={'dice_coef': dice_coef, 'dice_coef_loss': dice_coef_loss, 'IOU': IOU},
+			compile=False
+		)
+
+	def resize_back(self, image, original_size):
+		r"""
+		Resize the predicted mask back to the original image size.
+
+		\param image: The predicted mask.
+		\param original_size: Tuple (width, height) of the original image.
+		\return: Resized mask matching the original image dimensions.
+		"""
+		original_width, original_height = original_size
+		restored_image = cv2.resize(image, (original_width, original_height), interpolation=cv2.INTER_NEAREST)
+		return restored_image
+
+	def detect_edges(self, image_path):
+		r"""
+		Preprocess the image by resizing and normalizing, apply the model for prediction,
+		and resize the predicted mask back to the original size.
+
+		\param image_path: Path to the input image file.
+		\return: Resized predicted edge mask.
+		"""
+		image = cv2.imread(image_path)
+		original_size = (image.shape[1], image.shape[0])
+		print(original_size)
+
+		image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+		image = cv2.resize(image, (256, 256), interpolation=cv2.INTER_AREA)
+		image = image / 255.0
+		image = np.expand_dims(image, axis=0)
+
+		prediction = self.model.predict(image)
+		predicted_mask = np.squeeze(prediction, axis=0)
+
+		resize_back_mask = self.resize_back(predicted_mask, original_size)
+
+		return resize_back_mask
+
 # model_path = '../resources/model/my_model.keras'
 # model = keras.models.load_model(
 # 	model_path,
@@ -56,37 +110,3 @@ def IOU(y_true, y_pred):
 # plt.imshow(np.squeeze(predicted_mask, axis=-1), cmap="gray")
 # plt.axis("off")
 # plt.show()
-
-
-class EdgeDetection:
-	def __init__(self):
-		current_file_dir = os.path.dirname(os.path.abspath(__file__))
-		model_path = os.path.join(current_file_dir, '../resources/model/my_model.keras')
-
-		self.model = keras.models.load_model(
-			model_path,
-			custom_objects={'dice_coef': dice_coef, 'dice_coef_loss': dice_coef_loss, 'IOU': IOU},
-			compile=False
-		)
-
-	def resize_back(self, image, original_size):
-		original_width, original_height = original_size
-		restored_image = cv2.resize(image, (original_width, original_height), interpolation=cv2.INTER_NEAREST)
-		return restored_image
-
-	def detect_edges(self, image_path):
-		image = cv2.imread(image_path)
-		original_size = (image.shape[1], image.shape[0])
-		print(original_size)
-
-		image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-		image = cv2.resize(image, (256, 256), interpolation=cv2.INTER_AREA)
-		image = image / 255.0
-		image = np.expand_dims(image, axis=0)
-
-		prediction = self.model.predict(image)
-		predicted_mask = np.squeeze(prediction, axis=0)
-
-		resize_back_mask = self.resize_back(predicted_mask, original_size)
-
-		return resize_back_mask
