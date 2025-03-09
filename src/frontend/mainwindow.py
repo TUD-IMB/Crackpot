@@ -190,7 +190,8 @@ class MainWindow(QMainWindow):
 		if len(self.cali_points) != 2:
 			self.ui.pixelLineEdit.clear()
 			return
-		pixel_distance = abs(self.cali_points[0][0] - self.cali_points[1][0])
+		cali_points = np.array(self.cali_points)
+		pixel_distance = np.linalg.norm(cali_points[1] - cali_points[0])
 		self.ui.pixelLineEdit.setText(str(pixel_distance))
 
 	def display_cali_image(self):
