@@ -1163,14 +1163,14 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(2)
+        self.stackedWidget.setCurrentIndex(5)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
     # setupUi
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"CrackCalcu", None))
+        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"Crackpot", None))
         self.actionDocumentation.setText(QCoreApplication.translate("MainWindow", u"Documentation", None))
         self.actionAbout.setText(QCoreApplication.translate("MainWindow", u"About", None))
         self.actionExit.setText(QCoreApplication.translate("MainWindow", u"Exit", None))
@@ -1244,7 +1244,7 @@ class Ui_MainWindow(object):
         self.crackAreaLabel.setText("")
         self.label_17.setText(QCoreApplication.translate("MainWindow", u"Skeleton Length:", None))
         self.skeletonLengthLabel.setText("")
-        self.label_11.setText(QCoreApplication.translate("MainWindow", u"Crack Width:", None))
+        self.label_11.setText(QCoreApplication.translate("MainWindow", u"Mean Crack Width:", None))
         self.crackWidthLabel.setText("")
         self.groupBox_5.setTitle(QCoreApplication.translate("MainWindow", u"Export Settings", None))
         self.label_6.setText(QCoreApplication.translate("MainWindow", u"Export Path", None))

@@ -1156,11 +1156,11 @@ class MainWindow(QMainWindow):
 			data_list.append({
 				"File Path": full_path,
 				"File Name": file_name,
-				"Crack Pixel (px²)": crack_pixels,
+				"Crack Pixel (px)": crack_pixels,
 				"Skeleton Pixel (px)": skeleton_pixels,
 				"Crack Area (mm²)": crack_area,
 				"Skeleton length (mm)": skeleton_length,
-				"Crack Width (mm)": crack_width,
+				"Mean Crack Width (mm)": crack_width,
 				"Resolution (mm/px)": self.resolution
 			})
 

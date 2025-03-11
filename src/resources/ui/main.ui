@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>CrackCalcu</string>
+   <string>Crackpot</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0">
@@ -504,7 +504,7 @@ QPushButton:pressed {
           <item>
            <widget class="QStackedWidget" name="stackedWidget">
             <property name="currentIndex">
-             <number>2</number>
+             <number>5</number>
             </property>
             <widget class="QWidget" name="page0">
              <layout class="QVBoxLayout" name="verticalLayout_24">
@@ -1457,7 +1457,7 @@ QPushButton:pressed {
                      <item>
                       <widget class="QLabel" name="label_11">
                        <property name="text">
-                        <string>Crack Width:</string>
+                        <string>Mean Crack Width:</string>
                        </property>
                       </widget>
                      </item>
@@ -1804,8 +1804,8 @@ QPushButton:pressed {
  </resources>
  <connections/>
  <buttongroups>
-  <buttongroup name="penButtonGroup"/>
   <buttongroup name="caliButtonGroup"/>
   <buttongroup name="skeletonButtonGroup"/>
+  <buttongroup name="penButtonGroup"/>
  </buttongroups>
 </ui>
