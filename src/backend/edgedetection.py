@@ -4,7 +4,9 @@ import numpy as np
 import tensorflow as tf
 import keras
 from keras import backend as K
-import matplotlib.pyplot as plt
+
+from utils.utils import resource_path
+
 
 def dice_coef(y_true, y_pred, smooth=1e-6):
 	y_true_f = tf.cast(K.flatten(y_true), tf.float32)
@@ -43,8 +45,8 @@ class EdgeDetection:
 		r"""
 		Initialize the EdgeDetection class and load the pre-trained model.
 		"""
-		current_file_dir = os.path.dirname(os.path.abspath(__file__))
-		model_path = os.path.join(current_file_dir, '../resources/model/my_model.keras')
+
+		model_path = resource_path('resources/model/my_model.keras')
 
 		self.model = keras.models.load_model(
 			model_path,

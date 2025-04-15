@@ -14,6 +14,8 @@ from frontend.progressmanager import ProgressManager
 from frontend.ui.uimain import Ui_MainWindow
 from skimage.morphology import skeletonize
 
+from utils.utils import resource_path
+
 
 class MainWindow(QMainWindow):
 	r"""
@@ -85,6 +87,7 @@ class MainWindow(QMainWindow):
 		self.cali_image = None
 		self.cali_points = []
 
+		self.setWindowIcon(QIcon(resource_path('resources/crackpot.ico')))
 		self.adjust_window_size()
 
 	def adjust_window_size(self):
