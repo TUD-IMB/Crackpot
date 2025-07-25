@@ -37,6 +37,11 @@ The main image can be switched by clicking on a thumbnail or by using the left a
 
 5. **Main Image Display and Editing Area**: The central area of the interface is used to displaying and editing the selected image.
 
+
+> The UI icons are sourced from [Huge Icons](https://icon-sets.iconify.design/hugeicons/), 
+and are licensed under the [MIT License](./src/resources/license/icon_MIT_LICENSE.txt).
+
+
 ![Interface Overview](./doc/images_en/ui.png)
 
 ## Calibration Stage
@@ -69,7 +74,9 @@ Clicking on a thumbnail will display the corresponding full-size image in the ma
 In this stage, a model is used to perform crack detection on the uploaded images.
 After selecting a model and proceeding to the next stage, the software will automatically generate crack masks on the uploaded images within a few seconds.
 
-> The default model currently integrated is from [Concrete Crack Segmentation](https://github.com/Subham2901/Concrete_Crack_Segmentation).
+> The default model currently integrated is from [Concrete Crack Segmentation](https://github.com/Subham2901/Concrete_Crack_Segmentation),
+which is licensed under the [MIT License](./src/resources/license/model_MIT_LICENSE.txt). 
+
 
 ![Crack Detection](./doc/images_en/model.png)
 
