@@ -64,4 +64,5 @@ if __name__ == '__main__':
 
 	print("\nStart converting .qrc files...")
 	convert_qrc_files()
-
+	
+	print("Done.")

@@ -1,4 +1,4 @@
-# Crackpot - Crack width evaluation based on crack pictures
+# Crackpot – Concrete Research And Crack Knowledge Photogrammetric Observation Tool
 
 
 ## Introduction
