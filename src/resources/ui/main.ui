@@ -1853,6 +1853,8 @@ QPushButton:pressed {
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionImportProject"/>
+    <addaction name="actionExportProject"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -1900,6 +1902,16 @@ QPushButton:pressed {
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionImportProject">
+   <property name="text">
+    <string>Import Project...</string>
+   </property>
+  </action>
+  <action name="actionExportProject">
+   <property name="text">
+    <string>Export Project...</string>
    </property>
   </action>
   <action name="actionBackward">

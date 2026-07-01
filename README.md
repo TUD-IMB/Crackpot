@@ -162,6 +162,20 @@ Please Always follow the workflow sequence after making any changes.
 
 
 
+## Saving and Resuming a Session
+
+Working through a large batch of images does not have to happen in a single sitting.
+The **File** menu provides two actions to save and later continue an in-progress session:
+
+- **Export Project...**: Saves the current session — the list of uploaded images, the calibration resolution,
+all detected/edited crack masks, and all skeleton data (including manually added skeleton points and lines) —
+into a single `.crackpot` project file. The uploaded images themselves are **not** copied into this file, only
+referenced by their file path, so they must remain available at that same path to be reloaded later.
+- **Import Project...**: Loads a previously saved `.crackpot` file and restores the exact working state,
+including the current stage, so work can continue exactly where it left off. If an image can no longer be
+found at its original path, it is skipped and listed in a warning message, while the rest of the project is
+still loaded normally.
+
 ## Software stack
 - Backend/Logic: Python3
 - Frontend: Qt6/PySide6

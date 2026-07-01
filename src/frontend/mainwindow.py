@@ -1,4 +1,5 @@
 import os
+import pickle
 import sys
 import cv2
 import numpy as np
@@ -123,6 +124,11 @@ class MainWindow(QMainWindow):
 		Initialize the stacked widget and connect tool components to their respective functions.
 		"""
 		self.ui.stackedWidget.setCurrentIndex(self.progress_stage)
+
+		# File menu
+		self.ui.actionExportProject.triggered.connect(self.export_project)
+		self.ui.actionImportProject.triggered.connect(self.import_project)
+
 		self.ui.nextButton0.clicked.connect(lambda: self.set_stage(1))
 		self.ui.nextButton1.clicked.connect(lambda: self.set_stage(2))
 		self.ui.nextButton2.clicked.connect(self.run_model_detection)
@@ -1199,6 +1205,115 @@ class MainWindow(QMainWindow):
 		self.creating_node = None
 		self.deleting_node = None
 		self.dragged_node = None
+
+	# ------------------------ Project Save/Load ----------------------------------------------------------------------
+	def export_project(self):
+		r"""
+		Save the current session (uploaded images, calibration, crack masks, and skeleton
+		data, including manual edits) to a single project file so the work can be resumed
+		later via "Import Project". Images are referenced by their file path, not copied.
+		"""
+		if self.ui.listWidget.count() == 0:
+			QMessageBox.warning(self, "Export Error", "No images to export. Please upload images first.")
+			return
+
+		file_path, _ = QFileDialog.getSaveFileName(
+			self, "Save Project", "", "Crackpot Project (*.crackpot)"
+		)
+		if not file_path:
+			return
+		if not file_path.lower().endswith(".crackpot"):
+			file_path += ".crackpot"
+
+		image_paths = [
+			self.ui.listWidget.item(i).data(Qt.ItemDataRole.UserRole)
+			for i in range(self.ui.listWidget.count())
+		]
+
+		project_data = {
+			"format_version": 1,
+			"image_paths": image_paths,
+			"resolution": self.resolution,
+			"cali_image": self.cali_image,
+			"cali_points": self.cali_points,
+			"prediction_results": self.prediction_results,
+			"skeleton_results": self.skeleton_results,
+			"crack_results": self.crack_results,
+			"progress_stage": self.progress_stage,
+		}
+
+		try:
+			os.makedirs(os.path.dirname(file_path), exist_ok=True)
+			with open(file_path, "wb") as f:
+				pickle.dump(project_data, f)
+			QMessageBox.information(self, "Success", f"Project exported successfully:\n{file_path}", QMessageBox.StandardButton.Ok)
+		except Exception as e:
+			QMessageBox.critical(self, "Export Failed", f"Error:\n{str(e)}")
+
+	def import_project(self):
+		r"""
+		Load a previously exported project file and restore the full working state
+		(images, calibration, crack masks, and skeleton data) to continue where it left
+		off. Images that can no longer be found at their original path are skipped and
+		reported, without failing the rest of the import.
+		"""
+		file_path, _ = QFileDialog.getOpenFileName(
+			self, "Open Project", "", "Crackpot Project (*.crackpot)"
+		)
+		if not file_path:
+			return
+
+		try:
+			with open(file_path, "rb") as f:
+				project_data = pickle.load(f)
+		except Exception as e:
+			QMessageBox.critical(self, "Import Failed", f"Error:\n{str(e)}")
+			return
+
+		image_paths = project_data.get("image_paths", [])
+		missing_paths = [p for p in image_paths if not os.path.exists(p)]
+		found_paths = [p for p in image_paths if p not in missing_paths]
+
+		self.reset_all_data()
+
+		self.resolution = project_data.get("resolution")
+		self.cali_image = project_data.get("cali_image")
+		self.cali_points = project_data.get("cali_points", [])
+		self.prediction_results = project_data.get("prediction_results", {})
+		self.skeleton_results = project_data.get("skeleton_results", {})
+		self.crack_results = project_data.get("crack_results", {})
+		self.skeleton_processor.skeletons = self.skeleton_results
+
+		for image_path in found_paths:
+			pixmap = QPixmap(image_path)
+			if pixmap.isNull():
+				missing_paths.append(image_path)
+				continue
+			item = QListWidgetItem()
+			item.setIcon(QIcon(pixmap.scaled(80, 80, Qt.AspectRatioMode.KeepAspectRatio)))
+			item.setData(Qt.ItemDataRole.UserRole, image_path)
+			self.ui.listWidget.addItem(item)
+
+		if self.resolution is not None:
+			self.ui.resolutionLineEdit.setText(f"{self.resolution:.6f}")
+
+		if self.ui.listWidget.count() > 0:
+			self.ui.listWidget.setCurrentRow(0)
+			self.display_large_image(self.ui.listWidget.currentItem())
+
+		restored_stage = project_data.get("progress_stage", 0)
+		if self.ui.listWidget.count() == 0:
+			restored_stage = min(restored_stage, 1)
+		self.set_stage(restored_stage)
+
+		if missing_paths:
+			QMessageBox.warning(
+				self, "Some Images Missing",
+				"Project loaded, but the following images could not be found or loaded and "
+				"were skipped:\n\n" + "\n".join(missing_paths)
+			)
+		else:
+			QMessageBox.information(self, "Success", "Project loaded successfully.", QMessageBox.StandardButton.Ok)
 
 	# ------------------------ Results Export ----------------------------------------------------------------------
 	def calculate_crack_properties(self):
