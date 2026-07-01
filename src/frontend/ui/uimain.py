@@ -621,6 +621,7 @@ class Ui_MainWindow(object):
 
         self.modelComboBox = QComboBox(self.page2)
         self.modelComboBox.addItem("")
+        self.modelComboBox.addItem("")
         self.modelComboBox.setObjectName(u"modelComboBox")
         sizePolicy4 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         sizePolicy4.setHorizontalStretch(0)
@@ -1210,7 +1211,8 @@ class Ui_MainWindow(object):
         self.nextButton1.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
         self.label_7.setText(QCoreApplication.translate("MainWindow", u"Select a Model to do crack detection.", None))
         self.label_9.setText(QCoreApplication.translate("MainWindow", u"Model", None))
-        self.modelComboBox.setItemText(0, QCoreApplication.translate("MainWindow", u"Default", None))
+        self.modelComboBox.setItemText(0, QCoreApplication.translate("MainWindow", u"Concrete Crack Segmentation", None))
+        self.modelComboBox.setItemText(1, QCoreApplication.translate("MainWindow", u"None", None))
 
         self.nextButton2.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
         self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"Editing Tools", None))

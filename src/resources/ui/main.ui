@@ -914,7 +914,12 @@ QPushButton:pressed {
                     </property>
                     <item>
                      <property name="text">
-                      <string>Default</string>
+                      <string>Concrete Crack Segmentation</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>None</string>
                      </property>
                     </item>
                    </widget>

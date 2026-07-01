@@ -22,6 +22,8 @@ class MainWindow(QMainWindow):
 	Main User Interface for the application.
 	"""
 
+	DETECTION_METHOD_NONE = "None"
+
 	def __init__(self):
 		super().__init__()
 
@@ -751,13 +753,20 @@ class MainWindow(QMainWindow):
 
 	def run_model_detection(self):
 		r"""
-		Perform edge detection on uploaded images.
+		Perform edge detection on uploaded images, unless automatic detection is disabled
+		via the model dropdown, in which case an empty mask is used for manual annotation.
 		"""
-		self.edge_detector = EdgeDetection()
-		for file_name, prediction in self.prediction_results.items():
-			if prediction is None:
-				predicted_mask = self.edge_detector.detect_edges(file_name)
-				self.prediction_results[file_name] = predicted_mask
+		if self.ui.modelComboBox.currentText() == self.DETECTION_METHOD_NONE:
+			for file_name, prediction in self.prediction_results.items():
+				if prediction is None:
+					image = cv2.imread(file_name)
+					self.prediction_results[file_name] = np.zeros(image.shape[:2], dtype=np.float32)
+		else:
+			self.edge_detector = EdgeDetection()
+			for file_name, prediction in self.prediction_results.items():
+				if prediction is None:
+					predicted_mask = self.edge_detector.detect_edges(file_name)
+					self.prediction_results[file_name] = predicted_mask
 
 		next_stage = self.progress_stage + 1
 		self.set_stage(next_stage)

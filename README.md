@@ -73,17 +73,20 @@ Clicking on a thumbnail will display the corresponding full-size image in the ma
 ## Crack Detection Stage
 
 In this stage, a model is used to perform crack detection on the uploaded images.
-After selecting a model and proceeding to the next stage, the software will automatically generate crack masks on the uploaded images within a few seconds.
+The detection method can be chosen from the dropdown menu:
 
-> The default model currently integrated is from [Concrete Crack Segmentation](https://github.com/Subham2901/Concrete_Crack_Segmentation),
-which is licensed under the [MIT License](./src/resources/license/model_MIT_LICENSE.txt). 
+- **Concrete Crack Segmentation** (default): Automatically generates crack masks on the uploaded images within a few seconds, using the model from
+[Concrete Crack Segmentation](https://github.com/Subham2901/Concrete_Crack_Segmentation), which is licensed under the [MIT License](./src/resources/license/model_MIT_LICENSE.txt).
+- **None**: Disables automatic crack detection entirely. No model is run and the crack mask starts out empty, so crack regions can be added manually in the following [Mask Edit Stage](#mask-edit-stage). This is useful for manual annotation workflows or for datasets where the automatic model is not applicable.
 
+After selecting a method and proceeding to the next stage, the crack masks are prepared accordingly.
 
 ![Crack Detection](./doc/images_en/model.png)
 
 ## Mask Edit Stage
 
 Since model detection results may contain errors, the Mask Edit Stage provides the ability to manually adjust the detected crack areas.
+If automatic detection was disabled ("None" selected in the previous stage), the mask starts out empty and can be built up entirely with these tools.
 The available editing tools include:
 
 - Brush: Add Brush & Delete Brush
