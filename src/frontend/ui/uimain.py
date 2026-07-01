@@ -845,6 +845,15 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_16.addWidget(self.cleanBranchButton)
 
+        self.clearSkeletonButton = QPushButton(self.groupBox_2)
+        self.clearSkeletonButton.setObjectName(u"clearSkeletonButton")
+        icon21 = QIcon()
+        icon21.addFile(u":/icons/icons/delete.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.clearSkeletonButton.setIcon(icon21)
+        self.clearSkeletonButton.setIconSize(QSize(20, 20))
+
+        self.verticalLayout_16.addWidget(self.clearSkeletonButton)
+
         self.verticalLayout_14 = QVBoxLayout()
         self.verticalLayout_14.setObjectName(u"verticalLayout_14")
         self.line_3 = QFrame(self.groupBox_2)
@@ -1279,6 +1288,7 @@ class Ui_MainWindow(object):
         self.label_16.setText(QCoreApplication.translate("MainWindow", u"Extracting crack skeleton information.", None))
         self.skeletonButton.setText(QCoreApplication.translate("MainWindow", u"Skeletonization", None))
         self.cleanBranchButton.setText(QCoreApplication.translate("MainWindow", u"Remove small branches", None))
+        self.clearSkeletonButton.setText(QCoreApplication.translate("MainWindow", u"Clear Skeleton", None))
         self.label_15.setText(QCoreApplication.translate("MainWindow", u"Skeleton Edit:", None))
         self.nodeAddButton.setText("")
         self.nodeDeleteButton.setText("")

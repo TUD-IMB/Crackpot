@@ -145,6 +145,7 @@ class MainWindow(QMainWindow):
 		# skeleton select stage
 		self.ui.skeletonButton.clicked.connect(self.apply_skeletonization)
 		self.ui.cleanBranchButton.clicked.connect(self.clean_skeleton_branches)
+		self.ui.clearSkeletonButton.clicked.connect(self.clear_current_skeleton)
 
 		# edit stage
 		self.ui.addButton.clicked.connect(self.activate_add_mode)
@@ -343,43 +344,63 @@ class MainWindow(QMainWindow):
 
 	def clean_skeleton_branches(self):
 		r"""
-		Remove small branches from the skeletonized images.
+		Remove small branches from the skeletonized image currently displayed.
 		Identify main endpoints, clean unnecessary small branches, and extract the longest path.
 		"""
-		if not hasattr(self, "skeleton_results") or not self.skeleton_results:
+		skeleton_data = self.skeleton_results.get(self.current_image_path)
+		if not skeleton_data:
 			return
 
-		for image_path, skeleton_data in self.skeleton_results.items():
-			skeleton = skeleton_data.get("skeleton")
-			if skeleton is None:
-				continue
+		skeleton = skeleton_data.get("skeleton")
+		if skeleton is None:
+			return
 
-			main_endpoints = self.skeleton_processor.find_main_endpoints(skeleton)
-			clean_skeleton = self.skeleton_processor.remove_small_branches(
-				skeleton, max_branch_length=50, main_endpoints=main_endpoints
-			)
-			# clean_skeleton = self.skeleton_processor.extract_main_skeleton(skeleton)
+		main_endpoints = self.skeleton_processor.find_main_endpoints(skeleton)
+		clean_skeleton = self.skeleton_processor.remove_small_branches(
+			skeleton, max_branch_length=50, main_endpoints=main_endpoints
+		)
+		# clean_skeleton = self.skeleton_processor.extract_main_skeleton(skeleton)
 
-			# todo: longest path define?
-			longest_path = self.get_longest_skeleton(clean_skeleton)
-			branch_points = self.skeleton_processor.find_branch_points(clean_skeleton)
-			end_points = self.skeleton_processor.find_end_points(clean_skeleton)
+		# todo: longest path define?
+		longest_path = self.get_longest_skeleton(clean_skeleton)
+		branch_points = self.skeleton_processor.find_branch_points(clean_skeleton)
+		end_points = self.skeleton_processor.find_end_points(clean_skeleton)
 
-			self.skeleton_results[image_path] = {
-				"skeleton": clean_skeleton,
-				"branch_points": branch_points,
-				"end_points": end_points,
-				"longest_path": longest_path,
-				"selected_points": [],
-				"created_nodes": [],
-				"created_lines": []
+		self.skeleton_results[self.current_image_path] = {
+			"skeleton": clean_skeleton,
+			"branch_points": branch_points,
+			"end_points": end_points,
+			"longest_path": longest_path,
+			"selected_points": [],
+			"created_nodes": [],
+			"created_lines": []
 
-			}
+		}
 
-		if self.ui.listWidget.currentItem():
-			self.display_large_image(self.ui.listWidget.currentItem())
+		self.refresh_display_image()
 
 		self.skeleton_processor.skeletons = self.skeleton_results
+
+	def clear_current_skeleton(self):
+		r"""
+		Remove the skeleton for the currently displayed image only, resetting it to empty
+		so it can be corrected or regenerated without affecting the other images.
+		"""
+		skeleton_data = self.skeleton_results.get(self.current_image_path)
+		if not skeleton_data or skeleton_data.get("skeleton") is None:
+			return
+
+		self.skeleton_results[self.current_image_path] = {
+			"skeleton": np.zeros_like(skeleton_data["skeleton"]),
+			"branch_points": None,
+			"end_points": None,
+			"longest_path": None,
+			"selected_points": [],
+			"created_nodes": [],
+			"created_lines": []
+		}
+
+		self.refresh_display_image()
 
 	def get_longest_skeleton(self, skeleton):
 		r"""
