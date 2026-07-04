@@ -143,9 +143,13 @@ class MainWindow(QMainWindow):
 		# self.ui.runModelButton.clicked.connect(self.run_model_detection)
 
 		# skeleton select stage
-		self.ui.skeletonButton.clicked.connect(self.apply_skeletonization)
-		self.ui.cleanBranchButton.clicked.connect(self.clean_skeleton_branches)
-		self.ui.clearSkeletonButton.clicked.connect(self.clear_current_skeleton)
+		# Left buttons act on the currently displayed image, right buttons on all images.
+		self.ui.skeletonButton.clicked.connect(lambda: self.apply_skeletonization(all_images=False))
+		self.ui.skeletonAllButton.clicked.connect(lambda: self.apply_skeletonization(all_images=True))
+		self.ui.cleanBranchButton.clicked.connect(lambda: self.clean_skeleton_branches(all_images=False))
+		self.ui.cleanBranchAllButton.clicked.connect(lambda: self.clean_skeleton_branches(all_images=True))
+		self.ui.clearSkeletonButton.clicked.connect(lambda: self.clear_skeleton(all_images=False))
+		self.ui.clearSkeletonAllButton.clicked.connect(lambda: self.clear_skeleton(all_images=True))
 
 		# edit stage
 		self.ui.addButton.clicked.connect(self.activate_add_mode)
@@ -306,23 +310,42 @@ class MainWindow(QMainWindow):
 			self.ui.hintsLabel2.setVisible(False)
 			self.ui.hintsLabel3.setVisible(False)
 
-	def apply_skeletonization(self):
+	def _skeleton_target_paths(self, all_images, source):
 		r"""
-		Apply skeletonization to the predicted crack results.
+		Resolve which images a skeleton action applies to.
+
+		The three skeleton actions (create, remove small branches, clear) share the
+		same rule: the left button acts on the currently displayed image, the right
+		button on every uploaded image. Centralising this here keeps them consistent.
+
+		\param all_images: If True, act on all images (right button); if False, only
+			on the currently displayed one (left button).
+		\param source: The dictionary whose keys define the available images
+			(prediction results when creating skeletons, skeleton results otherwise).
+		\return: A list of image paths to process.
 		"""
-		if not self.prediction_results or len(self.prediction_results) == 0:
+		if all_images:
+			return list(source.keys())
+		if self.current_image_path and self.current_image_path in source:
+			return [self.current_image_path]
+		return []
+
+	def apply_skeletonization(self, all_images=False):
+		r"""
+		Create the crack skeleton from the prediction mask.
+
+		\param all_images: Process every image if True (right button), only the
+			currently displayed one if False (left button).
+		"""
+		if not self.prediction_results:
 			return
 
-		if not hasattr(self, "skeleton_results"):
-			self.skeleton_results = {}
-		else:
-			self.skeleton_results.clear()
-
-		for image_path, prediction in self.prediction_results.items():
+		for image_path in self._skeleton_target_paths(all_images, self.prediction_results):
+			prediction = self.prediction_results.get(image_path)
 			if prediction is None:
 				continue
-			skeleton = skeletonize(prediction).astype(np.uint8)
 
+			skeleton = skeletonize(prediction).astype(np.uint8)
 			branch_points = self.skeleton_processor.find_branch_points(skeleton)
 			end_points = self.skeleton_processor.find_end_points(skeleton)
 
@@ -334,72 +357,84 @@ class MainWindow(QMainWindow):
 				"selected_points": [],
 				"created_nodes": [],
 				"created_lines": []
-
 			}
 
 		if self.ui.listWidget.currentItem():
 			self.display_large_image(self.ui.listWidget.currentItem())
 
 		self.skeleton_processor.skeletons = self.skeleton_results
-
-	def clean_skeleton_branches(self):
-		r"""
-		Remove small branches from the skeletonized image currently displayed.
-		Identify main endpoints, clean unnecessary small branches, and extract the longest path.
-		"""
-		skeleton_data = self.skeleton_results.get(self.current_image_path)
-		if not skeleton_data:
-			return
-
-		skeleton = skeleton_data.get("skeleton")
-		if skeleton is None:
-			return
-
-		main_endpoints = self.skeleton_processor.find_main_endpoints(skeleton)
-		clean_skeleton = self.skeleton_processor.remove_small_branches(
-			skeleton, max_branch_length=50, main_endpoints=main_endpoints
-		)
-		# clean_skeleton = self.skeleton_processor.extract_main_skeleton(skeleton)
-
-		# todo: longest path define?
-		longest_path = self.get_longest_skeleton(clean_skeleton)
-		branch_points = self.skeleton_processor.find_branch_points(clean_skeleton)
-		end_points = self.skeleton_processor.find_end_points(clean_skeleton)
-
-		self.skeleton_results[self.current_image_path] = {
-			"skeleton": clean_skeleton,
-			"branch_points": branch_points,
-			"end_points": end_points,
-			"longest_path": longest_path,
-			"selected_points": [],
-			"created_nodes": [],
-			"created_lines": []
-
-		}
-
 		self.refresh_display_image()
 
-		self.skeleton_processor.skeletons = self.skeleton_results
-
-	def clear_current_skeleton(self):
+	def clean_skeleton_branches(self, all_images=False):
 		r"""
-		Remove the skeleton for the currently displayed image only, resetting it to empty
-		so it can be corrected or regenerated without affecting the other images.
+		Remove small branches from the skeleton and keep the longest path.
+		Identify main endpoints, clean unnecessary small branches, and extract the longest path.
+
+		\param all_images: Process every image if True (right button), only the
+			currently displayed one if False (left button).
 		"""
-		skeleton_data = self.skeleton_results.get(self.current_image_path)
-		if not skeleton_data or skeleton_data.get("skeleton") is None:
+		if not self.skeleton_results:
 			return
 
-		self.skeleton_results[self.current_image_path] = {
-			"skeleton": np.zeros_like(skeleton_data["skeleton"]),
-			"branch_points": None,
-			"end_points": None,
-			"longest_path": None,
-			"selected_points": [],
-			"created_nodes": [],
-			"created_lines": []
-		}
+		for image_path in self._skeleton_target_paths(all_images, self.skeleton_results):
+			skeleton_data = self.skeleton_results.get(image_path)
+			if not skeleton_data:
+				continue
+			skeleton = skeleton_data.get("skeleton")
+			if skeleton is None:
+				continue
 
+			main_endpoints = self.skeleton_processor.find_main_endpoints(skeleton)
+			clean_skeleton = self.skeleton_processor.remove_small_branches(
+				skeleton, max_branch_length=50, main_endpoints=main_endpoints
+			)
+			# clean_skeleton = self.skeleton_processor.extract_main_skeleton(skeleton)
+
+			# todo: longest path define?
+			longest_path = self.get_longest_skeleton(clean_skeleton)
+			branch_points = self.skeleton_processor.find_branch_points(clean_skeleton)
+			end_points = self.skeleton_processor.find_end_points(clean_skeleton)
+
+			self.skeleton_results[image_path] = {
+				"skeleton": clean_skeleton,
+				"branch_points": branch_points,
+				"end_points": end_points,
+				"longest_path": longest_path,
+				"selected_points": [],
+				"created_nodes": [],
+				"created_lines": []
+			}
+
+		self.skeleton_processor.skeletons = self.skeleton_results
+		self.refresh_display_image()
+
+	def clear_skeleton(self, all_images=False):
+		r"""
+		Discard the skeleton and any manually added nodes/lines, resetting it to an
+		empty but valid state so it can be regenerated or edited from scratch.
+
+		\param all_images: Process every image if True (right button), only the
+			currently displayed one if False (left button).
+		"""
+		if not self.skeleton_results:
+			return
+
+		for image_path in self._skeleton_target_paths(all_images, self.skeleton_results):
+			skeleton_data = self.skeleton_results.get(image_path)
+			if not skeleton_data or skeleton_data.get("skeleton") is None:
+				continue
+
+			self.skeleton_results[image_path] = {
+				"skeleton": np.zeros_like(skeleton_data["skeleton"]),
+				"branch_points": None,
+				"end_points": None,
+				"longest_path": None,
+				"selected_points": [],
+				"created_nodes": [],
+				"created_lines": []
+			}
+
+		self.skeleton_processor.skeletons = self.skeleton_results
 		self.refresh_display_image()
 
 	def get_longest_skeleton(self, skeleton):
@@ -941,12 +976,21 @@ class MainWindow(QMainWindow):
 		\param original_image: The original image in NumPy array format.
 		"""
 		skeleton_data = self.skeleton_results.get(self.current_image_path)
-		if not skeleton_data:
-			skeleton_data = {}
+		if not skeleton_data or skeleton_data.get("skeleton") is None:
+			# No skeleton for this image yet: show the plain original image so it can
+			# still be viewed (and skeletonized/edited later). An empty, all-zero
+			# skeleton means the rest of this method simply draws no overlay.
+			skeleton_data = {
+				"skeleton": np.zeros(original_image.shape[:2], dtype=np.uint8),
+				"branch_points": None,
+				"end_points": None,
+				"longest_path": [],
+				"selected_points": [],
+				"created_nodes": [],
+				"created_lines": [],
+			}
 
-		skeleton = skeleton_data.get("skeleton")
-		if skeleton is None:
-			skeleton = np.zeros(original_image.shape[:2], dtype=np.uint8)
+		skeleton = skeleton_data["skeleton"]
 		branch_points = skeleton_data.get("branch_points", None)
 		end_points = skeleton_data.get("end_points", None)
 		longest_path = skeleton_data.get("longest_path", [])

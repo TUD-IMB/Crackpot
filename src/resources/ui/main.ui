@@ -1233,35 +1233,99 @@ QPushButton:pressed {
                     </widget>
                    </item>
                    <item>
-                    <widget class="QPushButton" name="skeletonButton">
+                    <widget class="QLabel" name="skeletonizeLabel">
                      <property name="text">
                       <string>Skeletonization</string>
                      </property>
                     </widget>
                    </item>
                    <item>
-                    <widget class="QPushButton" name="cleanBranchButton">
+                    <layout class="QHBoxLayout" name="skeletonizeButtonLayout">
+                     <item>
+                      <widget class="QPushButton" name="skeletonButton">
+                       <property name="text">
+                        <string>This Image</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="skeletonAllButton">
+                       <property name="text">
+                        <string>All Images</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="cleanBranchLabel">
                      <property name="text">
                       <string>Remove small branches</string>
                      </property>
                     </widget>
                    </item>
                    <item>
-                    <widget class="QPushButton" name="clearSkeletonButton">
+                    <layout class="QHBoxLayout" name="cleanBranchButtonLayout">
+                     <item>
+                      <widget class="QPushButton" name="cleanBranchButton">
+                       <property name="text">
+                        <string>This Image</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="cleanBranchAllButton">
+                       <property name="text">
+                        <string>All Images</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="clearSkeletonLabel">
                      <property name="text">
-                      <string>Clear Skeleton</string>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="../icon.qrc">
-                       <normaloff>:/icons/icons/delete.svg</normaloff>:/icons/icons/delete.svg</iconset>
-                     </property>
-                     <property name="iconSize">
-                      <size>
-                       <width>20</width>
-                       <height>20</height>
-                      </size>
+                      <string>Clear skeleton</string>
                      </property>
                     </widget>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="clearSkeletonButtonLayout">
+                     <item>
+                      <widget class="QPushButton" name="clearSkeletonButton">
+                       <property name="text">
+                        <string>This Image</string>
+                       </property>
+                       <property name="icon">
+                        <iconset resource="../icon.qrc">
+                         <normaloff>:/icons/icons/delete.svg</normaloff>:/icons/icons/delete.svg</iconset>
+                       </property>
+                       <property name="iconSize">
+                        <size>
+                         <width>20</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="clearSkeletonAllButton">
+                       <property name="text">
+                        <string>All Images</string>
+                       </property>
+                       <property name="icon">
+                        <iconset resource="../icon.qrc">
+                         <normaloff>:/icons/icons/delete.svg</normaloff>:/icons/icons/delete.svg</iconset>
+                       </property>
+                       <property name="iconSize">
+                        <size>
+                         <width>20</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
                    </item>
                    <item>
                     <layout class="QVBoxLayout" name="verticalLayout_14">

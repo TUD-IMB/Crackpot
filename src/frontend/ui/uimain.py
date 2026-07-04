@@ -835,16 +835,53 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_16.addWidget(self.label_16)
 
+        self.skeletonizeLabel = QLabel(self.groupBox_2)
+        self.skeletonizeLabel.setObjectName(u"skeletonizeLabel")
+
+        self.verticalLayout_16.addWidget(self.skeletonizeLabel)
+
+        self.skeletonizeButtonLayout = QHBoxLayout()
+        self.skeletonizeButtonLayout.setObjectName(u"skeletonizeButtonLayout")
         self.skeletonButton = QPushButton(self.groupBox_2)
         self.skeletonButton.setObjectName(u"skeletonButton")
 
-        self.verticalLayout_16.addWidget(self.skeletonButton)
+        self.skeletonizeButtonLayout.addWidget(self.skeletonButton)
 
+        self.skeletonAllButton = QPushButton(self.groupBox_2)
+        self.skeletonAllButton.setObjectName(u"skeletonAllButton")
+
+        self.skeletonizeButtonLayout.addWidget(self.skeletonAllButton)
+
+
+        self.verticalLayout_16.addLayout(self.skeletonizeButtonLayout)
+
+        self.cleanBranchLabel = QLabel(self.groupBox_2)
+        self.cleanBranchLabel.setObjectName(u"cleanBranchLabel")
+
+        self.verticalLayout_16.addWidget(self.cleanBranchLabel)
+
+        self.cleanBranchButtonLayout = QHBoxLayout()
+        self.cleanBranchButtonLayout.setObjectName(u"cleanBranchButtonLayout")
         self.cleanBranchButton = QPushButton(self.groupBox_2)
         self.cleanBranchButton.setObjectName(u"cleanBranchButton")
 
-        self.verticalLayout_16.addWidget(self.cleanBranchButton)
+        self.cleanBranchButtonLayout.addWidget(self.cleanBranchButton)
 
+        self.cleanBranchAllButton = QPushButton(self.groupBox_2)
+        self.cleanBranchAllButton.setObjectName(u"cleanBranchAllButton")
+
+        self.cleanBranchButtonLayout.addWidget(self.cleanBranchAllButton)
+
+
+        self.verticalLayout_16.addLayout(self.cleanBranchButtonLayout)
+
+        self.clearSkeletonLabel = QLabel(self.groupBox_2)
+        self.clearSkeletonLabel.setObjectName(u"clearSkeletonLabel")
+
+        self.verticalLayout_16.addWidget(self.clearSkeletonLabel)
+
+        self.clearSkeletonButtonLayout = QHBoxLayout()
+        self.clearSkeletonButtonLayout.setObjectName(u"clearSkeletonButtonLayout")
         self.clearSkeletonButton = QPushButton(self.groupBox_2)
         self.clearSkeletonButton.setObjectName(u"clearSkeletonButton")
         icon21 = QIcon()
@@ -852,7 +889,17 @@ class Ui_MainWindow(object):
         self.clearSkeletonButton.setIcon(icon21)
         self.clearSkeletonButton.setIconSize(QSize(20, 20))
 
-        self.verticalLayout_16.addWidget(self.clearSkeletonButton)
+        self.clearSkeletonButtonLayout.addWidget(self.clearSkeletonButton)
+
+        self.clearSkeletonAllButton = QPushButton(self.groupBox_2)
+        self.clearSkeletonAllButton.setObjectName(u"clearSkeletonAllButton")
+        self.clearSkeletonAllButton.setIcon(icon21)
+        self.clearSkeletonAllButton.setIconSize(QSize(20, 20))
+
+        self.clearSkeletonButtonLayout.addWidget(self.clearSkeletonAllButton)
+
+
+        self.verticalLayout_16.addLayout(self.clearSkeletonButtonLayout)
 
         self.verticalLayout_14 = QVBoxLayout()
         self.verticalLayout_14.setObjectName(u"verticalLayout_14")
@@ -1286,9 +1333,15 @@ class Ui_MainWindow(object):
         self.nextButton3.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
         self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", u"Skeletonization", None))
         self.label_16.setText(QCoreApplication.translate("MainWindow", u"Extracting crack skeleton information.", None))
-        self.skeletonButton.setText(QCoreApplication.translate("MainWindow", u"Skeletonization", None))
-        self.cleanBranchButton.setText(QCoreApplication.translate("MainWindow", u"Remove small branches", None))
-        self.clearSkeletonButton.setText(QCoreApplication.translate("MainWindow", u"Clear Skeleton", None))
+        self.skeletonizeLabel.setText(QCoreApplication.translate("MainWindow", u"Skeletonization", None))
+        self.skeletonButton.setText(QCoreApplication.translate("MainWindow", u"This Image", None))
+        self.skeletonAllButton.setText(QCoreApplication.translate("MainWindow", u"All Images", None))
+        self.cleanBranchLabel.setText(QCoreApplication.translate("MainWindow", u"Remove small branches", None))
+        self.cleanBranchButton.setText(QCoreApplication.translate("MainWindow", u"This Image", None))
+        self.cleanBranchAllButton.setText(QCoreApplication.translate("MainWindow", u"All Images", None))
+        self.clearSkeletonLabel.setText(QCoreApplication.translate("MainWindow", u"Clear skeleton", None))
+        self.clearSkeletonButton.setText(QCoreApplication.translate("MainWindow", u"This Image", None))
+        self.clearSkeletonAllButton.setText(QCoreApplication.translate("MainWindow", u"All Images", None))
         self.label_15.setText(QCoreApplication.translate("MainWindow", u"Skeleton Edit:", None))
         self.nodeAddButton.setText("")
         self.nodeDeleteButton.setText("")

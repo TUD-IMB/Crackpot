@@ -102,18 +102,18 @@ The brush cursor previews the actual brush size and shape and scales together wi
 
 ## Skeleton Extraction Stage
 
-In this stage, the skeleton structure of the detected cracks is extracted by clicking the **Skeletonization** button.
-This applies to **all uploaded images at once** (batch processing), not just the currently displayed one, and
-replaces any previously extracted skeletons.
+In this stage, three skeleton actions are available:
 
-The extracted skeleton often contains small branches.
-To clean up the structure, small branches can be automatically removed by clicking the **Remove Small Branches** button.
-This only processes the **currently displayed image**, so branches can be cleaned up image by image.
+- **Skeletonization**: extracts the skeleton structure of the detected cracks from the crack mask.
+- **Remove Small Branches**: cleans up the extracted skeleton by automatically removing small branches.
+- **Clear Skeleton**: discards the extracted skeleton, resetting it to an empty state so it can be regenerated
+or edited from scratch.
 
-If the extracted skeleton needs to be discarded, clicking the **Clear Skeleton** button removes it from the
-**currently displayed image only**, without affecting the other uploaded images. This is useful for correcting
-errors or restarting the skeleton extraction for a single image, without having to redo the batch
-**Skeletonization** step for every other image.
+Each of these actions is available as two buttons side by side: the left one (**This Image**) applies only to the
+**currently displayed image**, while the right one (**All Images**) applies to **all uploaded images at once**
+(batch processing). This makes it possible to either process every image in a batch or refine and correct the
+images one by one — for example, cleaning up branches or discarding a skeleton for a single image without
+affecting the others.
 
 
 ![Skeleton Extract](./doc/images_en/skeleton.png)
