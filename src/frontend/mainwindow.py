@@ -666,26 +666,46 @@ class MainWindow(QMainWindow):
 
 		QToolTip.showText(QPoint(handle_x, handle_y), f"{value} px", slider)
 
+	def display_scale(self):
+		r"""
+		Return the current scale factor between image pixels and screen pixels,
+		based on the displayed image size within the QLabel. Uses the same
+		scaling logic as convert_to_image_coords, so the cursor matches the
+		stroke that will actually be drawn. Returns 1.0 when no image is shown.
+		"""
+		if self.image is None:
+			return 1.0
+		image_size = self.image.size()
+		if image_size.width() == 0 or image_size.height() == 0:
+			return 1.0
+		label_size = self.ui.imageLabel.size()
+		return min(label_size.width() / image_size.width(), label_size.height() / image_size.height())
+
 	def update_cursor(self):
 		r"""
 		Update a custom transparent cursor to visually represent the current brush size and shape.
+		The radius is scaled by the current zoom factor, so the cursor always matches the
+		stroke in image pixels regardless of the zoom level.
 		"""
-		size = self.brush_size
+		size = max(int(round(self.brush_size * self.display_scale())), 1)
 
-		cursor_pixmap = QPixmap(size, size)
+		# Add a small margin so the outline stays fully visible even for tiny radii.
+		margin = 2
+		pixmap_size = size + 2 * margin
+		cursor_pixmap = QPixmap(pixmap_size, pixmap_size)
 		cursor_pixmap.fill(Qt.GlobalColor.transparent)
 		painter = QPainter(cursor_pixmap)
 		pen = QPen(Qt.GlobalColor.yellow)
-		pen.setWidth(3)
+		pen.setWidth(2)
 		painter.setPen(pen)
 
 		if self.pen_cap_style == Qt.PenCapStyle.RoundCap:
-			painter.drawEllipse(1, 1, size - 2, size - 2)
+			painter.drawEllipse(margin, margin, size, size)
 		else:
-			painter.drawRect(1, 1, size - 2, size - 2)
+			painter.drawRect(margin, margin, size, size)
 		painter.end()
 
-		custom_cursor = QCursor(cursor_pixmap)
+		custom_cursor = QCursor(cursor_pixmap, pixmap_size // 2, pixmap_size // 2)
 		self.ui.imageLabel.setCursor(custom_cursor)
 
 	def update_pen_shape(self, shape):
@@ -1202,6 +1222,15 @@ class MainWindow(QMainWindow):
 
 		self.ui.imageLabel.setPixmap(scaled_pixmap)
 		self.ui.imageLabel.adjustSize()
+		self.refresh_cursor_if_drawing()
+
+	def refresh_cursor_if_drawing(self):
+		r"""
+		Refresh the brush cursor after a zoom change, but only while the drawing stage
+		is active, so its size keeps matching the current zoom factor.
+		"""
+		if self.progress_stage == 3:
+			self.update_cursor()
 
 	def delete_current_image(self):
 		r"""
