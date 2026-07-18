@@ -480,6 +480,26 @@ class MainWindow(QMainWindow):
 
 		return super().eventFilter(source, event)
 
+	def empty_skeleton_result(self, shape):
+		r"""
+		Build an empty but valid skeleton entry for an image of the given shape.
+		Used when the user edits the skeleton manually without running the automatic
+		skeletonization first, so the rest of the code can rely on a proper "skeleton"
+		array being present.
+
+		\param shape: The (height, width) of the image the skeleton belongs to.
+		\return: A skeleton result dictionary with an empty (all-zero) skeleton.
+		"""
+		return {
+			"skeleton": np.zeros(shape, dtype=np.uint8),
+			"branch_points": None,
+			"end_points": None,
+			"longest_path": None,
+			"selected_points": [],
+			"created_nodes": [],
+			"created_lines": []
+		}
+
 	def create_node(self, clicked_pos, connect_to_previous=True):
 		r"""
 		Create a skeleton node at the clicked position and optionally connect it to the previous node.
@@ -488,10 +508,10 @@ class MainWindow(QMainWindow):
 		\param connect_to_previous: Boolean indicating whether to connect to the last node.
 		"""
 		if self.current_image_path not in self.skeleton_results:
-			self.skeleton_results[self.current_image_path] = {
-				"created_nodes": [],
-				"created_lines": []
-			}
+			original_image = cv2.imread(self.current_image_path)
+			if original_image is None:
+				return
+			self.skeleton_results[self.current_image_path] = self.empty_skeleton_result(original_image.shape[:2])
 
 		skeleton_data = self.skeleton_results[self.current_image_path]
 
@@ -889,10 +909,11 @@ class MainWindow(QMainWindow):
 		"""
 		skeleton_data = self.skeleton_results.get(self.current_image_path)
 		if not skeleton_data:
-			print("No skeletonization result found.")
-			return
+			skeleton_data = {}
 
-		skeleton = skeleton_data["skeleton"]
+		skeleton = skeleton_data.get("skeleton")
+		if skeleton is None:
+			skeleton = np.zeros(original_image.shape[:2], dtype=np.uint8)
 		branch_points = skeleton_data.get("branch_points", None)
 		end_points = skeleton_data.get("end_points", None)
 		longest_path = skeleton_data.get("longest_path", [])
