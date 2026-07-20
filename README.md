@@ -90,6 +90,8 @@ The available editing tools include:
 - Brush Shape: Round (default) & Square
 - Opacity Slider: Allow adjusting the transparency to compare between the original image (0%) and the crack mask (100%).
 
+The brush cursor previews the actual brush size and shape and scales together with the current zoom level, so the highlighted area always matches the stroke that will be drawn, even at small brush sizes or high zoom factors.
+
 ![Mask Edit](./doc/images_en/editmask.png)
 
 ## Skeleton Extraction Stage
