@@ -34,6 +34,7 @@ Six icons correspond to the six stages described earlier.
 The main image can be switched by clicking on a thumbnail or by using the left and right navigation buttons.
 
 4. **Center Toolbar for Image Actions**: Offers tools for zooming in, zooming out, and deleting the currently displayed image.
+Zooming always recomputes the view from the original image, so repeated zooming stays sharp and does not accumulate any loss of quality, which keeps thin structures such as skeleton lines crisp.
 
 5. **Main Image Display and Editing Area**: The central area of the interface is used to displaying and editing the selected image.
 

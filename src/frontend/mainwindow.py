@@ -76,6 +76,9 @@ class MainWindow(QMainWindow):
 		self.pen_cap_style = Qt.PenCapStyle.RoundCap
 		self.image = None
 
+		self.zoom_base_pixmap = None
+		self.zoom_factor = 1.0
+
 		self.init_stacked_widget()
 		self.init_image_label()
 
@@ -216,7 +219,7 @@ class MainWindow(QMainWindow):
 				Qt.AspectRatioMode.KeepAspectRatio,
 				Qt.TransformationMode.SmoothTransformation
 			)
-			self.ui.imageLabel.setPixmap(scaled_pixmap)
+			self.set_display_pixmap(scaled_pixmap)
 
 	def update_resolution(self):
 		r"""
@@ -781,6 +784,7 @@ class MainWindow(QMainWindow):
 		"""
 		if not self.current_image_path:
 			self.ui.imageLabel.clear()
+			self.zoom_base_pixmap = None
 			return
 
 		original_image = cv2.imread(self.current_image_path)
@@ -818,7 +822,7 @@ class MainWindow(QMainWindow):
 		scaled_pixmap = original_pixmap.scaled(
 			label_width, label_height, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
 		)
-		self.ui.imageLabel.setPixmap(scaled_pixmap)
+		self.set_display_pixmap(scaled_pixmap)
 		self.image = None
 
 	def display_prediction_overlay(self, original_pixmap):
@@ -864,7 +868,7 @@ class MainWindow(QMainWindow):
 		scaled_pixmap = combined_pixmap.scaled(
 			label_width, label_height, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
 		)
-		self.ui.imageLabel.setPixmap(scaled_pixmap)
+		self.set_display_pixmap(scaled_pixmap)
 
 		self.image = prediction_qimage.copy()
 
@@ -930,7 +934,7 @@ class MainWindow(QMainWindow):
 		scaled_pixmap = overlay_pixmap.scaled(
 			label_width, label_height, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
 		)
-		self.ui.imageLabel.setPixmap(scaled_pixmap)
+		self.set_display_pixmap(scaled_pixmap)
 		self.image = overlay_qimage.copy()
 
 	def display_calcu_results(self):
@@ -1006,7 +1010,7 @@ class MainWindow(QMainWindow):
 		scaled_pixmap = combined_pixmap.scaled(
 			label_width, label_height, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
 		)
-		self.ui.imageLabel.setPixmap(scaled_pixmap)
+		self.set_display_pixmap(scaled_pixmap)
 	# ------------------------ Progress Management ----------------------------------------------------------------------
 
 	def set_stage(self, stage):
@@ -1064,6 +1068,7 @@ class MainWindow(QMainWindow):
 
 		self.ui.listWidget.clear()
 		self.ui.imageLabel.clear()
+		self.zoom_base_pixmap = None
 		self.ui.imageLabel.repaint()
 		self.ui.listWidget.repaint()
 
@@ -1196,29 +1201,51 @@ class MainWindow(QMainWindow):
 			QMessageBox.critical(self, "Export Failed", f"Error:\n{str(e)}")
 	# ------------------------ Global UI Functions ----------------------------------------------------------------------
 
+	def set_display_pixmap(self, pixmap):
+		r"""
+		Show a freshly built pixmap in the image label and remember it as the
+		base for zooming.
+
+		Every zoom step is recomputed from this untouched base pixmap (see
+		zoom_image) instead of rescaling the already scaled pixmap that is
+		currently shown. This prevents the image from being resampled over and
+		over again, which otherwise makes it progressively blurrier with each
+		zoom cycle.
+
+		\param pixmap: The QPixmap to display and store as the zoom base.
+		"""
+		self.zoom_base_pixmap = pixmap
+		self.zoom_factor = 1.0
+		self.ui.imageLabel.setPixmap(pixmap)
+
 	def zoom_image(self, zoom_in=True):
 		r"""
 		Zoom in or out on the displayed image.
 
+		The zoomed view is always derived from the unscaled base pixmap and the
+		accumulated zoom factor, using nearest-neighbor scaling
+		(FastTransformation). Pixels are therefore shown as discrete blocks
+		without interpolation, keeping the image and the skeleton lines crisp
+		and free of progressive degradation.
+
 		\param zoom_in: Boolean flag to determine zoom direction (True for in, False for out).
 		"""
-		if not self.ui.imageLabel.pixmap():
+		if self.zoom_base_pixmap is None:
 			return
 
 		scale_factor = 1.1 if zoom_in else 1 / 1.1
+		new_factor = self.zoom_factor * scale_factor
 
-		original_pixmap = self.ui.imageLabel.pixmap()
-		current_width = original_pixmap.width()
-		current_height = original_pixmap.height()
-		new_width = int(current_width * scale_factor)
-		new_height = int(current_height * scale_factor)
+		new_width = int(self.zoom_base_pixmap.width() * new_factor)
+		new_height = int(self.zoom_base_pixmap.height() * new_factor)
 
 		if new_width < 50 or new_height < 50:
 			return
 		if new_width > 5000 or new_height > 5000:
 			return
 
-		scaled_pixmap = original_pixmap.scaled(new_width, new_height, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+		self.zoom_factor = new_factor
+		scaled_pixmap = self.zoom_base_pixmap.scaled(new_width, new_height, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.FastTransformation)
 
 		self.ui.imageLabel.setPixmap(scaled_pixmap)
 		self.ui.imageLabel.adjustSize()
@@ -1268,6 +1295,7 @@ class MainWindow(QMainWindow):
 			self.current_image_path = None
 			self.image = None
 			self.ui.imageLabel.clear()
+			self.zoom_base_pixmap = None
 			if self.progress_stage == 4:
 				self.ui.fileNameLabel.clear()
 				self.ui.crackWidthLabel.clear()
