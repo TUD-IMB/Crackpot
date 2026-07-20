@@ -110,6 +110,7 @@ To clean up the structure, small branches can be automatically removed by clicki
 
 During the skeleton extraction and small branch removal process, some major skeleton structures may be lost.
 Manual adjustment tools are therefore provided to allow corrections and additions as needed.
+These tools can also be used on their own, without running the automatic **Skeletonization** first, so a skeleton can be created entirely by hand whenever the automatic result is not suitable or a fully manual workflow is preferred.
 
 The available skeleton editing tools include:
 
