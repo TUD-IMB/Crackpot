@@ -36,6 +36,7 @@ The main image can be switched by clicking on a thumbnail or by using the left a
 4. **Center Toolbar for Image Actions**: Offers tools for zooming in, zooming out, fitting the image to the visible area, resetting the view to its native 1:1 resolution, and deleting the currently displayed image.
    - **Fit to Window** (`Ctrl+0`): scales the image so that it fits completely into the visible area while keeping its aspect ratio.
    - **1:1** (`Ctrl+1`): shows the image at its native resolution, where one image pixel corresponds to one screen pixel, which is useful for pixel-accurate inspection and annotation.
+   - **Scroll to zoom**: hold `Ctrl` and scroll the mouse wheel or trackpad over the image to zoom in and out around the image center.
 
 5. **Main Image Display and Editing Area**: The central area of the interface is used to displaying and editing the selected image.
 

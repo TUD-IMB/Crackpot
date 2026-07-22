@@ -436,6 +436,10 @@ class MainWindow(QMainWindow):
 		if source != self.ui.imageLabel:
 			return super().eventFilter(source, event)
 
+		if event.type() == QEvent.Type.Wheel and event.modifiers() & Qt.KeyboardModifier.ControlModifier:
+			self.zoom_image(zoom_in=event.angleDelta().y() > 0)
+			return True
+
 		if self.progress_stage == 0:
 			if event.type() == QEvent.Type.MouseButtonPress and event.button() == Qt.MouseButton.LeftButton:
 				clicked_pos = event.pos()
