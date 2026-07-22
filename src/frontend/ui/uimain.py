@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'main.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.8.2
+## Created by: Qt User Interface Compiler version 6.11.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -323,6 +323,46 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_8.addWidget(self.zoomOutButton)
 
+        self.zoomFitButton = QPushButton(self.centralwidget)
+        self.zoomFitButton.setObjectName(u"zoomFitButton")
+        self.zoomFitButton.setStyleSheet(u"QPushButton {\n"
+"    border: none;\n"
+"    background: transparent;\n"
+"}\n"
+"QPushButton:hover {\n"
+"    background-color: lightgray;\n"
+"}\n"
+"QPushButton:pressed {\n"
+"    background-color: lightblue;\n"
+"}\n"
+"")
+        icon10 = QIcon()
+        icon10.addFile(u":/icons/icons/zoomfit.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.zoomFitButton.setIcon(icon10)
+        self.zoomFitButton.setIconSize(QSize(30, 30))
+
+        self.horizontalLayout_8.addWidget(self.zoomFitButton)
+
+        self.zoomOneToOneButton = QPushButton(self.centralwidget)
+        self.zoomOneToOneButton.setObjectName(u"zoomOneToOneButton")
+        self.zoomOneToOneButton.setStyleSheet(u"QPushButton {\n"
+"    border: none;\n"
+"    background: transparent;\n"
+"}\n"
+"QPushButton:hover {\n"
+"    background-color: lightgray;\n"
+"}\n"
+"QPushButton:pressed {\n"
+"    background-color: lightblue;\n"
+"}\n"
+"")
+        icon11 = QIcon()
+        icon11.addFile(u":/icons/icons/zoom1to1.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.zoomOneToOneButton.setIcon(icon11)
+        self.zoomOneToOneButton.setIconSize(QSize(30, 30))
+
+        self.horizontalLayout_8.addWidget(self.zoomOneToOneButton)
+
         self.deleteImageButton = QPushButton(self.centralwidget)
         self.deleteImageButton.setObjectName(u"deleteImageButton")
         self.deleteImageButton.setStyleSheet(u"QPushButton {\n"
@@ -336,9 +376,9 @@ class Ui_MainWindow(object):
 "    background-color: lightblue;\n"
 "}\n"
 "")
-        icon10 = QIcon()
-        icon10.addFile(u":/icons/icons/delete.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.deleteImageButton.setIcon(icon10)
+        icon12 = QIcon()
+        icon12.addFile(u":/icons/icons/delete.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.deleteImageButton.setIcon(icon12)
         self.deleteImageButton.setIconSize(QSize(30, 30))
 
         self.horizontalLayout_8.addWidget(self.deleteImageButton)
@@ -420,9 +460,9 @@ class Ui_MainWindow(object):
         self.clickAddButton.setObjectName(u"clickAddButton")
         sizePolicy.setHeightForWidth(self.clickAddButton.sizePolicy().hasHeightForWidth())
         self.clickAddButton.setSizePolicy(sizePolicy)
-        icon11 = QIcon()
-        icon11.addFile(u":/icons/icons/caliadd.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.clickAddButton.setIcon(icon11)
+        icon13 = QIcon()
+        icon13.addFile(u":/icons/icons/caliadd.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.clickAddButton.setIcon(icon13)
         self.clickAddButton.setIconSize(QSize(25, 25))
         self.clickAddButton.setCheckable(True)
 
@@ -433,9 +473,9 @@ class Ui_MainWindow(object):
         self.clickDeleteButton.setObjectName(u"clickDeleteButton")
         sizePolicy.setHeightForWidth(self.clickDeleteButton.sizePolicy().hasHeightForWidth())
         self.clickDeleteButton.setSizePolicy(sizePolicy)
-        icon12 = QIcon()
-        icon12.addFile(u":/icons/icons/calidelete.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.clickDeleteButton.setIcon(icon12)
+        icon14 = QIcon()
+        icon14.addFile(u":/icons/icons/calidelete.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.clickDeleteButton.setIcon(icon14)
         self.clickDeleteButton.setIconSize(QSize(25, 25))
         self.clickDeleteButton.setCheckable(True)
 
@@ -461,32 +501,32 @@ class Ui_MainWindow(object):
         self.distanceLabel = QLabel(self.groupBox_6)
         self.distanceLabel.setObjectName(u"distanceLabel")
 
-        self.formLayout_2.setWidget(1, QFormLayout.LabelRole, self.distanceLabel)
+        self.formLayout_2.setWidget(1, QFormLayout.ItemRole.LabelRole, self.distanceLabel)
 
         self.distanceLineEdit = QLineEdit(self.groupBox_6)
         self.distanceLineEdit.setObjectName(u"distanceLineEdit")
 
-        self.formLayout_2.setWidget(1, QFormLayout.FieldRole, self.distanceLineEdit)
+        self.formLayout_2.setWidget(1, QFormLayout.ItemRole.FieldRole, self.distanceLineEdit)
 
         self.pixelLabel = QLabel(self.groupBox_6)
         self.pixelLabel.setObjectName(u"pixelLabel")
 
-        self.formLayout_2.setWidget(2, QFormLayout.LabelRole, self.pixelLabel)
+        self.formLayout_2.setWidget(2, QFormLayout.ItemRole.LabelRole, self.pixelLabel)
 
         self.pixelLineEdit = QLineEdit(self.groupBox_6)
         self.pixelLineEdit.setObjectName(u"pixelLineEdit")
 
-        self.formLayout_2.setWidget(2, QFormLayout.FieldRole, self.pixelLineEdit)
+        self.formLayout_2.setWidget(2, QFormLayout.ItemRole.FieldRole, self.pixelLineEdit)
 
         self.resolutionLabel = QLabel(self.groupBox_6)
         self.resolutionLabel.setObjectName(u"resolutionLabel")
 
-        self.formLayout_2.setWidget(3, QFormLayout.LabelRole, self.resolutionLabel)
+        self.formLayout_2.setWidget(3, QFormLayout.ItemRole.LabelRole, self.resolutionLabel)
 
         self.resolutionLineEdit = QLineEdit(self.groupBox_6)
         self.resolutionLineEdit.setObjectName(u"resolutionLineEdit")
 
-        self.formLayout_2.setWidget(3, QFormLayout.FieldRole, self.resolutionLineEdit)
+        self.formLayout_2.setWidget(3, QFormLayout.ItemRole.FieldRole, self.resolutionLineEdit)
 
 
         self.verticalLayout_22.addLayout(self.formLayout_2)
@@ -564,9 +604,9 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.plusButton.sizePolicy().hasHeightForWidth())
         self.plusButton.setSizePolicy(sizePolicy)
         self.plusButton.setMinimumSize(QSize(80, 80))
-        icon13 = QIcon()
-        icon13.addFile(u":/icons/icons/plus.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.plusButton.setIcon(icon13)
+        icon15 = QIcon()
+        icon15.addFile(u":/icons/icons/plus.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.plusButton.setIcon(icon15)
         self.plusButton.setIconSize(QSize(50, 50))
 
         self.horizontalLayout_19.addWidget(self.plusButton)
@@ -670,9 +710,9 @@ class Ui_MainWindow(object):
         self.penButtonGroup.setObjectName(u"penButtonGroup")
         self.penButtonGroup.addButton(self.addButton)
         self.addButton.setObjectName(u"addButton")
-        icon14 = QIcon()
-        icon14.addFile(u":/icons/icons/penadd.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.addButton.setIcon(icon14)
+        icon16 = QIcon()
+        icon16.addFile(u":/icons/icons/penadd.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.addButton.setIcon(icon16)
         self.addButton.setIconSize(QSize(23, 23))
         self.addButton.setCheckable(True)
         self.addButton.setChecked(True)
@@ -682,9 +722,9 @@ class Ui_MainWindow(object):
         self.deleteButton = QPushButton(self.groupBox)
         self.penButtonGroup.addButton(self.deleteButton)
         self.deleteButton.setObjectName(u"deleteButton")
-        icon15 = QIcon()
-        icon15.addFile(u":/icons/icons/penminus.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.deleteButton.setIcon(icon15)
+        icon17 = QIcon()
+        icon17.addFile(u":/icons/icons/penminus.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.deleteButton.setIcon(icon17)
         self.deleteButton.setIconSize(QSize(23, 23))
         self.deleteButton.setCheckable(True)
 
@@ -833,9 +873,9 @@ class Ui_MainWindow(object):
         self.nodeAddButton.setObjectName(u"nodeAddButton")
         sizePolicy.setHeightForWidth(self.nodeAddButton.sizePolicy().hasHeightForWidth())
         self.nodeAddButton.setSizePolicy(sizePolicy)
-        icon16 = QIcon()
-        icon16.addFile(u":/icons/icons/routeadd.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.nodeAddButton.setIcon(icon16)
+        icon18 = QIcon()
+        icon18.addFile(u":/icons/icons/routeadd.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.nodeAddButton.setIcon(icon18)
         self.nodeAddButton.setIconSize(QSize(25, 25))
         self.nodeAddButton.setCheckable(True)
 
@@ -846,9 +886,9 @@ class Ui_MainWindow(object):
         self.nodeDeleteButton.setObjectName(u"nodeDeleteButton")
         sizePolicy.setHeightForWidth(self.nodeDeleteButton.sizePolicy().hasHeightForWidth())
         self.nodeDeleteButton.setSizePolicy(sizePolicy)
-        icon17 = QIcon()
-        icon17.addFile(u":/icons/icons/routedelete.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.nodeDeleteButton.setIcon(icon17)
+        icon19 = QIcon()
+        icon19.addFile(u":/icons/icons/routedelete.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.nodeDeleteButton.setIcon(icon19)
         self.nodeDeleteButton.setIconSize(QSize(25, 25))
         self.nodeDeleteButton.setCheckable(True)
 
@@ -877,9 +917,9 @@ class Ui_MainWindow(object):
 "    background-color: lightblue;\n"
 "}\n"
 "")
-        icon18 = QIcon()
-        icon18.addFile(u":/icons/icons/hints.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.hintsButton.setIcon(icon18)
+        icon20 = QIcon()
+        icon20.addFile(u":/icons/icons/hints.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.hintsButton.setIcon(icon20)
         self.hintsButton.setIconSize(QSize(18, 18))
 
         self.verticalLayout_14.addWidget(self.hintsButton)
@@ -1096,9 +1136,9 @@ class Ui_MainWindow(object):
         self.previousFigButton = QPushButton(self.centralwidget)
         self.previousFigButton.setObjectName(u"previousFigButton")
         self.previousFigButton.setMaximumSize(QSize(16777215, 80))
-        icon19 = QIcon()
-        icon19.addFile(u":/icons/icons/arrowleft.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.previousFigButton.setIcon(icon19)
+        icon21 = QIcon()
+        icon21.addFile(u":/icons/icons/arrowleft.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.previousFigButton.setIcon(icon21)
         self.previousFigButton.setIconSize(QSize(20, 20))
 
         self.horizontalLayout.addWidget(self.previousFigButton)
@@ -1117,9 +1157,9 @@ class Ui_MainWindow(object):
         self.nextFigButton = QPushButton(self.centralwidget)
         self.nextFigButton.setObjectName(u"nextFigButton")
         self.nextFigButton.setMaximumSize(QSize(16777215, 80))
-        icon20 = QIcon()
-        icon20.addFile(u":/icons/icons/arrowright.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.nextFigButton.setIcon(icon20)
+        icon22 = QIcon()
+        icon22.addFile(u":/icons/icons/arrowright.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.nextFigButton.setIcon(icon22)
         self.nextFigButton.setIconSize(QSize(20, 20))
 
         self.horizontalLayout.addWidget(self.nextFigButton)
@@ -1192,6 +1232,14 @@ class Ui_MainWindow(object):
         self.imageLabel.setText("")
         self.zoomInButton.setText("")
         self.zoomOutButton.setText("")
+#if QT_CONFIG(tooltip)
+        self.zoomFitButton.setToolTip(QCoreApplication.translate("MainWindow", u"Fit to Window", None))
+#endif // QT_CONFIG(tooltip)
+        self.zoomFitButton.setText("")
+#if QT_CONFIG(tooltip)
+        self.zoomOneToOneButton.setToolTip(QCoreApplication.translate("MainWindow", u"1:1 (Native Resolution)", None))
+#endif // QT_CONFIG(tooltip)
+        self.zoomOneToOneButton.setText("")
         self.deleteImageButton.setText("")
         self.groupBox_6.setTitle(QCoreApplication.translate("MainWindow", u"Calibration", None))
         self.label_14.setText(QCoreApplication.translate("MainWindow", u"Select an image for calibration.", None))

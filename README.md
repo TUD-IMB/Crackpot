@@ -23,7 +23,7 @@ The workflow consists of the following stages:
 The user interface consists of five main parts:
 
 1. **Top Workflow Status Bar**: Displays the current stage within the workflow.
-Six icons correspond to the six stages described earlier.  
+Six icons correspond to the six stages described earlier.
    - White icons represent incomplete stages.
    - Green icons indicate completed stages.
    - A green-bordered icon highlights the current active stage.
@@ -33,8 +33,9 @@ Six icons correspond to the six stages described earlier.
 3. **Bottom Thumbnail Browser**: Displays thumbnails of all loaded images.
 The main image can be switched by clicking on a thumbnail or by using the left and right navigation buttons.
 
-4. **Center Toolbar for Image Actions**: Offers tools for zooming in, zooming out, and deleting the currently displayed image.
-Zooming always recomputes the view from the original image, so repeated zooming stays sharp and does not accumulate any loss of quality, which keeps thin structures such as skeleton lines crisp.
+4. **Center Toolbar for Image Actions**: Offers tools for zooming in, zooming out, fitting the image to the visible area, resetting the view to its native 1:1 resolution, and deleting the currently displayed image.
+   - **Fit to Window** (`Ctrl+0`): scales the image so that it fits completely into the visible area while keeping its aspect ratio.
+   - **1:1** (`Ctrl+1`): shows the image at its native resolution, where one image pixel corresponds to one screen pixel, which is useful for pixel-accurate inspection and annotation.
 
 5. **Main Image Display and Editing Area**: The central area of the interface is used to displaying and editing the selected image.
 
@@ -86,7 +87,7 @@ After selecting a method and proceeding to the next stage, the crack masks are p
 ## Mask Edit Stage
 
 Since model detection results may contain errors, the Mask Edit Stage provides the ability to manually adjust the detected crack areas.
-If automatic detection was disabled ("None" selected in the previous stage), the mask starts out empty and can be built up entirely with these tools.
+If automatic detection was disabled (`"None"` selected in the previous stage), the mask starts out empty and can be built up entirely with these tools.
 The available editing tools include:
 
 - Brush: Add Brush & Delete Brush

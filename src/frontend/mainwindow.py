@@ -69,6 +69,10 @@ class MainWindow(QMainWindow):
 
 		self.ui.zoomInButton.clicked.connect(lambda: self.zoom_image(zoom_in=True))
 		self.ui.zoomOutButton.clicked.connect(lambda: self.zoom_image(zoom_in=False))
+		self.ui.zoomFitButton.clicked.connect(self.zoom_fit_to_window)
+		self.ui.zoomOneToOneButton.clicked.connect(self.zoom_one_to_one)
+		self.ui.zoomFitButton.setShortcut("Ctrl+0")
+		self.ui.zoomOneToOneButton.setShortcut("Ctrl+1")
 		self.ui.deleteImageButton.clicked.connect(self.delete_current_image)
 
 		self.drawing = False
@@ -77,7 +81,7 @@ class MainWindow(QMainWindow):
 		self.brush_size = 10
 		self.pen_cap_style = Qt.PenCapStyle.RoundCap
 		self.image = None
-
+		self.original_pixmap = None
 		self.zoom_base_pixmap = None
 		self.zoom_factor = 1.0
 
@@ -215,6 +219,7 @@ class MainWindow(QMainWindow):
 			bytes_per_line = 3 * width
 			q_img = QImage(img.data, width, height, bytes_per_line, QImage.Format.Format_RGB888)
 			pixmap = QPixmap.fromImage(q_img)
+			self.original_pixmap = pixmap
 			label_size = self.ui.imageLabel.size()
 			scaled_pixmap = pixmap.scaled(
 				label_size.width(), label_size.height(),
@@ -813,6 +818,7 @@ class MainWindow(QMainWindow):
 		"""
 		if not self.current_image_path:
 			self.ui.imageLabel.clear()
+			self.original_pixmap = None
 			self.zoom_base_pixmap = None
 			return
 
@@ -845,6 +851,7 @@ class MainWindow(QMainWindow):
 
 		\param original_pixmap: The QPixmap representation of the original image.
 		"""
+		self.original_pixmap = original_pixmap
 		label_width = self.ui.imageLabel.width()
 		label_height = self.ui.imageLabel.height()
 
@@ -891,6 +898,7 @@ class MainWindow(QMainWindow):
 		))
 		painter.end()
 
+		self.original_pixmap = combined_pixmap
 		label_width = self.ui.imageLabel.width()
 		label_height = self.ui.imageLabel.height()
 
@@ -959,6 +967,7 @@ class MainWindow(QMainWindow):
 		)
 		overlay_pixmap = QPixmap.fromImage(overlay_qimage)
 
+		self.original_pixmap = overlay_pixmap
 		label_width = self.ui.imageLabel.width()
 		label_height = self.ui.imageLabel.height()
 		scaled_pixmap = overlay_pixmap.scaled(
@@ -1035,6 +1044,7 @@ class MainWindow(QMainWindow):
 		))
 		painter.end()
 
+		self.original_pixmap = combined_pixmap
 		label_width = self.ui.imageLabel.width()
 		label_height = self.ui.imageLabel.height()
 		scaled_pixmap = combined_pixmap.scaled(
@@ -1113,6 +1123,7 @@ class MainWindow(QMainWindow):
 
 		self.drawing = False
 		self.image = None
+		self.original_pixmap = None
 		self.resolution = None
 		self.cali_image = None
 		self.cali_points = []
@@ -1289,6 +1300,31 @@ class MainWindow(QMainWindow):
 		if self.progress_stage == 3:
 			self.update_cursor()
 
+	def zoom_fit_to_window(self):
+		r"""
+		Scale the displayed image to fit entirely within the visible viewport, keeping the aspect ratio.
+		"""
+		if self.original_pixmap is None:
+			return
+
+		viewport_size = self.ui.scrollArea.viewport().size()
+		scaled_pixmap = self.original_pixmap.scaled(
+			viewport_size.width(), viewport_size.height(),
+			Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
+		)
+		self.ui.imageLabel.setPixmap(scaled_pixmap)
+		self.ui.imageLabel.adjustSize()
+
+	def zoom_one_to_one(self):
+		r"""
+		Display the image at its native resolution, so one image pixel corresponds to one screen pixel.
+		"""
+		if self.original_pixmap is None:
+			return
+
+		self.ui.imageLabel.setPixmap(self.original_pixmap)
+		self.ui.imageLabel.adjustSize()
+
 	def delete_current_image(self):
 		r"""
 		Delete the currently selected image from the list and clear associated data (prediction results,
@@ -1324,6 +1360,7 @@ class MainWindow(QMainWindow):
 		else:
 			self.current_image_path = None
 			self.image = None
+			self.original_pixmap = None
 			self.ui.imageLabel.clear()
 			self.zoom_base_pixmap = None
 			if self.progress_stage == 4:

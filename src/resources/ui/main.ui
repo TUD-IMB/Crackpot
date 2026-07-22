@@ -453,6 +453,72 @@ QPushButton:pressed {
              </widget>
             </item>
             <item>
+             <widget class="QPushButton" name="zoomFitButton">
+              <property name="toolTip">
+               <string>Fit to Window</string>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QPushButton {
+    border: none;
+    background: transparent;
+}
+QPushButton:hover {
+    background-color: lightgray;
+}
+QPushButton:pressed {
+    background-color: lightblue;
+}
+</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset resource="../icon.qrc">
+                <normaloff>:/icons/icons/zoomfit.svg</normaloff>:/icons/icons/zoomfit.svg</iconset>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>30</width>
+                <height>30</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="zoomOneToOneButton">
+              <property name="toolTip">
+               <string>1:1 (Native Resolution)</string>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QPushButton {
+    border: none;
+    background: transparent;
+}
+QPushButton:hover {
+    background-color: lightgray;
+}
+QPushButton:pressed {
+    background-color: lightblue;
+}
+</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset resource="../icon.qrc">
+                <normaloff>:/icons/icons/zoom1to1.svg</normaloff>:/icons/icons/zoom1to1.svg</iconset>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>30</width>
+                <height>30</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QPushButton" name="deleteImageButton">
               <property name="styleSheet">
                <string notr="true">QPushButton {

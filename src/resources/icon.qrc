@@ -21,6 +21,8 @@
     <file>icons/forward.svg</file>
     <file>icons/zoomin.svg</file>
     <file>icons/zoomout.svg</file>
+    <file>icons/zoomfit.svg</file>
+    <file>icons/zoom1to1.svg</file>
     <file>icons/penadd.svg</file>
     <file>icons/penminus.svg</file>
   </qresource>
