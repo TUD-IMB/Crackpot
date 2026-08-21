@@ -1211,7 +1211,8 @@ class MainWindow(QMainWindow):
 		r"""
 		Save the current session (uploaded images, calibration, crack masks, and skeleton
 		data, including manual edits) to a single project file so the work can be resumed
-		later via "Import Project". Images are referenced by their file path, not copied.
+		later via "Import Project". Images are not copied; only their paths are stored,
+		relative to the project file, so the project can be moved to another machine.
 		"""
 		if self.ui.listWidget.count() == 0:
 			QMessageBox.warning(self, "Export Error", "No images to export. Please upload images first.")
@@ -1225,14 +1226,20 @@ class MainWindow(QMainWindow):
 		if not file_path.lower().endswith(".crackpot"):
 			file_path += ".crackpot"
 
-		image_paths = [
-			self.ui.listWidget.item(i).data(Qt.ItemDataRole.UserRole)
-			for i in range(self.ui.listWidget.count())
-		]
+		project_dir = os.path.dirname(os.path.abspath(file_path))
+		images = []
+		for i in range(self.ui.listWidget.count()):
+			stored_path = self.ui.listWidget.item(i).data(Qt.ItemDataRole.UserRole)
+			try:
+				rel_path = os.path.relpath(os.path.abspath(stored_path), project_dir)
+			except ValueError:
+				# image and project file on different drives (Windows): no relative path
+				rel_path = None
+			images.append({"rel": rel_path, "abs": stored_path})
 
 		project_data = {
-			"format_version": 1,
-			"image_paths": image_paths,
+			"format_version": 2,
+			"images": images,
 			"resolution": self.resolution,
 			"cali_image": self.cali_image,
 			"cali_points": self.cali_points,
@@ -1270,29 +1277,63 @@ class MainWindow(QMainWindow):
 			QMessageBox.critical(self, "Import Failed", f"Error:\n{str(e)}")
 			return
 
-		image_paths = project_data.get("image_paths", [])
-		missing_paths = [p for p in image_paths if not os.path.exists(p)]
-		found_paths = [p for p in image_paths if p not in missing_paths]
+		project_dir = os.path.dirname(os.path.abspath(file_path))
+
+		# Resolve every stored image to where it actually lives on this machine:
+		# first relative to the project file (portable case), then falling back to the
+		# original absolute path (same machine). The original path is kept because the
+		# result dicts are keyed by it and must be re-keyed to the resolved path below.
+		def resolve_image(entry):
+			if isinstance(entry, dict):
+				rel_path = entry.get("rel")
+				original_path = entry.get("abs")
+			else:
+				# Legacy format (format_version 1): a bare absolute path string.
+				rel_path = None
+				original_path = entry
+			if rel_path:
+				candidate = os.path.normpath(os.path.join(project_dir, rel_path))
+				if os.path.exists(candidate):
+					return original_path, candidate
+			if original_path and os.path.exists(original_path):
+				return original_path, original_path
+			return original_path, None
+
+		entries = project_data.get("images")
+		if entries is None:
+			entries = project_data.get("image_paths", [])
+
+		resolved = [resolve_image(e) for e in entries]
+		found = [(original, current) for original, current in resolved if current is not None]
+		missing_paths = [original for original, current in resolved if current is None]
 
 		self.reset_all_data()
 
 		self.resolution = project_data.get("resolution")
 		self.cali_image = project_data.get("cali_image")
 		self.cali_points = project_data.get("cali_points", [])
-		self.prediction_results = project_data.get("prediction_results", {})
-		self.skeleton_results = project_data.get("skeleton_results", {})
-		self.crack_results = project_data.get("crack_results", {})
-		self.skeleton_processor.skeletons = self.skeleton_results
 
-		for image_path in found_paths:
-			pixmap = QPixmap(image_path)
+		# Map each original export-time key to its resolved path, so the result dicts
+		# (keyed by image path) can be re-keyed and keep matching the loaded images.
+		path_map = {}
+		for original_path, current_path in found:
+			pixmap = QPixmap(current_path)
 			if pixmap.isNull():
-				missing_paths.append(image_path)
+				missing_paths.append(original_path)
 				continue
 			item = QListWidgetItem()
 			item.setIcon(QIcon(pixmap.scaled(80, 80, Qt.AspectRatioMode.KeepAspectRatio)))
-			item.setData(Qt.ItemDataRole.UserRole, image_path)
+			item.setData(Qt.ItemDataRole.UserRole, current_path)
 			self.ui.listWidget.addItem(item)
+			path_map[original_path] = current_path
+
+		def remap(results):
+			return {path_map[key]: value for key, value in results.items() if key in path_map}
+
+		self.prediction_results = remap(project_data.get("prediction_results", {}))
+		self.skeleton_results = remap(project_data.get("skeleton_results", {}))
+		self.crack_results = remap(project_data.get("crack_results", {}))
+		self.skeleton_processor.skeletons = self.skeleton_results
 
 		if self.resolution is not None:
 			self.ui.resolutionLineEdit.setText(f"{self.resolution:.6f}")
