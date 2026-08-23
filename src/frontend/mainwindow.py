@@ -12,6 +12,7 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QListWidge
 	QMessageBox, QToolTip
 from skimage.measure import regionprops,label
 from backend.edgedetection import EdgeDetection
+from backend.maskprocessor import MaskProcessor
 from backend.skeletonprocessor import SkeletonProcessor
 from frontend.progressmanager import ProgressManager
 from frontend.ui.uimain import Ui_MainWindow
@@ -66,6 +67,7 @@ class MainWindow(QMainWindow):
 		self.skeleton_results = {}
 		self.crack_results = {}
 		self.skeleton_processor = SkeletonProcessor()
+		self.mask_processor = MaskProcessor()
 
 		self.ui.listWidget.setViewMode(QListWidget.ViewMode.IconMode)
 		self.ui.listWidget.setSpacing(10)
@@ -203,6 +205,9 @@ class MainWindow(QMainWindow):
 		self.ui.opacitySlider.setValue(50)
 		self.ui.opacitySlider.setTickInterval(10)
 		self.ui.opacitySlider.valueChanged.connect(self.refresh_display_image)
+
+		self.ui.removePatchesButton.clicked.connect(lambda: self.clean_mask_patches(all_images=False))
+		self.ui.removePatchesAllButton.clicked.connect(lambda: self.clean_mask_patches(all_images=True))
 
 		# skeleton stage
 		self.ui.nodeAddButton.clicked.connect(self.toggle_add_node_mode)
@@ -847,6 +852,29 @@ class MainWindow(QMainWindow):
 		elif shape == "Square":
 			self.pen_cap_style = Qt.PenCapStyle.SquareCap
 		self.update_cursor()
+
+	def clean_mask_patches(self, all_images=False):
+		r"""
+		Remove small disconnected patches from the crack mask.
+		Patches smaller than the area threshold set in the UI are removed.
+
+		\param all_images: Process every image if True (right button), only the
+			currently displayed one if False (left button).
+		"""
+		if not self.prediction_results:
+			return
+
+		for image_path in self._skeleton_target_paths(all_images, self.prediction_results):
+			mask = self.prediction_results.get(image_path)
+			if mask is None:
+				continue
+
+			self.prediction_results[image_path] = self.mask_processor.remove_small_patches(
+				mask, min_patch_area=self.ui.patchAreaSpinBox.value()
+			)
+
+		if self.ui.listWidget.currentItem():
+			self.refresh_display_image()
 
 	# ------------------------ Image Display ----------------------------------------------------------------------
 	def upload_figures(self):

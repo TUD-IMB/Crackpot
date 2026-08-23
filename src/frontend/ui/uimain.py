@@ -800,6 +800,35 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_15.addLayout(self.horizontalLayout_3)
 
+        self.removePatchesLabel = QLabel(self.groupBox)
+        self.removePatchesLabel.setObjectName(u"removePatchesLabel")
+        self.removePatchesLabel.setWordWrap(True)
+
+        self.verticalLayout_15.addWidget(self.removePatchesLabel)
+
+        self.patchAreaSpinBox = QSpinBox(self.groupBox)
+        self.patchAreaSpinBox.setObjectName(u"patchAreaSpinBox")
+        self.patchAreaSpinBox.setMinimum(1)
+        self.patchAreaSpinBox.setMaximum(999999)
+        self.patchAreaSpinBox.setValue(50)
+
+        self.verticalLayout_15.addWidget(self.patchAreaSpinBox)
+
+        self.removePatchesButtonLayout = QHBoxLayout()
+        self.removePatchesButtonLayout.setObjectName(u"removePatchesButtonLayout")
+        self.removePatchesButton = QPushButton(self.groupBox)
+        self.removePatchesButton.setObjectName(u"removePatchesButton")
+
+        self.removePatchesButtonLayout.addWidget(self.removePatchesButton)
+
+        self.removePatchesAllButton = QPushButton(self.groupBox)
+        self.removePatchesAllButton.setObjectName(u"removePatchesAllButton")
+
+        self.removePatchesButtonLayout.addWidget(self.removePatchesAllButton)
+
+
+        self.verticalLayout_15.addLayout(self.removePatchesButtonLayout)
+
 
         self.verticalLayout_6.addWidget(self.groupBox)
 
@@ -1346,6 +1375,12 @@ class Ui_MainWindow(object):
         self.label_8.setText(QCoreApplication.translate("MainWindow", u"Opacity:", None))
         self.labelOriginal.setText(QCoreApplication.translate("MainWindow", u"Original", None))
         self.labelMask.setText(QCoreApplication.translate("MainWindow", u"Mask", None))
+        self.removePatchesLabel.setText(QCoreApplication.translate("MainWindow", u"Remove patches smaller than (px):", None))
+#if QT_CONFIG(tooltip)
+        self.patchAreaSpinBox.setToolTip(QCoreApplication.translate("MainWindow", u"Disconnected mask regions smaller than this area are removed.", None))
+#endif // QT_CONFIG(tooltip)
+        self.removePatchesButton.setText(QCoreApplication.translate("MainWindow", u"This Image", None))
+        self.removePatchesAllButton.setText(QCoreApplication.translate("MainWindow", u"All Images", None))
         self.nextButton3.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
         self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", u"Skeletonization", None))
         self.label_16.setText(QCoreApplication.translate("MainWindow", u"Extracting crack skeleton information.", None))

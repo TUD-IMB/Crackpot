@@ -1178,6 +1178,50 @@ QPushButton:pressed {
                      </item>
                     </layout>
                    </item>
+                   <item>
+                    <widget class="QLabel" name="removePatchesLabel">
+                     <property name="text">
+                      <string>Remove patches smaller than (px):</string>
+                     </property>
+                     <property name="wordWrap">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QSpinBox" name="patchAreaSpinBox">
+                     <property name="toolTip">
+                      <string>Disconnected mask regions smaller than this area are removed.</string>
+                     </property>
+                     <property name="minimum">
+                      <number>1</number>
+                     </property>
+                     <property name="maximum">
+                      <number>999999</number>
+                     </property>
+                     <property name="value">
+                      <number>50</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="removePatchesButtonLayout">
+                     <item>
+                      <widget class="QPushButton" name="removePatchesButton">
+                       <property name="text">
+                        <string>This Image</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="removePatchesAllButton">
+                       <property name="text">
+                        <string>All Images</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
                   </layout>
                  </widget>
                 </item>

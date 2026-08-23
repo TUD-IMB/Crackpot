@@ -95,6 +95,9 @@ The available editing tools include:
 - Brush Size
 - Brush Shape: Round (default) & Square
 - Opacity Slider: Allow adjusting the transparency to compare between the original image (0%) and the crack mask (100%).
+- **Remove patches smaller than (px)**: removes small, disconnected mask regions (default 50 px) that are likely
+segmentation noise rather than actual cracks. Like the skeleton actions below, it is available as two buttons —
+**This Image** and **All Images**.
 
 The brush cursor previews the actual brush size and shape and scales together with the current zoom level, so the highlighted area always matches the stroke that will be drawn, even at small brush sizes or high zoom factors.
 
