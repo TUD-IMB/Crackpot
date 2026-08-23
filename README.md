@@ -105,7 +105,10 @@ The brush cursor previews the actual brush size and shape and scales together wi
 In this stage, three skeleton actions are available:
 
 - **Skeletonization**: extracts the skeleton structure of the detected cracks from the crack mask.
-- **Remove Small Branches**: cleans up the extracted skeleton by automatically removing small branches.
+- **Remove Branches Shorter Than (px)**: cleans up the extracted skeleton by automatically removing short
+branches. The length threshold is set in the input field above the buttons: every branch shorter than this
+many pixels is removed. The default is 50 px; the value applies to both buttons and stays in effect until
+it is changed.
 - **Clear Skeleton**: discards the extracted skeleton, resetting it to an empty state so it can be regenerated
 or edited from scratch.
 

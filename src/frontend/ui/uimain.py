@@ -21,7 +21,8 @@ from PySide6.QtWidgets import (QApplication, QButtonGroup, QComboBox, QFormLayou
     QLineEdit, QListView, QListWidget, QListWidgetItem,
     QMainWindow, QMenu, QMenuBar, QPushButton,
     QScrollArea, QSizePolicy, QSlider, QSpacerItem,
-    QStackedWidget, QStatusBar, QVBoxLayout, QWidget)
+    QSpinBox, QStackedWidget, QStatusBar, QVBoxLayout,
+    QWidget)
 from frontend.ui import icon_rc
 
 class Ui_MainWindow(object):
@@ -861,8 +862,17 @@ class Ui_MainWindow(object):
 
         self.cleanBranchLabel = QLabel(self.groupBox_2)
         self.cleanBranchLabel.setObjectName(u"cleanBranchLabel")
+        self.cleanBranchLabel.setWordWrap(True)
 
         self.verticalLayout_16.addWidget(self.cleanBranchLabel)
+
+        self.branchLengthSpinBox = QSpinBox(self.groupBox_2)
+        self.branchLengthSpinBox.setObjectName(u"branchLengthSpinBox")
+        self.branchLengthSpinBox.setMinimum(1)
+        self.branchLengthSpinBox.setMaximum(9999)
+        self.branchLengthSpinBox.setValue(50)
+
+        self.verticalLayout_16.addWidget(self.branchLengthSpinBox)
 
         self.cleanBranchButtonLayout = QHBoxLayout()
         self.cleanBranchButtonLayout.setObjectName(u"cleanBranchButtonLayout")
@@ -888,16 +898,14 @@ class Ui_MainWindow(object):
         self.clearSkeletonButtonLayout.setObjectName(u"clearSkeletonButtonLayout")
         self.clearSkeletonButton = QPushButton(self.groupBox_2)
         self.clearSkeletonButton.setObjectName(u"clearSkeletonButton")
-        icon21 = QIcon()
-        icon21.addFile(u":/icons/icons/delete.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.clearSkeletonButton.setIcon(icon21)
+        self.clearSkeletonButton.setIcon(icon12)
         self.clearSkeletonButton.setIconSize(QSize(20, 20))
 
         self.clearSkeletonButtonLayout.addWidget(self.clearSkeletonButton)
 
         self.clearSkeletonAllButton = QPushButton(self.groupBox_2)
         self.clearSkeletonAllButton.setObjectName(u"clearSkeletonAllButton")
-        self.clearSkeletonAllButton.setIcon(icon21)
+        self.clearSkeletonAllButton.setIcon(icon12)
         self.clearSkeletonAllButton.setIconSize(QSize(20, 20))
 
         self.clearSkeletonButtonLayout.addWidget(self.clearSkeletonAllButton)
@@ -1344,7 +1352,10 @@ class Ui_MainWindow(object):
         self.skeletonizeLabel.setText(QCoreApplication.translate("MainWindow", u"Skeletonization", None))
         self.skeletonButton.setText(QCoreApplication.translate("MainWindow", u"This Image", None))
         self.skeletonAllButton.setText(QCoreApplication.translate("MainWindow", u"All Images", None))
-        self.cleanBranchLabel.setText(QCoreApplication.translate("MainWindow", u"Remove small branches", None))
+        self.cleanBranchLabel.setText(QCoreApplication.translate("MainWindow", u"Remove branches shorter than (px):", None))
+#if QT_CONFIG(tooltip)
+        self.branchLengthSpinBox.setToolTip(QCoreApplication.translate("MainWindow", u"Branches shorter than this length are removed from the skeleton.", None))
+#endif // QT_CONFIG(tooltip)
         self.cleanBranchButton.setText(QCoreApplication.translate("MainWindow", u"This Image", None))
         self.cleanBranchAllButton.setText(QCoreApplication.translate("MainWindow", u"All Images", None))
         self.clearSkeletonLabel.setText(QCoreApplication.translate("MainWindow", u"Clear skeleton", None))

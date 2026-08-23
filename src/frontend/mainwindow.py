@@ -404,8 +404,9 @@ class MainWindow(QMainWindow):
 
 	def clean_skeleton_branches(self, all_images=False):
 		r"""
-		Remove small branches from the skeleton and keep the longest path.
-		Identify main endpoints, clean unnecessary small branches, and extract the longest path.
+		Remove short branches from the skeleton and keep the longest path.
+		Identify main endpoints, clean unnecessary branches, and extract the longest path.
+		Branches shorter than the length threshold set in the UI are removed.
 
 		\param all_images: Process every image if True (right button), only the
 			currently displayed one if False (left button).
@@ -423,7 +424,7 @@ class MainWindow(QMainWindow):
 
 			main_endpoints = self.skeleton_processor.find_main_endpoints(skeleton)
 			clean_skeleton = self.skeleton_processor.remove_small_branches(
-				skeleton, max_branch_length=50, main_endpoints=main_endpoints
+				skeleton, max_branch_length=self.ui.branchLengthSpinBox.value(), main_endpoints=main_endpoints
 			)
 			# clean_skeleton = self.skeleton_processor.extract_main_skeleton(skeleton)
 

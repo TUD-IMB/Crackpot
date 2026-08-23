@@ -1260,7 +1260,26 @@ QPushButton:pressed {
                    <item>
                     <widget class="QLabel" name="cleanBranchLabel">
                      <property name="text">
-                      <string>Remove small branches</string>
+                      <string>Remove branches shorter than (px):</string>
+                     </property>
+                     <property name="wordWrap">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QSpinBox" name="branchLengthSpinBox">
+                     <property name="toolTip">
+                      <string>Branches shorter than this length are removed from the skeleton.</string>
+                     </property>
+                     <property name="minimum">
+                      <number>1</number>
+                     </property>
+                     <property name="maximum">
+                      <number>9999</number>
+                     </property>
+                     <property name="value">
+                      <number>50</number>
                      </property>
                     </widget>
                    </item>
