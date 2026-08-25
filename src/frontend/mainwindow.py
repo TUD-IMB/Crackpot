@@ -1,5 +1,7 @@
+import base64
+import json
 import os
-import pickle
+import pathlib
 import sys
 import cv2
 import numpy as np
@@ -16,6 +18,33 @@ from frontend.ui.uimain import Ui_MainWindow
 from skimage.morphology import skeletonize
 
 from utils.utils import resource_path
+
+
+class _NumpyJSONEncoder(json.JSONEncoder):
+	r"""
+	JSON encoder that additionally accepts numpy scalars and arrays, which show up
+	throughout the project data (e.g. skeleton coordinates, crack measurements).
+	"""
+	def default(self, obj):
+		if isinstance(obj, np.generic):
+			return obj.item()
+		if isinstance(obj, np.ndarray):
+			return obj.tolist()
+		return super().default(obj)
+
+
+def _encode_mask_png(mask):
+	r"""Encode a 2D uint8 mask as a base64 string, for compact storage in a JSON project file."""
+	ok, encoded = cv2.imencode(".png", mask)
+	if not ok:
+		raise ValueError("Failed to encode mask as PNG.")
+	return base64.b64encode(encoded.tobytes()).decode("ascii")
+
+
+def _decode_mask_png(data):
+	r"""Decode a base64 string produced by _encode_mask_png back into a 2D uint8 mask."""
+	encoded = np.frombuffer(base64.b64decode(data), dtype=np.uint8)
+	return cv2.imdecode(encoded, cv2.IMREAD_UNCHANGED)
 
 
 class MainWindow(QMainWindow):
@@ -95,6 +124,7 @@ class MainWindow(QMainWindow):
 
 		self.resolution = None
 		self.cali_image = None
+		self.cali_path = None
 		self.cali_points = []
 
 		self.setWindowIcon(QIcon(resource_path('resources/crackpot.ico')))
@@ -201,6 +231,7 @@ class MainWindow(QMainWindow):
 		if self.cali_image is None:
 			QMessageBox.warning(self, "Error", "Failed to load the image.")
 			return
+		self.cali_path = cali_path
 		self.cali_points.clear()
 		self.display_cali_image()
 
@@ -1201,18 +1232,32 @@ class MainWindow(QMainWindow):
 		self.original_pixmap = None
 		self.resolution = None
 		self.cali_image = None
+		self.cali_path = None
 		self.cali_points = []
 		self.creating_node = None
 		self.deleting_node = None
 		self.dragged_node = None
 
 	# ------------------------ Project Save/Load ----------------------------------------------------------------------
+	def _project_to_relative(self, path, project_dir):
+		r"""
+		Express `path` relative to `project_dir`, or None if that isn't possible
+		(e.g. on Windows, if they're on different drives).
+		"""
+		try:
+			return os.path.relpath(pathlib.Path(path).resolve(), project_dir)
+		except ValueError:
+			return None
+
 	def export_project(self):
 		r"""
 		Save the current session (uploaded images, calibration, crack masks, and skeleton
 		data, including manual edits) to a single project file so the work can be resumed
-		later via "Import Project". Images are not copied; only their paths are stored,
-		relative to the project file, so the project can be moved to another machine.
+		later via "Import Project". Images (and the calibration image) are not copied;
+		only their paths are stored, purely relative to the project file, so the file
+		contains no local absolute paths and can be shared or moved to another machine
+		alongside the images. The file is JSON; masks are PNG-compressed and
+		base64-encoded, since a raw pixel dump per mask would make it huge.
 		"""
 		if self.ui.listWidget.count() == 0:
 			QMessageBox.warning(self, "Export Error", "No images to export. Please upload images first.")
@@ -1226,34 +1271,72 @@ class MainWindow(QMainWindow):
 		if not file_path.lower().endswith(".crackpot"):
 			file_path += ".crackpot"
 
-		project_dir = os.path.dirname(os.path.abspath(file_path))
+		project_dir = pathlib.Path(file_path).resolve().parent
 		images = []
+		prediction_results = {}
+		skeleton_results = {}
+		crack_results = {}
+		skipped = []
 		for i in range(self.ui.listWidget.count()):
 			stored_path = self.ui.listWidget.item(i).data(Qt.ItemDataRole.UserRole)
-			try:
-				rel_path = os.path.relpath(os.path.abspath(stored_path), project_dir)
-			except ValueError:
-				# image and project file on different drives (Windows): no relative path
-				rel_path = None
-			images.append({"rel": rel_path, "abs": stored_path})
+			rel_path = self._project_to_relative(stored_path, project_dir)
+			if rel_path is None:
+				# Image and project file on different drives (Windows): there is no
+				# relative path between them, and we don't fall back to an absolute
+				# one, so this image can't be referenced from the project file at all.
+				skipped.append(stored_path)
+				continue
+			images.append(rel_path)
+
+			prediction = self.prediction_results.get(stored_path)
+			if prediction is not None:
+				mask_u8 = np.clip(np.round(prediction * 255), 0, 255).astype(np.uint8)
+				prediction_results[rel_path] = _encode_mask_png(mask_u8)
+
+			skeleton_data = self.skeleton_results.get(stored_path)
+			if skeleton_data is not None:
+				# branch_points/end_points aren't stored: they're pure functions of
+				# "skeleton" and are recomputed on import instead.
+				skeleton_results[rel_path] = {
+					"skeleton": _encode_mask_png(skeleton_data["skeleton"]),
+					"longest_path": skeleton_data.get("longest_path", []),
+					"selected_points": skeleton_data.get("selected_points", []),
+					"created_nodes": skeleton_data.get("created_nodes", []),
+					"created_lines": skeleton_data.get("created_lines", []),
+				}
+
+			if stored_path in self.crack_results:
+				crack_results[rel_path] = self.crack_results[stored_path]
+
+		cali_image_path = None
+		if self.cali_path is not None:
+			cali_image_path = self._project_to_relative(self.cali_path, project_dir)
+			if cali_image_path is None:
+				skipped.append(self.cali_path)
 
 		project_data = {
-			"format_version": 2,
+			"format_version": 4,
 			"images": images,
-			"resolution": self.resolution,
-			"cali_image": self.cali_image,
+			"cali_image_path": cali_image_path,
 			"cali_points": self.cali_points,
-			"prediction_results": self.prediction_results,
-			"skeleton_results": self.skeleton_results,
-			"crack_results": self.crack_results,
+			"resolution": self.resolution,
+			"prediction_results": prediction_results,
+			"skeleton_results": skeleton_results,
+			"crack_results": crack_results,
 			"progress_stage": self.progress_stage,
 		}
 
 		try:
 			os.makedirs(os.path.dirname(file_path), exist_ok=True)
-			with open(file_path, "wb") as f:
-				pickle.dump(project_data, f)
-			QMessageBox.information(self, "Success", f"Project exported successfully:\n{file_path}", QMessageBox.StandardButton.Ok)
+			with open(file_path, "w", encoding="utf-8") as f:
+				json.dump(project_data, f, cls=_NumpyJSONEncoder)
+			message = f"Project exported successfully:\n{file_path}"
+			if skipped:
+				message += (
+					"\n\nSkipped (on a different drive than the project file, so they "
+					"couldn't be referenced by a relative path):\n" + "\n".join(skipped)
+				)
+			QMessageBox.information(self, "Success", message, QMessageBox.StandardButton.Ok)
 		except Exception as e:
 			QMessageBox.critical(self, "Export Failed", f"Error:\n{str(e)}")
 
@@ -1261,8 +1344,8 @@ class MainWindow(QMainWindow):
 		r"""
 		Load a previously exported project file and restore the full working state
 		(images, calibration, crack masks, and skeleton data) to continue where it left
-		off. Images that can no longer be found at their original path are skipped and
-		reported, without failing the rest of the import.
+		off. Images that can no longer be found at their path relative to the project
+		file are skipped and reported, without failing the rest of the import.
 		"""
 		file_path, _ = QFileDialog.getOpenFileName(
 			self, "Open Project", "", "Crackpot Project (*.crackpot)"
@@ -1271,68 +1354,79 @@ class MainWindow(QMainWindow):
 			return
 
 		try:
-			with open(file_path, "rb") as f:
-				project_data = pickle.load(f)
+			with open(file_path, "r", encoding="utf-8") as f:
+				project_data = json.load(f)
 		except Exception as e:
 			QMessageBox.critical(self, "Import Failed", f"Error:\n{str(e)}")
 			return
 
-		project_dir = os.path.dirname(os.path.abspath(file_path))
+		project_dir = pathlib.Path(file_path).resolve().parent
 
-		# Resolve every stored image to where it actually lives on this machine:
-		# first relative to the project file (portable case), then falling back to the
-		# original absolute path (same machine). The original path is kept because the
-		# result dicts are keyed by it and must be re-keyed to the resolved path below.
-		def resolve_image(entry):
-			if isinstance(entry, dict):
-				rel_path = entry.get("rel")
-				original_path = entry.get("abs")
-			else:
-				# Legacy format (format_version 1): a bare absolute path string.
-				rel_path = None
-				original_path = entry
-			if rel_path:
-				candidate = os.path.normpath(os.path.join(project_dir, rel_path))
-				if os.path.exists(candidate):
-					return original_path, candidate
-			if original_path and os.path.exists(original_path):
-				return original_path, original_path
-			return original_path, None
+		def resolve(rel_path):
+			if not rel_path:
+				return None
+			candidate = project_dir / rel_path
+			return str(candidate) if candidate.exists() else None
 
-		entries = project_data.get("images")
-		if entries is None:
-			entries = project_data.get("image_paths", [])
-
-		resolved = [resolve_image(e) for e in entries]
-		found = [(original, current) for original, current in resolved if current is not None]
-		missing_paths = [original for original, current in resolved if current is None]
+		entries = project_data.get("images", [])
+		resolved = [(rel_path, resolve(rel_path)) for rel_path in entries]
+		found = [(rel_path, current) for rel_path, current in resolved if current is not None]
+		missing_paths = [rel_path for rel_path, current in resolved if current is None]
 
 		self.reset_all_data()
 
 		self.resolution = project_data.get("resolution")
-		self.cali_image = project_data.get("cali_image")
 		self.cali_points = project_data.get("cali_points", [])
 
-		# Map each original export-time key to its resolved path, so the result dicts
-		# (keyed by image path) can be re-keyed and keep matching the loaded images.
-		path_map = {}
-		for original_path, current_path in found:
+		raw_cali_path = project_data.get("cali_image_path")
+		cali_image_path = resolve(raw_cali_path)
+		if cali_image_path is not None:
+			self.cali_image = cv2.imread(cali_image_path)
+			self.cali_path = cali_image_path
+		elif raw_cali_path:
+			missing_paths.append(raw_cali_path)
+
+		prediction_data = project_data.get("prediction_results", {})
+		skeleton_data_raw = project_data.get("skeleton_results", {})
+		crack_data = project_data.get("crack_results", {})
+
+		for rel_path, current_path in found:
 			pixmap = QPixmap(current_path)
 			if pixmap.isNull():
-				missing_paths.append(original_path)
+				missing_paths.append(rel_path)
 				continue
 			item = QListWidgetItem()
 			item.setIcon(QIcon(pixmap.scaled(80, 80, Qt.AspectRatioMode.KeepAspectRatio)))
 			item.setData(Qt.ItemDataRole.UserRole, current_path)
 			self.ui.listWidget.addItem(item)
-			path_map[original_path] = current_path
 
-		def remap(results):
-			return {path_map[key]: value for key, value in results.items() if key in path_map}
+			# Every uploaded image gets a prediction_results entry, even if it's just
+			# None (not yet detected): run_model_detection() iterates this dict's keys
+			# to find images still awaiting detection.
+			if rel_path in prediction_data:
+				mask_u8 = _decode_mask_png(prediction_data[rel_path])
+				self.prediction_results[current_path] = mask_u8.astype(np.float32) / 255.0
+			else:
+				self.prediction_results[current_path] = None
 
-		self.prediction_results = remap(project_data.get("prediction_results", {}))
-		self.skeleton_results = remap(project_data.get("skeleton_results", {}))
-		self.crack_results = remap(project_data.get("crack_results", {}))
+			if rel_path in skeleton_data_raw:
+				entry = skeleton_data_raw[rel_path]
+				skeleton = _decode_mask_png(entry["skeleton"])
+				self.skeleton_results[current_path] = {
+					"skeleton": skeleton,
+					"branch_points": self.skeleton_processor.find_branch_points(skeleton),
+					"end_points": self.skeleton_processor.find_end_points(skeleton),
+					"longest_path": entry.get("longest_path", []),
+					"selected_points": entry.get("selected_points", []),
+					"created_nodes": [tuple(node) for node in entry.get("created_nodes", [])],
+					"created_lines": [
+						(tuple(start), tuple(end)) for start, end in entry.get("created_lines", [])
+					],
+				}
+
+			if rel_path in crack_data:
+				self.crack_results[current_path] = crack_data[rel_path]
+
 		self.skeleton_processor.skeletons = self.skeleton_results
 
 		if self.resolution is not None:
