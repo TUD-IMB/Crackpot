@@ -11,8 +11,7 @@ Manual edit tools are available at specific stages where refinement of the autom
 The workflow consists of the following stages:
 - [Calibration Stage](#calibration-stage)
 - [Image Upload Stage](#image-upload-stage)
-- [Crack Detection Stage](#crack-detection-stage)
-- [Mask Edit Stage](#mask-edit-stage)
+- [Masking Stage](#masking-stage)
 - [Skeleton Extraction Stage](#skeleton-extraction-stage)
 - [Results Export Stage](#results-export-stage)
 
@@ -23,7 +22,7 @@ The workflow consists of the following stages:
 The user interface consists of five main parts:
 
 1. **Top Workflow Status Bar**: Displays the current stage within the workflow.
-Six icons correspond to the six stages described earlier.
+Five icons correspond to the five stages described earlier.
    - White icons represent incomplete stages.
    - Green icons indicate completed stages.
    - A green-bordered icon highlights the current active stage.
@@ -72,24 +71,28 @@ Clicking on a thumbnail will display the corresponding full-size image in the ma
 ![Image Upload](./doc/images_en/upload.png)
 
 
-## Crack Detection Stage
+## Masking Stage
 
-In this stage, a model is used to perform crack detection on the uploaded images.
-The detection method can be chosen from the dropdown menu:
+This stage combines automatic crack detection and manual mask editing, since detection results
+often need manual refinement anyway. Every uploaded image starts out with an empty, directly
+editable crack mask; a model can optionally be applied on top of that.
 
-- **Concrete Crack Segmentation** (default): Automatically generates crack masks on the uploaded images within a few seconds, using the model from
-[Concrete Crack Segmentation](https://github.com/Subham2901/Concrete_Crack_Segmentation), which is licensed under the [MIT License](./src/resources/license/model_MIT_LICENSE.txt).
-- **None**: Disables automatic crack detection entirely. No model is run and the crack mask starts out empty, so crack regions can be added manually in the following [Mask Edit Stage](#mask-edit-stage). This is useful for manual annotation workflows or for datasets where the automatic model is not applicable.
+**Model selection and detection:**
 
-After selecting a method and proceeding to the next stage, the crack masks are prepared accordingly.
+- Choose a detection method from the dropdown menu — **Concrete Crack Segmentation** (default) uses the model
+  from [Concrete Crack Segmentation](https://github.com/Subham2901/Concrete_Crack_Segmentation), which is licensed
+  under the [MIT License](./src/resources/license/model_MIT_LICENSE.txt); **None** keeps the mask empty for
+  fully manual annotation.
+- **Apply model**: runs the selected detection method and overwrites the current mask with the result.
+  Available as two buttons: **This Image** applies it only to the currently displayed image, **All Images**
+  applies it to every uploaded image (batch processing). With **None** selected, this resets the mask to
+  empty instead of running a model.
+- **Clear mask**: resets the mask back to empty, so it can be rebuilt manually. Also available for **This Image**
+  or **All Images**.
 
 ![Crack Detection](./doc/images_en/model.png)
 
-## Mask Edit Stage
-
-Since model detection results may contain errors, the Mask Edit Stage provides the ability to manually adjust the detected crack areas.
-If automatic detection was disabled (`"None"` selected in the previous stage), the mask starts out empty and can be built up entirely with these tools.
-The available editing tools include:
+**Manual editing tools**, for refining the mask (automatically detected or hand-drawn) by hand:
 
 - Brush: Add Brush & Delete Brush
 - Brush Size

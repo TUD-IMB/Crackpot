@@ -86,18 +86,16 @@ class MainWindow(QMainWindow):
 				self.ui.calibrationProcessButton,
 				self.ui.uploadProcessButton,
 				self.ui.detectProcessButton,
-				self.ui.editProcessButton,
 				self.ui.selectProcessButton,
 				self.ui.exportProcessButton
 			],
-			lines=[self.ui.line0, self.ui.line1, self.ui.line2, self.ui.line3, self.ui.line4]
+			lines=[self.ui.line0, self.ui.line1, self.ui.line2, self.ui.line4]
 		)
 		self.ui.calibrationProcessButton.clicked.connect(lambda: self.set_stage(0))
 		self.ui.uploadProcessButton.clicked.connect(lambda: self.set_stage(1))
 		self.ui.detectProcessButton.clicked.connect(lambda: self.set_stage(2))
-		self.ui.editProcessButton.clicked.connect(lambda: self.set_stage(3))
-		self.ui.selectProcessButton.clicked.connect(lambda: self.set_stage(4))
-		self.ui.exportProcessButton.clicked.connect(lambda: self.set_stage(5))
+		self.ui.selectProcessButton.clicked.connect(lambda: self.set_stage(3))
+		self.ui.exportProcessButton.clicked.connect(lambda: self.set_stage(4))
 
 		self.ui.zoomInButton.clicked.connect(lambda: self.zoom_image(zoom_in=True))
 		self.ui.zoomOutButton.clicked.connect(lambda: self.zoom_image(zoom_in=False))
@@ -163,10 +161,15 @@ class MainWindow(QMainWindow):
 
 		self.ui.nextButton0.clicked.connect(lambda: self.set_stage(1))
 		self.ui.nextButton1.clicked.connect(lambda: self.set_stage(2))
-		self.ui.nextButton2.clicked.connect(self.run_model_detection)
-		self.ui.nextButton3.clicked.connect(lambda: self.set_stage(4))
-		self.ui.nextButton4.clicked.connect(lambda: self.set_stage(5))
+		self.ui.nextButton3.clicked.connect(lambda: self.set_stage(3))
+		self.ui.nextButton4.clicked.connect(lambda: self.set_stage(4))
 		self.ui.nextButton5.clicked.connect(self.reset_all_data)
+
+		# masking stage
+		self.ui.applyModelButton.clicked.connect(lambda: self.apply_model_detection(all_images=False))
+		self.ui.applyModelAllButton.clicked.connect(lambda: self.apply_model_detection(all_images=True))
+		self.ui.clearMaskButton.clicked.connect(lambda: self.clear_mask(all_images=False))
+		self.ui.clearMaskAllButton.clicked.connect(lambda: self.clear_mask(all_images=True))
 
 		# calibration stage
 		self.ui.caliUploadButton.clicked.connect(self.upload_calibration_image)
@@ -560,7 +563,7 @@ class MainWindow(QMainWindow):
 				self.display_cali_image()
 				return True
 
-		if self.progress_stage == 3:
+		if self.progress_stage == 2:
 			if event.type() == QEvent.Type.MouseButtonPress and event.button() == Qt.MouseButton.LeftButton:
 				self.drawing = True
 				self.last_point = event.pos()
@@ -573,7 +576,7 @@ class MainWindow(QMainWindow):
 					updated_array = updated_array.astype(np.float32) / 255.0
 					self.prediction_results[self.current_image_path] = updated_array
 
-		elif self.progress_stage == 4:
+		elif self.progress_stage == 3:
 			if self.creating_node and event.type() == QEvent.Type.MouseButtonPress:
 				clicked_pos = event.pos()
 				if self.image:
@@ -902,28 +905,61 @@ class MainWindow(QMainWindow):
 			self.ui.listWidget.setCurrentRow(0)
 			self.display_large_image(self.ui.listWidget.currentItem())
 
-	def run_model_detection(self):
+	def ensure_masks_initialized(self):
 		r"""
-		Perform edge detection on uploaded images, unless automatic detection is disabled
-		via the model dropdown, in which case an empty mask is used for manual annotation.
-		"""
-		if self.ui.modelComboBox.currentText() == self.DETECTION_METHOD_NONE:
-			for file_name, prediction in self.prediction_results.items():
-				if prediction is None:
-					image = cv2.imread(file_name)
-					self.prediction_results[file_name] = np.zeros(image.shape[:2], dtype=np.float32)
-		else:
-			self.edge_detector = EdgeDetection()
-			for file_name, prediction in self.prediction_results.items():
-				if prediction is None:
-					predicted_mask = self.edge_detector.detect_edges(file_name)
-					self.prediction_results[file_name] = predicted_mask
+		Give every uploaded image without a mask yet an empty, editable one.
 
-		next_stage = self.progress_stage + 1
-		self.set_stage(next_stage)
+		Entering the masking stage always shows the mask overlay so it can be
+		edited with the brush tools, even before a model has been applied. An
+		empty (all-zero) mask keeps that overlay and the brush tools usable from
+		the start, exactly like selecting "None" as the detection method used to.
+		"""
+		for file_name, prediction in self.prediction_results.items():
+			if prediction is None:
+				image = cv2.imread(file_name)
+				self.prediction_results[file_name] = np.zeros(image.shape[:2], dtype=np.float32)
+
+	def apply_model_detection(self, all_images=False):
+		r"""
+		Run crack detection for the selected images, overwriting their current mask.
+
+		Unless the model dropdown is set to "None", in which case the mask is
+		instead reset to empty, same as \ref clear_mask.
+
+		\param all_images: Process every image if True (right button), only the
+			currently displayed one if False (left button).
+		"""
+		if not self.prediction_results:
+			return
+
+		if self.ui.modelComboBox.currentText() == self.DETECTION_METHOD_NONE:
+			self.clear_mask(all_images)
+			return
+
+		self.edge_detector = EdgeDetection()
+		for image_path in self._skeleton_target_paths(all_images, self.prediction_results):
+			self.prediction_results[image_path] = self.edge_detector.detect_edges(image_path)
 
 		if self.ui.listWidget.currentItem():
-			self.display_large_image(self.ui.listWidget.currentItem())
+			self.refresh_display_image()
+
+	def clear_mask(self, all_images=False):
+		r"""
+		Reset the crack mask to empty for the selected images, so it can be rebuilt manually.
+
+		\param all_images: Process every image if True (right button), only the
+			currently displayed one if False (left button).
+		"""
+		if not self.prediction_results:
+			return
+
+		for image_path in self._skeleton_target_paths(all_images, self.prediction_results):
+			image = cv2.imread(image_path)
+			if image is not None:
+				self.prediction_results[image_path] = np.zeros(image.shape[:2], dtype=np.float32)
+
+		if self.ui.listWidget.currentItem():
+			self.refresh_display_image()
 
 	def display_large_image(self, item):
 		r"""
@@ -961,13 +997,13 @@ class MainWindow(QMainWindow):
 		if original_pixmap.isNull():
 			return
 
-		if self.progress_stage in [1, 2]:
+		if self.progress_stage == 1:
 			self.display_original_image(original_pixmap)
-		elif self.progress_stage == 3:
+		elif self.progress_stage == 2:
 			self.display_prediction_overlay(original_pixmap)
-		elif self.progress_stage == 4:
+		elif self.progress_stage == 3:
 			self.display_skeleton_overlay(original_image)
-		elif self.progress_stage == 5:
+		elif self.progress_stage == 4:
 			self.display_original_image(original_pixmap)
 			self.display_calcu_results()
 
@@ -1192,16 +1228,17 @@ class MainWindow(QMainWindow):
 		r"""
 		Change the application workflow to the specified stage and switch the stacked widget index to the corresponding tool page.
 
-		\param stage: The target stage index (0 to 5).
+		\param stage: The target stage index (0 to 4).
 		"""
 
-		if stage < 0 or stage > 5:
+		if stage < 0 or stage > 4:
 			return
 		self.progress_stage = stage
 		self.ui.stackedWidget.setCurrentIndex(stage)
 		self.progress_manager.update_progress(self.progress_stage)
 
-		if self.progress_stage == 3:
+		if self.progress_stage == 2:
+			self.ensure_masks_initialized()
 			self.update_cursor()
 		else:
 			self.ui.imageLabel.unsetCursor()
@@ -1214,14 +1251,11 @@ class MainWindow(QMainWindow):
 			print("Upload stage")
 		elif self.progress_stage == 2:
 			self.refresh_display_image()
-			print("Model detection stage")
+			print("Masking stage")
 		elif self.progress_stage == 3:
 			self.refresh_display_image()
-			print("Edit stage")
-		elif self.progress_stage == 4:
-			self.refresh_display_image()
 			print("Select skeleton stage")
-		elif self.progress_stage == 5:
+		elif self.progress_stage == 4:
 			self.refresh_display_image()
 			self.crack_results = self.calculate_crack_properties()
 			print("File export stage")
@@ -1645,7 +1679,7 @@ class MainWindow(QMainWindow):
 		Refresh the brush cursor after a zoom change, but only while the drawing stage
 		is active, so its size keeps matching the current zoom factor.
 		"""
-		if self.progress_stage == 3:
+		if self.progress_stage == 2:
 			self.update_cursor()
 
 	def zoom_fit_to_window(self):
@@ -1711,7 +1745,7 @@ class MainWindow(QMainWindow):
 			self.original_pixmap = None
 			self.ui.imageLabel.clear()
 			self.zoom_base_pixmap = None
-			if self.progress_stage == 4:
+			if self.progress_stage == 3:
 				self.ui.fileNameLabel.clear()
 				self.ui.crackWidthLabel.clear()
 

@@ -152,7 +152,7 @@ class Ui_MainWindow(object):
 "}\n"
 "")
         icon4 = QIcon()
-        icon4.addFile(u":/icons/icons/imagestar.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon4.addFile(u":/icons/icons/edit.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.detectProcessButton.setIcon(icon4)
         self.detectProcessButton.setIconSize(QSize(30, 30))
 
@@ -165,36 +165,6 @@ class Ui_MainWindow(object):
         self.line2.setLineWidth(3)
 
         self.horizontalLayout_5.addWidget(self.line2)
-
-        self.editProcessButton = QPushButton(self.centralwidget)
-        self.editProcessButton.setObjectName(u"editProcessButton")
-        sizePolicy.setHeightForWidth(self.editProcessButton.sizePolicy().hasHeightForWidth())
-        self.editProcessButton.setSizePolicy(sizePolicy)
-        self.editProcessButton.setStyleSheet(u"QPushButton {\n"
-"    border: none; \n"
-"    background: transparent;\n"
-"}\n"
-"QPushButton:hover {\n"
-"    background-color: lightgray;\n"
-"}\n"
-"QPushButton:pressed {\n"
-"    background-color: lightblue;\n"
-"}\n"
-"")
-        icon5 = QIcon()
-        icon5.addFile(u":/icons/icons/edit.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.editProcessButton.setIcon(icon5)
-        self.editProcessButton.setIconSize(QSize(30, 30))
-
-        self.horizontalLayout_5.addWidget(self.editProcessButton)
-
-        self.line3 = QFrame(self.centralwidget)
-        self.line3.setObjectName(u"line3")
-        self.line3.setFrameShape(QFrame.Shape.HLine)
-        self.line3.setFrameShadow(QFrame.Shadow.Raised)
-        self.line3.setLineWidth(3)
-
-        self.horizontalLayout_5.addWidget(self.line3)
 
         self.selectProcessButton = QPushButton(self.centralwidget)
         self.selectProcessButton.setObjectName(u"selectProcessButton")
@@ -211,9 +181,9 @@ class Ui_MainWindow(object):
 "    background-color: lightblue;\n"
 "}\n"
 "")
-        icon6 = QIcon()
-        icon6.addFile(u":/icons/icons/cursoredit.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.selectProcessButton.setIcon(icon6)
+        icon5 = QIcon()
+        icon5.addFile(u":/icons/icons/cursoredit.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.selectProcessButton.setIcon(icon5)
         self.selectProcessButton.setIconSize(QSize(30, 30))
 
         self.horizontalLayout_5.addWidget(self.selectProcessButton)
@@ -241,9 +211,9 @@ class Ui_MainWindow(object):
 "    background-color: lightblue;\n"
 "}\n"
 "")
-        icon7 = QIcon()
-        icon7.addFile(u":/icons/icons/csv.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.exportProcessButton.setIcon(icon7)
+        icon6 = QIcon()
+        icon6.addFile(u":/icons/icons/csv.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.exportProcessButton.setIcon(icon6)
         self.exportProcessButton.setIconSize(QSize(30, 30))
 
         self.horizontalLayout_5.addWidget(self.exportProcessButton)
@@ -301,9 +271,9 @@ class Ui_MainWindow(object):
 "    background-color: lightblue;\n"
 "}\n"
 "")
-        icon8 = QIcon()
-        icon8.addFile(u":/icons/icons/zoomin.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.zoomInButton.setIcon(icon8)
+        icon7 = QIcon()
+        icon7.addFile(u":/icons/icons/zoomin.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.zoomInButton.setIcon(icon7)
         self.zoomInButton.setIconSize(QSize(30, 30))
 
         self.horizontalLayout_8.addWidget(self.zoomInButton)
@@ -321,9 +291,9 @@ class Ui_MainWindow(object):
 "    background-color: lightblue;\n"
 "}\n"
 "")
-        icon9 = QIcon()
-        icon9.addFile(u":/icons/icons/zoomout.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.zoomOutButton.setIcon(icon9)
+        icon8 = QIcon()
+        icon8.addFile(u":/icons/icons/zoomout.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.zoomOutButton.setIcon(icon8)
         self.zoomOutButton.setIconSize(QSize(30, 30))
 
         self.horizontalLayout_8.addWidget(self.zoomOutButton)
@@ -341,9 +311,9 @@ class Ui_MainWindow(object):
 "    background-color: lightblue;\n"
 "}\n"
 "")
-        icon10 = QIcon()
-        icon10.addFile(u":/icons/icons/zoomfit.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.zoomFitButton.setIcon(icon10)
+        icon9 = QIcon()
+        icon9.addFile(u":/icons/icons/zoomfit.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.zoomFitButton.setIcon(icon9)
         self.zoomFitButton.setIconSize(QSize(30, 30))
 
         self.horizontalLayout_8.addWidget(self.zoomFitButton)
@@ -361,9 +331,9 @@ class Ui_MainWindow(object):
 "    background-color: lightblue;\n"
 "}\n"
 "")
-        icon11 = QIcon()
-        icon11.addFile(u":/icons/icons/zoom1to1.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.zoomOneToOneButton.setIcon(icon11)
+        icon10 = QIcon()
+        icon10.addFile(u":/icons/icons/zoom1to1.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.zoomOneToOneButton.setIcon(icon10)
         self.zoomOneToOneButton.setIconSize(QSize(30, 30))
 
         self.horizontalLayout_8.addWidget(self.zoomOneToOneButton)
@@ -381,9 +351,9 @@ class Ui_MainWindow(object):
 "    background-color: lightblue;\n"
 "}\n"
 "")
-        icon12 = QIcon()
-        icon12.addFile(u":/icons/icons/delete.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.deleteImageButton.setIcon(icon12)
+        icon11 = QIcon()
+        icon11.addFile(u":/icons/icons/delete.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.deleteImageButton.setIcon(icon11)
         self.deleteImageButton.setIconSize(QSize(30, 30))
 
         self.horizontalLayout_8.addWidget(self.deleteImageButton)
@@ -465,9 +435,9 @@ class Ui_MainWindow(object):
         self.clickAddButton.setObjectName(u"clickAddButton")
         sizePolicy.setHeightForWidth(self.clickAddButton.sizePolicy().hasHeightForWidth())
         self.clickAddButton.setSizePolicy(sizePolicy)
-        icon13 = QIcon()
-        icon13.addFile(u":/icons/icons/caliadd.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.clickAddButton.setIcon(icon13)
+        icon12 = QIcon()
+        icon12.addFile(u":/icons/icons/caliadd.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.clickAddButton.setIcon(icon12)
         self.clickAddButton.setIconSize(QSize(25, 25))
         self.clickAddButton.setCheckable(True)
 
@@ -478,9 +448,9 @@ class Ui_MainWindow(object):
         self.clickDeleteButton.setObjectName(u"clickDeleteButton")
         sizePolicy.setHeightForWidth(self.clickDeleteButton.sizePolicy().hasHeightForWidth())
         self.clickDeleteButton.setSizePolicy(sizePolicy)
-        icon14 = QIcon()
-        icon14.addFile(u":/icons/icons/calidelete.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.clickDeleteButton.setIcon(icon14)
+        icon13 = QIcon()
+        icon13.addFile(u":/icons/icons/calidelete.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.clickDeleteButton.setIcon(icon13)
         self.clickDeleteButton.setIconSize(QSize(25, 25))
         self.clickDeleteButton.setCheckable(True)
 
@@ -609,9 +579,9 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.plusButton.sizePolicy().hasHeightForWidth())
         self.plusButton.setSizePolicy(sizePolicy)
         self.plusButton.setMinimumSize(QSize(80, 80))
-        icon15 = QIcon()
-        icon15.addFile(u":/icons/icons/plus.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.plusButton.setIcon(icon15)
+        icon14 = QIcon()
+        icon14.addFile(u":/icons/icons/plus.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.plusButton.setIcon(icon14)
         self.plusButton.setIconSize(QSize(50, 50))
 
         self.horizontalLayout_19.addWidget(self.plusButton)
@@ -646,25 +616,34 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addLayout(self.verticalLayout)
 
         self.stackedWidget.addWidget(self.page1)
-        self.page2 = QWidget()
-        self.page2.setObjectName(u"page2")
-        self.horizontalLayout_11 = QHBoxLayout(self.page2)
-        self.horizontalLayout_11.setObjectName(u"horizontalLayout_11")
-        self.verticalLayout_12 = QVBoxLayout()
-        self.verticalLayout_12.setObjectName(u"verticalLayout_12")
-        self.label_7 = QLabel(self.page2)
+        self.page3 = QWidget()
+        self.page3.setObjectName(u"page3")
+        self.verticalLayout_7 = QVBoxLayout(self.page3)
+        self.verticalLayout_7.setObjectName(u"verticalLayout_7")
+        self.verticalLayout_6 = QVBoxLayout()
+        self.verticalLayout_6.setObjectName(u"verticalLayout_6")
+        self.verticalLayout_6.setContentsMargins(-1, -1, -1, 0)
+        self.maskingGroupBox = QGroupBox(self.page3)
+        self.maskingGroupBox.setObjectName(u"maskingGroupBox")
+        self.maskingGroupBox.setStyleSheet(u"QGroupBox{\n"
+"    font-weight: bold;\n"
+"}\n"
+"")
+        self.verticalLayout_171 = QVBoxLayout(self.maskingGroupBox)
+        self.verticalLayout_171.setObjectName(u"verticalLayout_171")
+        self.label_7 = QLabel(self.maskingGroupBox)
         self.label_7.setObjectName(u"label_7")
 
-        self.verticalLayout_12.addWidget(self.label_7)
+        self.verticalLayout_171.addWidget(self.label_7)
 
         self.horizontalLayout_12 = QHBoxLayout()
         self.horizontalLayout_12.setObjectName(u"horizontalLayout_12")
-        self.label_9 = QLabel(self.page2)
+        self.label_9 = QLabel(self.maskingGroupBox)
         self.label_9.setObjectName(u"label_9")
 
         self.horizontalLayout_12.addWidget(self.label_9)
 
-        self.modelComboBox = QComboBox(self.page2)
+        self.modelComboBox = QComboBox(self.maskingGroupBox)
         self.modelComboBox.addItem("")
         self.modelComboBox.addItem("")
         self.modelComboBox.setObjectName(u"modelComboBox")
@@ -677,28 +656,51 @@ class Ui_MainWindow(object):
         self.horizontalLayout_12.addWidget(self.modelComboBox)
 
 
-        self.verticalLayout_12.addLayout(self.horizontalLayout_12)
+        self.verticalLayout_171.addLayout(self.horizontalLayout_12)
 
-        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.applyModelLabel = QLabel(self.maskingGroupBox)
+        self.applyModelLabel.setObjectName(u"applyModelLabel")
 
-        self.verticalLayout_12.addItem(self.verticalSpacer_2)
+        self.verticalLayout_171.addWidget(self.applyModelLabel)
 
-        self.nextButton2 = QPushButton(self.page2)
-        self.nextButton2.setObjectName(u"nextButton2")
+        self.applyModelButtonLayout = QHBoxLayout()
+        self.applyModelButtonLayout.setObjectName(u"applyModelButtonLayout")
+        self.applyModelButton = QPushButton(self.maskingGroupBox)
+        self.applyModelButton.setObjectName(u"applyModelButton")
 
-        self.verticalLayout_12.addWidget(self.nextButton2)
+        self.applyModelButtonLayout.addWidget(self.applyModelButton)
+
+        self.applyModelAllButton = QPushButton(self.maskingGroupBox)
+        self.applyModelAllButton.setObjectName(u"applyModelAllButton")
+
+        self.applyModelButtonLayout.addWidget(self.applyModelAllButton)
 
 
-        self.horizontalLayout_11.addLayout(self.verticalLayout_12)
+        self.verticalLayout_171.addLayout(self.applyModelButtonLayout)
 
-        self.stackedWidget.addWidget(self.page2)
-        self.page3 = QWidget()
-        self.page3.setObjectName(u"page3")
-        self.verticalLayout_7 = QVBoxLayout(self.page3)
-        self.verticalLayout_7.setObjectName(u"verticalLayout_7")
-        self.verticalLayout_6 = QVBoxLayout()
-        self.verticalLayout_6.setObjectName(u"verticalLayout_6")
-        self.verticalLayout_6.setContentsMargins(-1, -1, -1, 0)
+        self.clearMaskLabel = QLabel(self.maskingGroupBox)
+        self.clearMaskLabel.setObjectName(u"clearMaskLabel")
+
+        self.verticalLayout_171.addWidget(self.clearMaskLabel)
+
+        self.clearMaskButtonLayout = QHBoxLayout()
+        self.clearMaskButtonLayout.setObjectName(u"clearMaskButtonLayout")
+        self.clearMaskButton = QPushButton(self.maskingGroupBox)
+        self.clearMaskButton.setObjectName(u"clearMaskButton")
+
+        self.clearMaskButtonLayout.addWidget(self.clearMaskButton)
+
+        self.clearMaskAllButton = QPushButton(self.maskingGroupBox)
+        self.clearMaskAllButton.setObjectName(u"clearMaskAllButton")
+
+        self.clearMaskButtonLayout.addWidget(self.clearMaskAllButton)
+
+
+        self.verticalLayout_171.addLayout(self.clearMaskButtonLayout)
+
+
+        self.verticalLayout_6.addWidget(self.maskingGroupBox)
+
         self.groupBox = QGroupBox(self.page3)
         self.groupBox.setObjectName(u"groupBox")
         self.groupBox.setMinimumSize(QSize(0, 150))
@@ -715,9 +717,9 @@ class Ui_MainWindow(object):
         self.penButtonGroup.setObjectName(u"penButtonGroup")
         self.penButtonGroup.addButton(self.addButton)
         self.addButton.setObjectName(u"addButton")
-        icon16 = QIcon()
-        icon16.addFile(u":/icons/icons/penadd.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.addButton.setIcon(icon16)
+        icon15 = QIcon()
+        icon15.addFile(u":/icons/icons/penadd.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.addButton.setIcon(icon15)
         self.addButton.setIconSize(QSize(23, 23))
         self.addButton.setCheckable(True)
         self.addButton.setChecked(True)
@@ -727,9 +729,9 @@ class Ui_MainWindow(object):
         self.deleteButton = QPushButton(self.groupBox)
         self.penButtonGroup.addButton(self.deleteButton)
         self.deleteButton.setObjectName(u"deleteButton")
-        icon17 = QIcon()
-        icon17.addFile(u":/icons/icons/penminus.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.deleteButton.setIcon(icon17)
+        icon16 = QIcon()
+        icon16.addFile(u":/icons/icons/penminus.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.deleteButton.setIcon(icon16)
         self.deleteButton.setIconSize(QSize(23, 23))
         self.deleteButton.setCheckable(True)
 
@@ -927,14 +929,14 @@ class Ui_MainWindow(object):
         self.clearSkeletonButtonLayout.setObjectName(u"clearSkeletonButtonLayout")
         self.clearSkeletonButton = QPushButton(self.groupBox_2)
         self.clearSkeletonButton.setObjectName(u"clearSkeletonButton")
-        self.clearSkeletonButton.setIcon(icon12)
+        self.clearSkeletonButton.setIcon(icon11)
         self.clearSkeletonButton.setIconSize(QSize(20, 20))
 
         self.clearSkeletonButtonLayout.addWidget(self.clearSkeletonButton)
 
         self.clearSkeletonAllButton = QPushButton(self.groupBox_2)
         self.clearSkeletonAllButton.setObjectName(u"clearSkeletonAllButton")
-        self.clearSkeletonAllButton.setIcon(icon12)
+        self.clearSkeletonAllButton.setIcon(icon11)
         self.clearSkeletonAllButton.setIconSize(QSize(20, 20))
 
         self.clearSkeletonButtonLayout.addWidget(self.clearSkeletonAllButton)
@@ -970,9 +972,9 @@ class Ui_MainWindow(object):
         self.nodeAddButton.setObjectName(u"nodeAddButton")
         sizePolicy.setHeightForWidth(self.nodeAddButton.sizePolicy().hasHeightForWidth())
         self.nodeAddButton.setSizePolicy(sizePolicy)
-        icon18 = QIcon()
-        icon18.addFile(u":/icons/icons/routeadd.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.nodeAddButton.setIcon(icon18)
+        icon17 = QIcon()
+        icon17.addFile(u":/icons/icons/routeadd.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.nodeAddButton.setIcon(icon17)
         self.nodeAddButton.setIconSize(QSize(25, 25))
         self.nodeAddButton.setCheckable(True)
 
@@ -983,9 +985,9 @@ class Ui_MainWindow(object):
         self.nodeDeleteButton.setObjectName(u"nodeDeleteButton")
         sizePolicy.setHeightForWidth(self.nodeDeleteButton.sizePolicy().hasHeightForWidth())
         self.nodeDeleteButton.setSizePolicy(sizePolicy)
-        icon19 = QIcon()
-        icon19.addFile(u":/icons/icons/routedelete.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.nodeDeleteButton.setIcon(icon19)
+        icon18 = QIcon()
+        icon18.addFile(u":/icons/icons/routedelete.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.nodeDeleteButton.setIcon(icon18)
         self.nodeDeleteButton.setIconSize(QSize(25, 25))
         self.nodeDeleteButton.setCheckable(True)
 
@@ -1014,9 +1016,9 @@ class Ui_MainWindow(object):
 "    background-color: lightblue;\n"
 "}\n"
 "")
-        icon20 = QIcon()
-        icon20.addFile(u":/icons/icons/hints.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.hintsButton.setIcon(icon20)
+        icon19 = QIcon()
+        icon19.addFile(u":/icons/icons/hints.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.hintsButton.setIcon(icon19)
         self.hintsButton.setIconSize(QSize(18, 18))
 
         self.verticalLayout_14.addWidget(self.hintsButton)
@@ -1233,9 +1235,9 @@ class Ui_MainWindow(object):
         self.previousFigButton = QPushButton(self.centralwidget)
         self.previousFigButton.setObjectName(u"previousFigButton")
         self.previousFigButton.setMaximumSize(QSize(16777215, 80))
-        icon21 = QIcon()
-        icon21.addFile(u":/icons/icons/arrowleft.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.previousFigButton.setIcon(icon21)
+        icon20 = QIcon()
+        icon20.addFile(u":/icons/icons/arrowleft.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.previousFigButton.setIcon(icon20)
         self.previousFigButton.setIconSize(QSize(20, 20))
 
         self.horizontalLayout.addWidget(self.previousFigButton)
@@ -1254,9 +1256,9 @@ class Ui_MainWindow(object):
         self.nextFigButton = QPushButton(self.centralwidget)
         self.nextFigButton.setObjectName(u"nextFigButton")
         self.nextFigButton.setMaximumSize(QSize(16777215, 80))
-        icon22 = QIcon()
-        icon22.addFile(u":/icons/icons/arrowright.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.nextFigButton.setIcon(icon22)
+        icon21 = QIcon()
+        icon21.addFile(u":/icons/icons/arrowright.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.nextFigButton.setIcon(icon21)
         self.nextFigButton.setIconSize(QSize(20, 20))
 
         self.horizontalLayout.addWidget(self.nextFigButton)
@@ -1358,12 +1360,18 @@ class Ui_MainWindow(object):
         self.plusButton.setText("")
         self.label_3.setText(QCoreApplication.translate("MainWindow", u" to upload figures.", None))
         self.nextButton1.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
+        self.maskingGroupBox.setTitle(QCoreApplication.translate("MainWindow", u"Masking", None))
         self.label_7.setText(QCoreApplication.translate("MainWindow", u"Select a Model to do crack detection.", None))
         self.label_9.setText(QCoreApplication.translate("MainWindow", u"Model", None))
         self.modelComboBox.setItemText(0, QCoreApplication.translate("MainWindow", u"Concrete Crack Segmentation", None))
         self.modelComboBox.setItemText(1, QCoreApplication.translate("MainWindow", u"None", None))
 
-        self.nextButton2.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
+        self.applyModelLabel.setText(QCoreApplication.translate("MainWindow", u"Apply model:", None))
+        self.applyModelButton.setText(QCoreApplication.translate("MainWindow", u"This Image", None))
+        self.applyModelAllButton.setText(QCoreApplication.translate("MainWindow", u"All Images", None))
+        self.clearMaskLabel.setText(QCoreApplication.translate("MainWindow", u"Clear mask:", None))
+        self.clearMaskButton.setText(QCoreApplication.translate("MainWindow", u"This Image", None))
+        self.clearMaskAllButton.setText(QCoreApplication.translate("MainWindow", u"All Images", None))
         self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"Editing Tools", None))
         self.addButton.setText(QCoreApplication.translate("MainWindow", u"Add", None))
         self.deleteButton.setText(QCoreApplication.translate("MainWindow", u"Delete", None))
