@@ -1329,7 +1329,6 @@ class Ui_MainWindow(object):
         self.calibrationProcessButton.setText("")
         self.uploadProcessButton.setText("")
         self.detectProcessButton.setText("")
-        self.editProcessButton.setText("")
         self.selectProcessButton.setText("")
         self.exportProcessButton.setText("")
         self.imageLabel.setText("")
