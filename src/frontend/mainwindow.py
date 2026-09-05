@@ -1257,7 +1257,9 @@ class MainWindow(QMainWindow):
 			print("Select skeleton stage")
 		elif self.progress_stage == 4:
 			self.refresh_display_image()
-			self.crack_results = self.calculate_crack_properties()
+			# Always a dict: every other place treats crack_results as one
+			# (.pop, .clear, "in"), so it must never become None here.
+			self.crack_results = self.calculate_crack_properties() or {}
 			print("File export stage")
 
 		if self.ui.listWidget.currentItem():
@@ -1390,7 +1392,10 @@ class MainWindow(QMainWindow):
 		}
 
 		try:
-			os.makedirs(os.path.dirname(file_path), exist_ok=True)
+			# A bare file name has no directory part, and os.makedirs("") raises.
+			project_dir_to_create = os.path.dirname(file_path)
+			if project_dir_to_create:
+				os.makedirs(project_dir_to_create, exist_ok=True)
 			with open(file_path, "w", encoding="utf-8") as f:
 				json.dump(project_data, f, cls=_NumpyJSONEncoder)
 			message = f"Project exported successfully:\n{file_path}"
@@ -1514,27 +1519,51 @@ class MainWindow(QMainWindow):
 			QMessageBox.information(self, "Success", "Project loaded successfully.", QMessageBox.StandardButton.Ok)
 
 	# ------------------------ Results Export ----------------------------------------------------------------------
+	def missing_export_requirements(self):
+		r"""
+		Collect the reasons why no results can be calculated yet, in the order the
+		user is expected to work through the stages.
+
+		Used to tell the user what is still missing instead of leaving the export
+		stage silently empty.
+
+		\return: A list of human-readable reasons. Empty if everything is available.
+		"""
+		reasons = []
+		if not self.prediction_results:
+			reasons.append("No crack masks yet. Run the crack detection or draw a mask in the Masking Stage.")
+		if self.resolution is None or self.resolution <= 0:
+			reasons.append("No calibration yet. Set the resolution in the Calibration Stage.")
+		return reasons
+
 	def calculate_crack_properties(self):
 		r"""
 		Calculate crack properties including area, skeleton length, and average crack width.
 
-		\return: A dictionary containing calculated crack properties for each image.
-		"""
-		if not self.prediction_results or not self.skeleton_results:
-			return
+		Images without a skeleton are still included, with a skeleton length of zero,
+		so that a partly processed session yields results for the images that are ready
+		instead of failing as a whole.
 
-		if self.resolution is None or self.resolution <= 0:
-			print("No valid resolution.")
-			return
+		\return: A dictionary containing calculated crack properties for each image.
+		It is empty if the requirements are not met yet.
+		"""
+		if self.missing_export_requirements():
+			return {}
 
 		crack_results = {}
 
 		for image_path, prediction in self.prediction_results.items():
+			if prediction is None:
+				# Imported projects can carry images whose mask was never stored.
+				continue
 
 			crack_region_pixels = np.sum(prediction == 1)
 			crack_area_mm2 = crack_region_pixels * (self.resolution ** 2)
 
-			skeleton_data = self.skeleton_results.get(image_path)
+			# Images that were never skeletonized have no entry here. They are treated
+			# as an empty skeleton, just like in the Skeleton Extraction Stage, instead
+			# of failing the whole calculation.
+			skeleton_data = self.skeleton_results.get(image_path) or self.empty_skeleton_result(prediction.shape[:2])
 			clean_skeleton = skeleton_data.get("skeleton")
 			skeleton_length = np.sum(clean_skeleton == 1)
 
@@ -1588,10 +1617,14 @@ class MainWindow(QMainWindow):
 			return
 
 		if not self.crack_results:
-			QMessageBox.warning(self, "Export Error", "No valid data to export!")
+			# Name the missing step instead of only stating that there is no data,
+			# so the user knows which stage to go back to.
+			reasons = self.missing_export_requirements()
+			message = "No valid data to export!"
+			if reasons:
+				message += "\n\n" + "\n".join(reasons)
+			QMessageBox.warning(self, "Export Error", message)
 			return
-
-		os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
 		data_list = []
 		for image_path, result in self.crack_results.items():
@@ -1618,6 +1651,11 @@ class MainWindow(QMainWindow):
 		df = pd.DataFrame(data_list)
 
 		try:
+			# Only create a directory if one was given: a bare file name has no
+			# directory part, and os.makedirs("") raises instead of doing nothing.
+			export_dir = os.path.dirname(file_path)
+			if export_dir:
+				os.makedirs(export_dir, exist_ok=True)
 			df.to_csv(file_path, index=False, encoding="utf-8-sig")
 			QMessageBox.information(self, "Success", f"File exported successfully:\n{file_path}", QMessageBox.StandardButton.Ok)
 		except Exception as e:
