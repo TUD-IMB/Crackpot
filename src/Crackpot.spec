@@ -8,7 +8,7 @@ a = Analysis(
     datas=[
     ('resources', 'resources')
     ],
-    hiddenimports=[],
+    hiddenimports=['openpyxl'],
     hookspath=[],
     hooksconfig={},
     excludes = ['torch', 'torchvision', 'torchaudio'],

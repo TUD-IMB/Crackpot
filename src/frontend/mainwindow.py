@@ -55,6 +55,10 @@ class MainWindow(QMainWindow):
 
 	DETECTION_METHOD_NONE = "None"
 
+	CSV_EXPORT_FILTER = "CSV Files (*.csv)"
+	EXCEL_EXPORT_FILTER = "Excel Files (*.xlsx)"
+	EXPORT_COLUMN_WIDTH_PX = 150
+
 	def __init__(self):
 		super().__init__()
 
@@ -1592,23 +1596,90 @@ class MainWindow(QMainWindow):
 
 	def browse_export_path(self):
 		r"""
-		Open a file dialog to select the export file path, ensure it has a .csv extension and update the export path field.
+		Open a file dialog to select the export file path and update the export path field.
+
+		The chosen file type filter decides whether a CSV or an Excel file is written.
+		If the entered name carries neither extension, the one matching the selected
+		filter is appended.
 		"""
 
 		options = QFileDialog.Option(0)
-		file_path, _ = QFileDialog.getSaveFileName(
-			self, "Select Export File", "", "CSV Files (*.csv);;All Files (*)", options=options
+		file_path, selected_filter = QFileDialog.getSaveFileName(
+			self, "Select Export File", "", f"{self.CSV_EXPORT_FILTER};;{self.EXCEL_EXPORT_FILTER}", options=options
 		)
 
 		if file_path:
-			if not file_path.lower().endswith(".csv"):
-				file_path += ".csv"
+			# The extension decides the format later on, so append the one matching
+			# the chosen filter if the user typed a name without any.
+			if not file_path.lower().endswith((".csv", ".xlsx")):
+				file_path += ".xlsx" if selected_filter == self.EXCEL_EXPORT_FILTER else ".csv"
 
 			self.ui.exportPathLineEdit.setText(file_path)
 
+	def build_export_table(self, export_dir):
+		r"""
+		Build the export table, holding one row per image and one column per value.
+
+		\param export_dir: Directory of the export file, used as base for the relative image paths.
+		\return: A pandas DataFrame with the rows to export.
+		"""
+
+		data_list = []
+
+		for image_path, result in self.crack_results.items():
+			try:
+				relative_path = os.path.relpath(image_path, export_dir)
+			except ValueError:
+				# Image and export file on different drives (Windows): there is no
+				# relative path between them, so fall back to the absolute one.
+				relative_path = os.path.abspath(image_path)
+
+			prediction = self.prediction_results.get(image_path)
+			if prediction is not None:
+				height, width = prediction.shape[:2]
+				image_size = f"{width} x {height}"
+			else:
+				image_size = ""
+
+			data_list.append({
+				"File Name": os.path.basename(image_path),
+				"File Path": relative_path,
+				"Image Size (px)": image_size,
+				"Crack Pixel (px)": int(result["crack_pixels"]),
+				"Skeleton Pixel (px)": round(float(result["skeleton_pixels"]), 2),
+				"Crack Area (mm\u00b2)": round(result["crack_area"], 4),
+				"Skeleton Length (mm)": round(result["skeleton_length"], 4),
+				"Mean Crack Width (mm)": round(result["crack_width"], 4),
+				"Resolution (mm/px)": self.resolution
+			})
+
+		return pd.DataFrame(data_list)
+
+	def write_excel_file(self, dataframe, file_path):
+		r"""
+		Write the export table to an Excel file with all columns widened to EXPORT_COLUMN_WIDTH_PX.
+
+		\param dataframe: The DataFrame holding the rows to export.
+		\param file_path: Target path of the .xlsx file.
+		"""
+
+		sheet_name = "Crack Results"
+
+		with pd.ExcelWriter(file_path, engine="openpyxl") as writer:
+			dataframe.to_excel(writer, sheet_name=sheet_name, index=False)
+
+			# Excel stores column widths in characters, which the default font maps to
+			# roughly width * 7 + 5 pixels, so the pixel target is converted accordingly.
+			column_width = (self.EXPORT_COLUMN_WIDTH_PX - 5) / 7
+			worksheet = writer.sheets[sheet_name]
+
+			for column_cells in worksheet.columns:
+				worksheet.column_dimensions[column_cells[0].column_letter].width = column_width
+
 	def export_to_csv(self):
 		r"""
-		Export crack analysis results to a CSV file.
+		Export crack analysis results to the selected file, written as an Excel sheet
+		for a .xlsx path and as a semicolon separated CSV otherwise.
 		"""
 		file_path = self.ui.exportPathLineEdit.text().strip()
 
@@ -1626,37 +1697,17 @@ class MainWindow(QMainWindow):
 			QMessageBox.warning(self, "Export Error", message)
 			return
 
-		data_list = []
-		for image_path, result in self.crack_results.items():
-			file_name = os.path.basename(image_path)
-			full_path = os.path.abspath(image_path)
-
-			crack_pixels = result["crack_pixels"]
-			skeleton_pixels = result["skeleton_pixels"]
-			crack_area = result["crack_area"]
-			skeleton_length = result["skeleton_length"]
-			crack_width = result["crack_width"]
-
-			data_list.append({
-				"File Path": full_path,
-				"File Name": file_name,
-				"Crack Pixel (px)": crack_pixels,
-				"Skeleton Pixel (px)": skeleton_pixels,
-				"Crack Area (mm²)": crack_area,
-				"Skeleton length (mm)": skeleton_length,
-				"Mean Crack Width (mm)": crack_width,
-				"Resolution (mm/px)": self.resolution
-			})
-
-		df = pd.DataFrame(data_list)
+		# Absolute, so a bare file name resolves to the current directory rather than
+		# to an empty string, which os.makedirs() and os.path.relpath() both reject.
+		export_dir = os.path.dirname(os.path.abspath(file_path))
+		dataframe = self.build_export_table(export_dir)
 
 		try:
-			# Only create a directory if one was given: a bare file name has no
-			# directory part, and os.makedirs("") raises instead of doing nothing.
-			export_dir = os.path.dirname(file_path)
-			if export_dir:
-				os.makedirs(export_dir, exist_ok=True)
-			df.to_csv(file_path, index=False, encoding="utf-8-sig")
+			os.makedirs(export_dir, exist_ok=True)
+			if file_path.lower().endswith(".xlsx"):
+				self.write_excel_file(dataframe, file_path)
+			else:
+				dataframe.to_csv(file_path, index=False, sep=";", decimal=",", encoding="utf-8-sig")
 			QMessageBox.information(self, "Success", f"File exported successfully:\n{file_path}", QMessageBox.StandardButton.Ok)
 		except Exception as e:
 			QMessageBox.critical(self, "Export Failed", f"Error:\n{str(e)}")
