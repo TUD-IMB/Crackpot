@@ -118,6 +118,8 @@ class MainWindow(QMainWindow):
 		self.original_pixmap = None
 		self.zoom_base_pixmap = None
 		self.zoom_factor = 1.0
+		self.overlay_scale_in_use = 1
+		self.keep_zoom_on_refresh = False
 
 		self.init_stacked_widget()
 		self.init_image_label()
@@ -984,11 +986,15 @@ class MainWindow(QMainWindow):
 			self.current_image_path = file_path
 			self.refresh_display_image()
 
-	def refresh_display_image(self):
+	def refresh_display_image(self, keep_zoom=False):
 		r"""
 		Depending on the stage, display the original image, overlay predictions,
 		or skeletonization results. Clear the label if no image is selected.
+
+		\param keep_zoom: Keep the current zoom factor instead of returning to the
+			overview. Used when only the overlay is rebuilt, not the image itself.
 		"""
+		self.keep_zoom_on_refresh = keep_zoom
 		if not self.current_image_path:
 			self.ui.imageLabel.clear()
 			self.original_pixmap = None
@@ -1025,13 +1031,9 @@ class MainWindow(QMainWindow):
 		\param original_pixmap: The QPixmap representation of the original image.
 		"""
 		self.original_pixmap = original_pixmap
-		label_width = self.ui.imageLabel.width()
-		label_height = self.ui.imageLabel.height()
-
-		scaled_pixmap = original_pixmap.scaled(
-			label_width, label_height, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
-		)
-		self.set_display_pixmap(scaled_pixmap)
+		# Hand over the full resolution: render_current_view scales it to the
+		# current zoom level, so no detail is thrown away up front.
+		self.set_display_pixmap(original_pixmap)
 		self.image = None
 
 	def display_prediction_overlay(self, original_pixmap):
@@ -1072,15 +1074,26 @@ class MainWindow(QMainWindow):
 		painter.end()
 
 		self.original_pixmap = combined_pixmap
-		label_width = self.ui.imageLabel.width()
-		label_height = self.ui.imageLabel.height()
-
-		scaled_pixmap = combined_pixmap.scaled(
-			label_width, label_height, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
-		)
-		self.set_display_pixmap(scaled_pixmap)
+		self.set_display_pixmap(combined_pixmap)
 
 		self.image = prediction_qimage.copy()
+
+	def overlay_line_scale(self):
+		r"""
+		Return how many image pixels wide a line has to be drawn so that it stays
+		visible after the image is scaled down to the current zoom level.
+
+		Markers are drawn into the full resolution image, so at a zoom factor of
+		e.g. 0.2 a single pixel would be averaged away entirely. The inverse of the
+		factor keeps roughly one screen pixel of every line.
+
+		\return: An odd width in image pixels, at least 1.
+		"""
+		if self.zoom_factor <= 0 or self.zoom_factor >= 1.0:
+			return 1
+		width = int(round(1.0 / self.zoom_factor))
+		# Odd widths keep the line centred on the original skeleton pixel.
+		return max(width + 1 - width % 2, 1)
 
 	def display_skeleton_overlay(self, original_image):
 		r"""
@@ -1109,18 +1122,30 @@ class MainWindow(QMainWindow):
 		longest_path = skeleton_data.get("longest_path", [])
 		selected_points = skeleton_data.get("selected_points", [])
 
+		# The overlay is drawn at full resolution and scaled down for display, so a
+		# one pixel wide line disappears on large images. Widening it by the inverse
+		# of the zoom factor keeps it about equally visible at every zoom level.
+		overlay_scale = self.overlay_line_scale()
+		self.overlay_scale_in_use = overlay_scale
+
 		overlay_image = original_image.copy()
 		skeleton_coords = np.where(skeleton == 1)
 		overlay_image[skeleton_coords[0], skeleton_coords[1]] = [255, 0, 0]
+		if overlay_scale > 1:
+			skeleton_mask = cv2.dilate(
+				(skeleton == 1).astype(np.uint8),
+				cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (overlay_scale, overlay_scale))
+			)
+			overlay_image[skeleton_mask > 0] = [255, 0, 0]
 
 		created_nodes = skeleton_data.get("created_nodes", [])
 		for node in created_nodes:
-			cv2.circle(overlay_image, (node[0], node[1]), radius=5, color=(255, 251, 13), thickness=-1)
+			cv2.circle(overlay_image, (node[0], node[1]), radius=5 * overlay_scale, color=(255, 251, 13), thickness=-1)
 
 		lines = skeleton_data.get("created_lines", [])
 		for line in lines:
 			start, end = line
-			cv2.line(overlay_image, (start[0], start[1]), (end[0], end[1]), color=(255, 251, 13), thickness=1)
+			cv2.line(overlay_image, (start[0], start[1]), (end[0], end[1]), color=(255, 251, 13), thickness=overlay_scale)
 
 		# if longest_path is not None and len(longest_path) > 0:
 		# 	for point in longest_path:
@@ -1138,7 +1163,7 @@ class MainWindow(QMainWindow):
 			for coord in end_coords:
 				point_tuple = (coord[1], coord[0])
 				color = (0, 255, 0) if point_tuple in selected_points else (255, 255, 255)
-				cv2.circle(overlay_image, point_tuple, radius=5, color=color, thickness=2)
+				cv2.circle(overlay_image, point_tuple, radius=5 * overlay_scale, color=color, thickness=2 * overlay_scale)
 
 		overlay_qimage = QImage(
 			overlay_image.data,
@@ -1150,12 +1175,7 @@ class MainWindow(QMainWindow):
 		overlay_pixmap = QPixmap.fromImage(overlay_qimage)
 
 		self.original_pixmap = overlay_pixmap
-		label_width = self.ui.imageLabel.width()
-		label_height = self.ui.imageLabel.height()
-		scaled_pixmap = overlay_pixmap.scaled(
-			label_width, label_height, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
-		)
-		self.set_display_pixmap(scaled_pixmap)
+		self.set_display_pixmap(overlay_pixmap)
 		self.image = overlay_qimage.copy()
 
 	def display_calcu_results(self):
@@ -1227,12 +1247,9 @@ class MainWindow(QMainWindow):
 		painter.end()
 
 		self.original_pixmap = combined_pixmap
-		label_width = self.ui.imageLabel.width()
-		label_height = self.ui.imageLabel.height()
-		scaled_pixmap = combined_pixmap.scaled(
-			label_width, label_height, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
-		)
-		self.set_display_pixmap(scaled_pixmap)
+		# Same image, only redrawn: keep the zoom instead of jumping back to the
+		# overview after every single brush stroke.
+		self.set_display_pixmap(combined_pixmap, keep_zoom=True)
 	# ------------------------ Progress Management ----------------------------------------------------------------------
 
 	def set_stage(self, stage):
@@ -1719,22 +1736,92 @@ class MainWindow(QMainWindow):
 			QMessageBox.critical(self, "Export Failed", f"Error:\n{str(e)}")
 	# ------------------------ Global UI Functions ----------------------------------------------------------------------
 
-	def set_display_pixmap(self, pixmap):
+	def set_display_pixmap(self, pixmap, keep_zoom=False):
 		r"""
 		Show a freshly built pixmap in the image label and remember it as the
 		base for zooming.
 
 		Every zoom step is recomputed from this untouched base pixmap (see
-		zoom_image) instead of rescaling the already scaled pixmap that is
-		currently shown. This prevents the image from being resampled over and
+		render_current_view) instead of rescaling the already scaled pixmap that
+		is currently shown. This prevents the image from being resampled over and
 		over again, which otherwise makes it progressively blurrier with each
 		zoom cycle.
 
 		\param pixmap: The QPixmap to display and store as the zoom base.
+		\param keep_zoom: Keep the current zoom factor instead of resetting it.
+			Used when the same image is only redrawn, e.g. after a brush stroke.
 		"""
 		self.zoom_base_pixmap = pixmap
-		self.zoom_factor = 1.0
-		self.ui.imageLabel.setPixmap(pixmap)
+		if not (keep_zoom or self.keep_zoom_on_refresh):
+			self.zoom_factor = self.fit_to_window_factor()
+		self.render_current_view()
+		self.refresh_overlay_if_line_width_changed()
+
+	def fit_to_window_factor(self):
+		r"""
+		Return the zoom factor at which the image fits completely into the visible
+		area, keeping its aspect ratio. Images smaller than the viewport are shown
+		at their native size rather than blown up.
+
+		\return: The factor to pass to render_current_view, 1.0 if no image is shown.
+		"""
+		if self.original_pixmap is None or self.original_pixmap.isNull():
+			return 1.0
+		if self.original_pixmap.width() == 0 or self.original_pixmap.height() == 0:
+			return 1.0
+
+		viewport = self.ui.scrollArea.viewport().size()
+		factor = min(viewport.width() / self.original_pixmap.width(),
+					 viewport.height() / self.original_pixmap.height())
+		return min(factor, 1.0) if factor > 0 else 1.0
+
+	def render_current_view(self):
+		r"""
+		Draw the image at the current zoom factor, always scaled from the full
+		resolution pixmap.
+
+		Rendering from the full resolution matters for the thin structures this
+		program works with: scaling the image down to the window first destroys the
+		one pixel wide skeleton lines, and scaling that result back up cannot bring
+		them back. The brush cursor is refreshed alongside, so it keeps matching the
+		stroke that will actually be drawn.
+		"""
+		if self.zoom_base_pixmap is None or self.zoom_base_pixmap.isNull():
+			return
+
+		width = max(int(self.zoom_base_pixmap.width() * self.zoom_factor), 1)
+		height = max(int(self.zoom_base_pixmap.height() * self.zoom_factor), 1)
+
+		# Smooth scaling below the native size, nearest neighbour above it: shrinking
+		# needs the averaging to keep thin lines visible at all, while magnifying
+		# should show honest pixel blocks instead of an interpolated blur.
+		mode = (Qt.TransformationMode.SmoothTransformation if self.zoom_factor < 1.0
+				else Qt.TransformationMode.FastTransformation)
+		scaled_pixmap = self.zoom_base_pixmap.scaled(
+			width, height, Qt.AspectRatioMode.KeepAspectRatio, mode
+		)
+
+		self.ui.imageLabel.setPixmap(scaled_pixmap)
+		self.ui.imageLabel.adjustSize()
+		self.refresh_cursor_if_drawing()
+
+	def refresh_overlay_if_line_width_changed(self):
+		r"""
+		Rebuild the skeleton overlay when the zoom level needs a different line width.
+
+		The markers are baked into the full resolution overlay, so their width only
+		fits the zoom level they were drawn for. Rebuilding on every zoom step would
+		be wasteful on large images, hence the check for an actual change.
+		"""
+		if self.progress_stage != 3:
+			return
+		if self.overlay_line_scale() == self.overlay_scale_in_use:
+			return
+
+		# The overlay is drawn for whatever zoom factor is set at that moment, so the
+		# current one has to survive the rebuild instead of falling back to the
+		# overview.
+		self.refresh_display_image(keep_zoom=True)
 
 	def zoom_image(self, zoom_in=True):
 		r"""
@@ -1763,11 +1850,8 @@ class MainWindow(QMainWindow):
 			return
 
 		self.zoom_factor = new_factor
-		scaled_pixmap = self.zoom_base_pixmap.scaled(new_width, new_height, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.FastTransformation)
-
-		self.ui.imageLabel.setPixmap(scaled_pixmap)
-		self.ui.imageLabel.adjustSize()
-		self.refresh_cursor_if_drawing()
+		self.render_current_view()
+		self.refresh_overlay_if_line_width_changed()
 
 	def refresh_cursor_if_drawing(self):
 		r"""
@@ -1781,26 +1865,23 @@ class MainWindow(QMainWindow):
 		r"""
 		Scale the displayed image to fit entirely within the visible viewport, keeping the aspect ratio.
 		"""
-		if self.original_pixmap is None:
+		if self.zoom_base_pixmap is None:
 			return
 
-		viewport_size = self.ui.scrollArea.viewport().size()
-		scaled_pixmap = self.original_pixmap.scaled(
-			viewport_size.width(), viewport_size.height(),
-			Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
-		)
-		self.ui.imageLabel.setPixmap(scaled_pixmap)
-		self.ui.imageLabel.adjustSize()
+		self.zoom_factor = self.fit_to_window_factor()
+		self.render_current_view()
+		self.refresh_overlay_if_line_width_changed()
 
 	def zoom_one_to_one(self):
 		r"""
 		Display the image at its native resolution, so one image pixel corresponds to one screen pixel.
 		"""
-		if self.original_pixmap is None:
+		if self.zoom_base_pixmap is None:
 			return
 
-		self.ui.imageLabel.setPixmap(self.original_pixmap)
-		self.ui.imageLabel.adjustSize()
+		self.zoom_factor = 1.0
+		self.render_current_view()
+		self.refresh_overlay_if_line_width_changed()
 
 	def delete_current_image(self):
 		r"""
