@@ -570,6 +570,9 @@ class MainWindow(QMainWindow):
 			if event.type() == QEvent.Type.MouseButtonPress and event.button() == Qt.MouseButton.LeftButton:
 				self.drawing = True
 				self.last_point = event.pos()
+				# Paint right away, so a click without any mouse movement leaves a
+				# mark instead of doing nothing.
+				self.draw_on_image(event.pos())
 			elif event.type() == QEvent.Type.MouseMove and self.drawing:
 				self.draw_on_image(event.pos())
 			elif event.type() == QEvent.Type.MouseButtonRelease and event.button() == Qt.MouseButton.LeftButton:
@@ -758,7 +761,12 @@ class MainWindow(QMainWindow):
 		pen.setCapStyle(self.pen_cap_style)
 		painter.setPen(pen)
 
-		painter.drawLine(int(x1), int(y1), int(x2), int(y2))
+		if (int(x1), int(y1)) == (int(x2), int(y2)):
+			# A zero length line has no direction, so QPainter draws nothing for a
+			# round cap. drawPoint applies the pen shape and covers a plain click.
+			painter.drawPoint(int(x1), int(y1))
+		else:
+			painter.drawLine(int(x1), int(y1), int(x2), int(y2))
 		painter.end()
 
 		self.last_point = current_point
