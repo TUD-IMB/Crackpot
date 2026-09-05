@@ -226,7 +226,6 @@ class MainWindow(QMainWindow):
 		self.ui.hintsLabel3.setVisible(False)
 
 		# export stage
-		self.ui.browseButton.clicked.connect(self.browse_export_path)
 		self.ui.exportButton.clicked.connect(self.export_to_csv)
 
 	# ------------------------ Calibration ----------------------------------------------------------------------
@@ -1594,28 +1593,6 @@ class MainWindow(QMainWindow):
 
 		return crack_results
 
-	def browse_export_path(self):
-		r"""
-		Open a file dialog to select the export file path and update the export path field.
-
-		The chosen file type filter decides whether a CSV or an Excel file is written.
-		If the entered name carries neither extension, the one matching the selected
-		filter is appended.
-		"""
-
-		options = QFileDialog.Option(0)
-		file_path, selected_filter = QFileDialog.getSaveFileName(
-			self, "Select Export File", "", f"{self.CSV_EXPORT_FILTER};;{self.EXCEL_EXPORT_FILTER}", options=options
-		)
-
-		if file_path:
-			# The extension decides the format later on, so append the one matching
-			# the chosen filter if the user typed a name without any.
-			if not file_path.lower().endswith((".csv", ".xlsx")):
-				file_path += ".xlsx" if selected_filter == self.EXCEL_EXPORT_FILTER else ".csv"
-
-			self.ui.exportPathLineEdit.setText(file_path)
-
 	def build_export_table(self, export_dir):
 		r"""
 		Build the export table, holding one row per image and one column per value.
@@ -1676,17 +1653,26 @@ class MainWindow(QMainWindow):
 			for column_cells in worksheet.columns:
 				worksheet.column_dimensions[column_cells[0].column_letter].width = column_width
 
+	def default_export_path(self):
+		r"""
+		Build the file name proposed in the save dialog: the first uploaded image
+		decides the directory, so the results are offered next to the images they
+		belong to.
+
+		\return: A suggested path, or just the file name if no image is available.
+		"""
+		file_name = "crack_results.csv"
+		if self.ui.listWidget.count() > 0:
+			first_image = self.ui.listWidget.item(0).data(Qt.ItemDataRole.UserRole)
+			if first_image:
+				return os.path.join(os.path.dirname(os.path.abspath(first_image)), file_name)
+		return file_name
+
 	def export_to_csv(self):
 		r"""
-		Export crack analysis results to the selected file, written as an Excel sheet
-		for a .xlsx path and as a semicolon separated CSV otherwise.
+		Ask for the target file and export the crack analysis results into it, written
+		as an Excel sheet for a .xlsx path and as a semicolon separated CSV otherwise.
 		"""
-		file_path = self.ui.exportPathLineEdit.text().strip()
-
-		if not file_path:
-			QMessageBox.warning(self, "Export Error", "Please select a file path!")
-			return
-
 		if not self.crack_results:
 			# Name the missing step instead of only stating that there is no data,
 			# so the user knows which stage to go back to.
@@ -1696,6 +1682,18 @@ class MainWindow(QMainWindow):
 				message += "\n\n" + "\n".join(reasons)
 			QMessageBox.warning(self, "Export Error", message)
 			return
+
+		file_path, selected_filter = QFileDialog.getSaveFileName(
+			self, "Export Results", self.default_export_path(),
+			f"{self.CSV_EXPORT_FILTER};;{self.EXCEL_EXPORT_FILTER}", options=QFileDialog.Option(0)
+		)
+		if not file_path:
+			return
+
+		# The extension decides the format below, so append the one matching the
+		# chosen filter if the user typed a name without any.
+		if not file_path.lower().endswith((".csv", ".xlsx")):
+			file_path += ".xlsx" if selected_filter == self.EXCEL_EXPORT_FILTER else ".csv"
 
 		# Absolute, so a bare file name resolves to the current directory rather than
 		# to an empty string, which os.makedirs() and os.path.relpath() both reject.

@@ -1691,12 +1691,6 @@ QPushButton:pressed {
                 </item>
                 <item>
                  <widget class="QGroupBox" name="groupBox_5">
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>150</height>
-                   </size>
-                  </property>
                   <property name="styleSheet">
                    <string notr="true">QGroupBox{
     font-weight: bold;
@@ -1708,28 +1702,14 @@ QPushButton:pressed {
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_19">
                    <item>
-                    <layout class="QHBoxLayout" name="horizontalLayout_10">
-                     <item>
-                      <widget class="QLabel" name="label_6">
-                       <property name="text">
-                        <string>Export Path</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLineEdit" name="exportPathLineEdit"/>
-                     </item>
-                     <item>
-                      <widget class="QPushButton" name="browseButton">
-                       <property name="text">
-                        <string>Browse</string>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item>
                     <layout class="QHBoxLayout" name="horizontalLayout_18">
+                     <item>
+                      <widget class="QPushButton" name="exportButton">
+                       <property name="text">
+                        <string>Export</string>
+                       </property>
+                      </widget>
+                     </item>
                      <item>
                       <spacer name="horizontalSpacer_6">
                        <property name="orientation">
@@ -1743,21 +1723,7 @@ QPushButton:pressed {
                        </property>
                       </spacer>
                      </item>
-                     <item>
-                      <widget class="QPushButton" name="exportButton">
-                       <property name="text">
-                        <string>Export</string>
-                       </property>
-                      </widget>
-                     </item>
                     </layout>
-                   </item>
-                   <item>
-                    <widget class="QLabel" name="label_5">
-                     <property name="text">
-                      <string>Select path to export</string>
-                     </property>
-                    </widget>
                    </item>
                   </layout>
                  </widget>

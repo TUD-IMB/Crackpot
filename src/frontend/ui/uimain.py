@@ -1153,51 +1153,25 @@ class Ui_MainWindow(object):
 
         self.groupBox_5 = QGroupBox(self.page5)
         self.groupBox_5.setObjectName(u"groupBox_5")
-        self.groupBox_5.setMinimumSize(QSize(0, 150))
         self.groupBox_5.setStyleSheet(u"QGroupBox{\n"
 "    font-weight: bold;\n"
 "}\n"
 "")
         self.verticalLayout_19 = QVBoxLayout(self.groupBox_5)
         self.verticalLayout_19.setObjectName(u"verticalLayout_19")
-        self.horizontalLayout_10 = QHBoxLayout()
-        self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
-        self.label_6 = QLabel(self.groupBox_5)
-        self.label_6.setObjectName(u"label_6")
-
-        self.horizontalLayout_10.addWidget(self.label_6)
-
-        self.exportPathLineEdit = QLineEdit(self.groupBox_5)
-        self.exportPathLineEdit.setObjectName(u"exportPathLineEdit")
-
-        self.horizontalLayout_10.addWidget(self.exportPathLineEdit)
-
-        self.browseButton = QPushButton(self.groupBox_5)
-        self.browseButton.setObjectName(u"browseButton")
-
-        self.horizontalLayout_10.addWidget(self.browseButton)
-
-
-        self.verticalLayout_19.addLayout(self.horizontalLayout_10)
-
         self.horizontalLayout_18 = QHBoxLayout()
         self.horizontalLayout_18.setObjectName(u"horizontalLayout_18")
-        self.horizontalSpacer_6 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.horizontalLayout_18.addItem(self.horizontalSpacer_6)
-
         self.exportButton = QPushButton(self.groupBox_5)
         self.exportButton.setObjectName(u"exportButton")
 
         self.horizontalLayout_18.addWidget(self.exportButton)
 
+        self.horizontalSpacer_6 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_18.addItem(self.horizontalSpacer_6)
+
 
         self.verticalLayout_19.addLayout(self.horizontalLayout_18)
-
-        self.label_5 = QLabel(self.groupBox_5)
-        self.label_5.setObjectName(u"label_5")
-
-        self.verticalLayout_19.addWidget(self.label_5)
 
 
         self.verticalLayout_10.addWidget(self.groupBox_5)
@@ -1421,10 +1395,7 @@ class Ui_MainWindow(object):
         self.label_11.setText(QCoreApplication.translate("MainWindow", u"Mean Crack Width:", None))
         self.crackWidthLabel.setText("")
         self.groupBox_5.setTitle(QCoreApplication.translate("MainWindow", u"Export Settings", None))
-        self.label_6.setText(QCoreApplication.translate("MainWindow", u"Export Path", None))
-        self.browseButton.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
         self.exportButton.setText(QCoreApplication.translate("MainWindow", u"Export", None))
-        self.label_5.setText(QCoreApplication.translate("MainWindow", u"Select path to export", None))
         self.nextButton5.setText(QCoreApplication.translate("MainWindow", u"Finish", None))
         self.previousFigButton.setText("")
         self.nextFigButton.setText("")
