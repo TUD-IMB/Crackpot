@@ -520,15 +520,26 @@ class SkeletonProcessor:
 
 		if not removed:
 			return False
+		self.remove_pixels(skeleton, removed, junction_zones, protected)
+		return True
 
-		for pixel in removed:
+	def remove_pixels(self, skeleton, pixels, junction_zones, protected=frozenset()):
+		r"""
+		Take pixels out of the skeleton and tidy up the fork they hung on.
+
+		\param skeleton: A binary skeletonized image, modified in place.
+		\param pixels: The pixels to remove.
+		\param junction_zones: The fork areas as they were before the removal.
+		\param protected: Pixels the cleanup has to leave alone.
+		\return: The skeleton without those pixels.
+		"""
+		for pixel in pixels:
 			skeleton[pixel] = 0
 		# Only pixels of a fork area are up for the cleanup, so nothing can be eaten
 		# away further down the line, and never a main endpoint.
 		candidates = {pixel for pixel in zip(*(axis.tolist() for axis in np.where(junction_zones)))
 					  if pixel not in protected}
-		self.remove_leftover_junctions(skeleton, candidates)
-		return True
+		return self.remove_leftover_junctions(skeleton, candidates)
 
 	# def find_longest_path(self, skeleton):
 	# 	G = nx.Graph()

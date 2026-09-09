@@ -20,6 +20,11 @@ from skimage.morphology import skeletonize
 
 from utils.utils import resource_path
 
+# Radius of a manually placed node in image pixels. The overlay draws the node
+# with it and get_clicked_node() uses it as the click tolerance, so everything
+# that can be seen can also be hit.
+NODE_RADIUS = 5
+
 
 class _NumpyJSONEncoder(json.JSONEncoder):
 	r"""
@@ -654,8 +659,12 @@ class MainWindow(QMainWindow):
 
 	def delete_node(self, clicked_pos):
 		r"""
-		Identify the closest node, remove it from the created skeleton nodes, and
-		clean up any isolated nodes.
+		Remove the node that was clicked on and close the gap it leaves behind.
+
+		A node in the middle of a drawn chain has a node on either side of it; those
+		two are connected directly, so the line stays in one piece instead of falling
+		apart at that point. A click that does not hit any node goes to the automatic
+		skeleton instead (see delete_skeleton_segment).
 
 		\param clicked_pos: The QPoint position where the user clicked.
 		"""
@@ -664,26 +673,75 @@ class MainWindow(QMainWindow):
 			return
 
 		closest_node = self.get_clicked_node(clicked_pos)
-
 		if not closest_node or closest_node not in skeleton_data["created_nodes"]:
+			self.delete_skeleton_segment(clicked_pos)
 			return
 
-		connected_lines = [line for line in skeleton_data["created_lines"] if closest_node in line]
-
-		connected_nodes = set()
-		for line in connected_lines:
-			start, end = line
-			connected_nodes.add(start if end == closest_node else end)
+		lines = skeleton_data.get("created_lines", [])
+		neighbor_nodes = [start if end == closest_node else end
+						  for start, end in lines if closest_node in (start, end)]
 
 		skeleton_data["created_nodes"].remove(closest_node)
-		skeleton_data["created_lines"] = [line for line in skeleton_data["created_lines"] if closest_node not in line]
+		skeleton_data["created_lines"] = [line for line in lines if closest_node not in line]
 
-		for node in connected_nodes:
-			is_isolated = not any(node in line for line in skeleton_data["created_lines"])
-			if is_isolated and node in skeleton_data["created_nodes"]:
-				skeleton_data["created_nodes"].remove(node)
+		# Two neighbors mean the node sat between them, so the line continues from one
+		# to the other. With one neighbor it was the end of a chain and there is
+		# nothing to bridge.
+		if len(neighbor_nodes) == 2 and neighbor_nodes[0] != neighbor_nodes[1]:
+			skeleton_data["created_lines"].append((neighbor_nodes[0], neighbor_nodes[1]))
 
 		self.refresh_display_image()
+
+	def delete_skeleton_segment(self, clicked_pos):
+		r"""
+		Remove the piece of the automatic skeleton that was clicked on.
+
+		The piece is the same unit the branch cleanup works with: the line between
+		two forks, or between a fork and a loose end. This is the manual counterpart
+		to "remove branches shorter than" - a wrong branch that is too long for the
+		threshold, or one that has to go although it is long enough, can be taken out
+		by hand without touching the rest of the crack.
+
+		\param clicked_pos: The QPoint position where the user clicked.
+		"""
+		skeleton_data = self.skeleton_results.get(self.current_image_path)
+		if not skeleton_data or skeleton_data.get("skeleton") is None:
+			return
+
+		skeleton = skeleton_data["skeleton"]
+		img_x, img_y = self.convert_to_image_coords(clicked_pos, skeleton.shape)
+		segments = self.skeleton_processor.find_branch_segments(skeleton)
+		clicked_segment = self.find_clicked_segment(segments, (img_y, img_x))
+		if clicked_segment is None:
+			return
+
+		junction_zones = self.skeleton_processor.find_junction_zones(skeleton)
+		self.skeleton_processor.remove_pixels(skeleton, clicked_segment["pixels"], junction_zones)
+		skeleton_data["branch_points"] = self.skeleton_processor.find_branch_points(skeleton)
+		skeleton_data["end_points"] = self.skeleton_processor.find_end_points(skeleton)
+		self.refresh_display_image()
+
+	def find_clicked_segment(self, segments, position):
+		r"""
+		Find the skeleton segment a click was meant for.
+
+		\param segments: The segments as returned by find_branch_segments().
+		\param position: The clicked position as (row, col) in image coordinates.
+		\return: The closest segment, or None if the click was too far away from all
+			of them.
+		"""
+		pixels = [pixel for segment in segments for pixel in segment["pixels"]]
+		if not pixels:
+			return None
+		owners = [index for index, segment in enumerate(segments) for _ in segment["pixels"]]
+
+		coordinates = np.array(pixels)
+		distances = np.hypot(coordinates[:, 0] - position[0], coordinates[:, 1] - position[1])
+		nearest = int(np.argmin(distances))
+		# Same tolerance as for the nodes, so both react to a click the same way.
+		if distances[nearest] > NODE_RADIUS * self.overlay_line_scale():
+			return None
+		return segments[owners[nearest]]
 
 	def get_clicked_node(self, position):
 		r"""
@@ -703,7 +761,10 @@ class MainWindow(QMainWindow):
 		img_size = skeleton_data["skeleton"].shape if "skeleton" in skeleton_data else (1, 1)
 		img_x, img_y = self.convert_to_image_coords(position, img_size)
 
-		threshold = 5
+		# The same radius the node is drawn with. A fixed number of image pixels
+		# would shrink to well under a screen pixel in the zoomed out overview, which
+		# is what made the nodes so hard to hit.
+		threshold = NODE_RADIUS * self.overlay_line_scale()
 
 		nodes = np.array(created_nodes)
 		distances = np.linalg.norm(nodes - np.array([img_x, img_y]), axis=1)
@@ -1141,7 +1202,8 @@ class MainWindow(QMainWindow):
 
 		created_nodes = skeleton_data.get("created_nodes", [])
 		for node in created_nodes:
-			cv2.circle(overlay_image, (node[0], node[1]), radius=5 * overlay_scale, color=(255, 251, 13), thickness=-1)
+			cv2.circle(overlay_image, (node[0], node[1]), radius=NODE_RADIUS * overlay_scale,
+					   color=(255, 251, 13), thickness=-1)
 
 		lines = skeleton_data.get("created_lines", [])
 		for line in lines:
