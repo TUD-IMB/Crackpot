@@ -1,5 +1,20 @@
+import heapq
+
 import numpy as np
-from scipy.ndimage import convolve
+from scipy.ndimage import binary_dilation, convolve, label
+
+# One definition of "connected" for the whole module, so that counting neighbors,
+# labelling components and measuring distances cannot disagree with each other.
+# The skeleton is 8-connected, so the diagonals count as neighbors as well.
+NEIGHBOR_KERNEL = np.array([[1, 1, 1],
+							[1, 0, 1],
+							[1, 1, 1]], dtype=np.uint8)
+# In clockwise order on purpose: count_neighbor_groups() reads them as a ring
+# around the pixel, so neighbors that follow each other here have to touch.
+NEIGHBOR_OFFSETS = ((-1, 0), (-1, 1), (0, 1), (1, 1),
+					(1, 0), (1, -1), (0, -1), (-1, -1))
+CONNECTIVITY_8 = np.ones((3, 3), dtype=np.uint8)
+DIAGONAL_STEP = float(np.sqrt(2))
 
 
 class SkeletonProcessor:
@@ -22,95 +37,498 @@ class SkeletonProcessor:
 		"""
 		self.skeletons[image_path] = skeleton
 
+	def count_neighbors(self, skeleton):
+		r"""
+		Count the set neighbors of every pixel in the skeleton.
+
+		One neighbor means a loose end, two mean a piece of line, three or more mean
+		the pixel may be a fork (see find_branch_points, which takes a closer look).
+		Everything outside the image counts as background, otherwise a crack running
+		into the image border would look as if the line continued there.
+
+		\param skeleton: A binary skeletonized image.
+		\return: An integer array with the number of set neighbors per pixel.
+		"""
+		binary = (np.asarray(skeleton) > 0).astype(np.uint8)
+		return convolve(binary, NEIGHBOR_KERNEL, mode="constant", cval=0)
+
 	def find_end_points(self, skeleton):
 		r"""
 		Detect endpoints in a skeletonized image.
-		Apply a convolution kernel to identify pixels with only one connected neighbor.
+		Endpoints are the loose ends of the skeleton, i.e. pixels with a single neighbor.
 
 		\param skeleton: A binary skeletonized image.
 		\return: A boolean array marking endpoint locations.
 		"""
-		kernel = np.array([[1, 1, 1],
-						   [1, 10, 1],
-						   [1, 1, 1]])
-		filtered = convolve(skeleton.astype(np.uint8), kernel)
-		end_points = (filtered == 11)
-		return end_points
+		binary = np.asarray(skeleton) > 0
+		return binary & (self.count_neighbors(binary) == 1)
 
 	def find_branch_points(self, skeleton):
 		r"""
 		Identify branch points in a skeletonized image.
-		Apply a convolution kernel to detect pixels with three or more connected neighbors.
+
+		A branch point is a real fork: three or more branches leave it in different
+		directions. Counting neighbors alone is not enough, because a skeleton draws
+		a slanted line as a small staircase and the corner pixel of such a step has
+		three neighbors without anything branching off there. Those neighbors all
+		touch each other, so counting the groups they form tells the two apart.
 
 		\param skeleton: A binary skeletonized image.
 		\return: A boolean array marking branch point locations.
 		"""
-		kernel = np.array([[1, 1, 1],
-						   [1, 10, 1],
-						   [1, 1, 1]])
-		filtered = convolve(skeleton.astype(np.uint8), kernel)
-		branch_points = (filtered >= 13) & (skeleton == 1)
+		binary = np.asarray(skeleton) > 0
+		branch_points = np.zeros(binary.shape, dtype=bool)
+		# Three neighbors are the minimum for a fork, so only those pixels are worth
+		# the closer look; on a full image that is a handful instead of millions.
+		for pixel in zip(*np.where(binary & (self.count_neighbors(binary) >= 3))):
+			if self.count_neighbor_groups(binary, pixel) >= 3:
+				branch_points[pixel] = True
 		return branch_points
+
+	def count_neighbor_groups(self, skeleton, pixel):
+		r"""
+		Count how many separate groups of set pixels lie around a pixel.
+
+		The eight neighbors are read as a ring around the pixel, and every place
+		where background turns into skeleton starts a new group. One group is a loose
+		end, two mean the pixel sits somewhere on a line, three or more mean that
+		three branches leave it and it is a fork.
+
+		Reading the ring is what tells a fork from a bend. The three neighbors of the
+		corner pixel of a staircase follow each other on the ring and are one group,
+		while the three neighbors of a T-shaped fork are separated by background and
+		count as three.
+
+		\param skeleton: A binary skeletonized image.
+		\param pixel: The (row, col) pixel to look at.
+		\return: The number of groups around the pixel.
+		"""
+		row, col = pixel
+		ring = []
+		for row_offset, col_offset in NEIGHBOR_OFFSETS:
+			neighbor = (row + row_offset, col + col_offset)
+			inside_image = 0 <= neighbor[0] < skeleton.shape[0] and 0 <= neighbor[1] < skeleton.shape[1]
+			ring.append(bool(inside_image and skeleton[neighbor]))
+		# ring[index - 1] wraps around for the first entry, which closes the ring.
+		return sum(1 for index, is_set in enumerate(ring) if is_set and not ring[index - 1])
+
+	def find_junction_zones(self, skeleton):
+		r"""
+		Mark the area a fork takes up, not just the pixel in its middle.
+
+		Removing only the middle pixel is not enough to separate the branches: in an
+		8-connected skeleton the three branches of a fork still touch each other
+		diagonally around it and would come out as one piece. Taking the fork pixel
+		together with the pixels immediately around it pulls the branches apart, and
+		it also puts forks that sit one or two pixels apart into a single area, which
+		is what they are.
+
+		\param skeleton: A binary skeletonized image.
+		\return: A boolean array marking the fork areas.
+		"""
+		binary = np.asarray(skeleton) > 0
+		return binary_dilation(self.find_branch_points(binary), structure=CONNECTIVITY_8) & binary
 
 	def find_main_endpoints(self, skeleton):
 		r"""
-		Determine the two most distant endpoints in the skeleton.
-		Find all endpoints and calculate the pair with the maximum Euclidean distance.
+		Determine the endpoints that mark the ends of the main line.
+
+		The main line of a crack is the longest way through it, so its ends are the
+		two loose ends that are furthest apart when measured along the skeleton, not
+		as the crow flies: a bent crack can have its two ends lying next to each
+		other. Found per connected part, because an image usually holds several
+		separate cracks and each of them has to keep its own two ends.
+
+		The two ends are found with the usual double sweep - go as far as possible
+		from any starting point, then as far as possible from there. That is exact
+		for a skeleton without closed loops, which is the normal case here.
 
 		\param skeleton: A binary skeletonized image.
-		\return: A NumPy array containing the two main endpoints.
+		\return: A NumPy array of (row, col) endpoints, two per connected part.
 		"""
-		end_points = np.column_stack(np.where(self.find_end_points(skeleton)))
-		if len(end_points) < 2:
-			return end_points
-		max_distance = 0
-		main_endpoints = (end_points[0], end_points[1])
-		for i in range(len(end_points)):
-			for j in range(i + 1, len(end_points)):
-				dist = np.sum((end_points[i] - end_points[j]) ** 2)
-				if dist > max_distance:
-					max_distance = dist
-					main_endpoints = (end_points[i], end_points[j])
+		graph = self.build_segment_graph(self.find_branch_segments(skeleton))
+
+		main_endpoints = []
+		visited = set()
+		for node in graph:
+			if node in visited:
+				continue
+			distances = self.distances_from(graph, node)
+			visited.update(distances)
+			first = self.furthest_end_point(distances)
+			if first is None:
+				continue
+			second = self.furthest_end_point(self.distances_from(graph, first), exclude=first)
+			if second is None:
+				continue
+			main_endpoints.append(first[1])
+			main_endpoints.append(second[1])
+
+		if not main_endpoints:
+			return np.empty((0, 2), dtype=int)
 		return np.array(main_endpoints)
+
+	def build_segment_graph(self, segments):
+		r"""
+		Build a graph out of the segments to work on the shape of the skeleton
+		instead of on single pixels.
+
+		The nodes are the junctions and the loose ends, the edges are the segments
+		between them, weighted with their length. A skeleton of a few hundred
+		thousand pixels usually boils down to a handful of nodes this way.
+
+		\param segments: The segments as returned by find_branch_segments().
+		\return: A dictionary mapping a node to a list of (neighbor, length) pairs.
+		"""
+		graph = {}
+		for segment in segments:
+			nodes = self.segment_nodes(segment)
+			# Fewer than two nodes means a closed loop that leads back to where it
+			# started; more than two only happens where forks sit right next to each
+			# other and the piece between them belongs to all of them.
+			for first in range(len(nodes)):
+				for second in range(first + 1, len(nodes)):
+					graph.setdefault(nodes[first], []).append((nodes[second], segment["length"]))
+					graph.setdefault(nodes[second], []).append((nodes[first], segment["length"]))
+		return graph
+
+	def segment_nodes(self, segment):
+		r"""
+		Name the points a segment runs between: the junctions it touches and its
+		loose ends.
+
+		\param segment: One segment as returned by find_branch_segments().
+		\return: A list of node keys for the segment graph.
+		"""
+		return ([("junction", junction) for junction in sorted(segment["junctions"])]
+				+ [("end", point) for point in segment["end_points"]])
+
+	def distances_from(self, graph, start):
+		r"""
+		Measure the distance along the skeleton from one node to every node it is
+		connected to (Dijkstra).
+
+		\param graph: The segment graph as returned by build_segment_graph().
+		\param start: The node to start from.
+		\return: A dictionary mapping every reachable node to its distance.
+		"""
+		distances = {start: 0.0}
+		queue = [(0.0, start)]
+		while queue:
+			distance, node = heapq.heappop(queue)
+			if distance > distances[node]:
+				continue
+			for neighbor, length in graph.get(node, ()):
+				candidate = distance + length
+				if candidate < distances.get(neighbor, float("inf")):
+					distances[neighbor] = candidate
+					heapq.heappush(queue, (candidate, neighbor))
+		return distances
+
+	def furthest_end_point(self, distances, exclude=None):
+		r"""
+		Pick the loose end that is furthest away in a set of measured distances.
+		Junctions are skipped: the main line has to end in a loose end.
+
+		\param distances: The distances as returned by distances_from().
+		\param exclude: A node to leave out, so that a sweep cannot end where it began.
+		\return: The furthest end node, or None if there is none.
+		"""
+		candidates = [(distance, node) for node, distance in distances.items()
+					  if node[0] == "end" and node != exclude]
+		if not candidates:
+			return None
+		return max(candidates)[1]
+
+	def find_branch_segments(self, skeleton):
+		r"""
+		Split the skeleton into its segments at the junctions.
+
+		A segment is an uninterrupted run of line pixels: the piece between two
+		junctions, the piece between a junction and a loose end, or a whole part of
+		the skeleton that never branches at all. The forks themselves belong to no
+		segment, they are cut out beforehand (see find_junction_zones).
+
+		What a segment is attached to tells the three cases apart: no junction means
+		a line standing on its own, exactly one junction plus one loose end means a
+		side branch, everything else connects junctions and therefore carries the
+		line itself.
+
+		\param skeleton: A binary skeletonized image.
+		\return: A list of dictionaries, one per segment, with "pixels" (the pixels
+			it consists of), "length" (its length measured from the junction it hangs
+			on, a diagonal step counting as sqrt(2)), "junctions" (the labels of the
+			junctions it touches) and "end_points" (its loose ends).
+		"""
+		binary = np.asarray(skeleton) > 0
+		neighbor_count = self.count_neighbors(binary)
+		junction_zones = self.find_junction_zones(binary)
+		segment_mask = binary & ~junction_zones
+
+		junction_labels, _ = label(junction_zones, structure=CONNECTIVITY_8)
+		segment_labels, _ = label(segment_mask, structure=CONNECTIVITY_8)
+		shape = binary.shape
+
+		# Collect the pixels of every segment in one pass; going over the image once
+		# per segment would mean scanning it hundreds of times on a real crack.
+		pixels_per_segment = {}
+		for row, col in zip(*np.where(segment_mask)):
+			pixels_per_segment.setdefault(segment_labels[row, col], set()).add((int(row), int(col)))
+
+		segments = []
+		for pixels in pixels_per_segment.values():
+			# The ends of a segment are the pixels with at most one neighbor inside
+			# it; a loose end is one that has no other neighbor in the skeleton either.
+			ends = [pixel for pixel in pixels if len(self.neighbors_within(pixel, pixels, shape)) <= 1]
+			end_points = [pixel for pixel in ends if neighbor_count[pixel] == 1]
+
+			# Every pixel has to be checked, not only the ends: a fork area is wider
+			# than a single pixel and can touch a segment anywhere along it.
+			junctions = {}
+			for pixel in pixels:
+				junctions.update(self.find_adjacent_junctions(pixel, junction_labels, shape))
+
+			segments.append({
+				"pixels": pixels,
+				"length": self.measure_segment_length(pixels, end_points or ends, junctions, shape),
+				"junctions": set(junctions),
+				"end_points": end_points,
+			})
+		return segments
+
+	def measure_segment_length(self, pixels, ends, junctions, shape):
+		r"""
+		Measure how long a segment is.
+
+		Measured along the pixels from one end to the other, and from the junction
+		the segment hangs on rather than from its first pixel, so that the length of
+		a side branch is the distance from the fork to its tip. A diagonal step counts
+		as sqrt(2) and not as 1, otherwise a slanted branch would come out about 30 %
+		too short and survive a threshold it should not.
+
+		\param pixels: The pixels of the segment.
+		\param ends: The ends of the segment, the loose ones first if there are any.
+		\param junctions: The junctions the segment touches, mapped to one pixel each.
+		\param shape: The shape of the skeleton image.
+		\return: The length of the segment in pixels.
+		"""
+		# Walking the pixels one after another would be the obvious way, but in an
+		# 8-connected skeleton a bend can offer two ways on at once, and picking the
+		# wrong one ends in a dead end halfway along the segment. Taking the distance
+		# to the furthest pixel instead cannot get stuck.
+		measured = set(pixels) | set(junctions.values())
+		start = ends[0] if ends else next(iter(pixels))
+		return max(self.distances_from(self.pixel_graph(measured, shape), start).values())
+
+	def pixel_graph(self, pixels, shape):
+		r"""
+		Build a graph of neighboring pixels, weighted with the distance between them.
+
+		\param pixels: The pixels to connect.
+		\param shape: The shape of the skeleton image.
+		\return: A dictionary mapping a pixel to a list of (neighbor, distance) pairs.
+		"""
+		graph = {}
+		for pixel in pixels:
+			graph[pixel] = [(neighbor, 1.0 if neighbor[0] == pixel[0] or neighbor[1] == pixel[1] else DIAGONAL_STEP)
+							for neighbor in self.neighbors_within(pixel, pixels, shape)]
+		return graph
+
+	def neighbors_within(self, pixel, pixels, shape):
+		r"""
+		List the neighbors of a pixel that belong to a given set of pixels.
+
+		\param pixel: The (row, col) pixel to look around.
+		\param pixels: The set of pixels a neighbor has to belong to.
+		\param shape: The shape of the skeleton image.
+		\return: A list of neighboring pixels.
+		"""
+		row, col = pixel
+		return [(row + row_offset, col + col_offset)
+				for row_offset, col_offset in NEIGHBOR_OFFSETS
+				if 0 <= row + row_offset < shape[0] and 0 <= col + col_offset < shape[1]
+				and (row + row_offset, col + col_offset) in pixels]
+
+	def find_adjacent_junctions(self, pixel, junction_labels, shape):
+		r"""
+		Find the junctions a segment pixel is attached to.
+
+		Usually there is one, but two forks can sit so close to each other that the
+		pixel between them touches both.
+
+		\param pixel: The (row, col) pixel to look around.
+		\param junction_labels: The labelled fork areas of the skeleton.
+		\param shape: The shape of the skeleton image.
+		\return: A dictionary mapping the label of every adjoining junction to one of
+			its pixels.
+		"""
+		row, col = pixel
+		junctions = {}
+		for row_offset, col_offset in NEIGHBOR_OFFSETS:
+			neighbor = (row + row_offset, col + col_offset)
+			if 0 <= neighbor[0] < shape[0] and 0 <= neighbor[1] < shape[1] and junction_labels[neighbor]:
+				junctions.setdefault(int(junction_labels[neighbor]), neighbor)
+		return junctions
+
+	def is_removable_pixel(self, skeleton, pixel):
+		r"""
+		Check whether a pixel can be dropped without tearing the skeleton apart.
+
+		A pixel may go when its set neighbors still hang together without it, which
+		is the case if they form a single group. A real junction has one group per
+		branch around it and is therefore kept, while the pixel left over where a
+		removed branch used to fork off sits beside the line and has only one.
+
+		\param skeleton: A binary skeletonized image.
+		\param pixel: The (row, col) pixel to test.
+		\return: True if the pixel is not needed to hold the skeleton together.
+		"""
+		return self.count_neighbor_groups(skeleton, pixel) <= 1
+
+	def remove_leftover_junctions(self, skeleton, candidates):
+		r"""
+		Drop what a removed side branch leaves behind at the fork it grew out of.
+
+		The fork is not part of the branch, so once the branch is gone the pixels
+		that led into it are still there and sit on the line as a small stub.
+		Repeated until nothing changes, because a fork covers two or three pixels
+		that only become removable one after the other.
+
+		\param skeleton: A binary skeletonized image, modified in place.
+		\param candidates: The pixels to check, normally the fork areas.
+		\return: The skeleton without the leftover stubs.
+		"""
+		removed_one = True
+		while removed_one:
+			removed_one = False
+			for pixel in candidates:
+				if skeleton[pixel] and self.is_removable_pixel(skeleton, pixel):
+					skeleton[pixel] = 0
+					removed_one = True
+		return skeleton
+
+	def remove_small_components(self, skeleton, max_length):
+		r"""
+		Remove the parts of the skeleton that are too short as a whole.
+
+		A crack lying on its own is not a branch of anything, so the rules for
+		branches do not apply to it and there is nothing it could be measured
+		against. It is measured end to end instead and drops out when the whole of it
+		is shorter than the threshold, which is what clears the specks and short
+		strokes the detection leaves lying around the real crack.
+
+		\param skeleton: A binary skeletonized image, modified in place.
+		\param max_length: Parts shorter than this are removed completely.
+		\return: True if anything was removed.
+		"""
+		components, component_count = label(np.asarray(skeleton) > 0, structure=CONNECTIVITY_8)
+		segments = self.find_branch_segments(skeleton)
+		graph = self.build_segment_graph(segments)
+
+		# Which part of the image a segment (and with it every node on it) belongs to.
+		lengths = {}
+		component_of_node = {}
+		for segment in segments:
+			component = int(components[next(iter(segment["pixels"]))])
+			# A part without any fork consists of a single segment and is not in the
+			# graph at all, so its own length has to count as well.
+			lengths[component] = max(lengths.get(component, 0.0), segment["length"])
+			for node in self.segment_nodes(segment):
+				component_of_node[node] = component
+
+		# The length of a branched part is the longest way through it, found with the
+		# same double sweep as the main endpoints.
+		visited = set()
+		for node in graph:
+			if node in visited:
+				continue
+			distances = self.distances_from(graph, node)
+			visited.update(distances)
+			furthest = max(distances.items(), key=lambda entry: entry[1])[0]
+			spread = self.distances_from(graph, furthest)
+			component = component_of_node[node]
+			lengths[component] = max(lengths.get(component, 0.0), max(spread.values()))
+
+		too_short = [component for component in range(1, component_count + 1)
+					 if lengths.get(component, 0.0) < max_length]
+		if not too_short:
+			return False
+		skeleton[np.isin(components, too_short)] = 0
+		return True
 
 	def remove_small_branches(self, skeleton, max_branch_length, main_endpoints):
 		r"""
-		Remove small branches from the skeleton.
-		Iterate through endpoints, trace branches, and remove those small branches shorter than
-		the specified length threshold.
+		Remove short side branches from the skeleton.
+
+		A side branch is a segment that hangs on exactly one junction and ends in a
+		loose end. Only those are considered, and each of them is removed as a whole
+		or not at all. Everything that carries a crack itself stays untouched: the
+		pieces between two junctions and the segments ending in a main endpoint.
+
+		A crack lying on its own has no branches and is measured end to end instead
+		(see remove_small_components), so that the short strokes left around the real
+		crack can be cleared with the same threshold.
+
+		That distinction is the point of this method. Walking away from an endpoint
+		and deleting pixels along the way, as it used to do, shortened every long
+		branch by the threshold on each run, so cleaning repeatedly ate up the
+		skeleton instead of only clearing the branches off it.
 
 		\param skeleton: A binary skeletonized image.
-		\param max_branch_length: The maximum length of branches to remove.
-		\param main_endpoints: The two main endpoints to preserve.
-		\return: The cleaned skeleton image with small branches removed.
+		\param max_branch_length: Side branches shorter than this are removed.
+		\param main_endpoints: The endpoints marking the ends of the main lines; the
+			segments ending there are kept whatever their length.
+		\return: The cleaned skeleton image with the short side branches removed.
 		"""
-		branch_points = self.find_branch_points(skeleton)
-		end_points = self.find_end_points(skeleton)
-		skeleton_copy = skeleton.copy()
-		rows, cols = np.where(end_points)
-		for row, col in zip(rows, cols):
-			if [row, col] in main_endpoints.tolist():
+		main_points = np.asarray(main_endpoints if main_endpoints is not None else []).reshape(-1, 2)
+		protected = {(int(row), int(col)) for row, col in main_points}
+
+		cleaned = np.asarray(skeleton).copy()
+		# Parts of the skeleton that are too short on their own go first; afterwards
+		# only branches of the remaining cracks are left to look at.
+		self.remove_small_components(cleaned, max_branch_length)
+		# Removing a branch can turn the twig it grew on into a side branch itself,
+		# so this runs until nothing is left to remove. That way one click does the
+		# whole job and clicking again provably changes nothing.
+		while self.remove_side_branch_layer(cleaned, max_branch_length, protected):
+			pass
+		return cleaned
+
+	def remove_side_branch_layer(self, skeleton, max_branch_length, protected):
+		r"""
+		Remove every side branch that is currently too short, one round.
+
+		\param skeleton: A binary skeletonized image, modified in place.
+		\param max_branch_length: Side branches shorter than this are removed.
+		\param protected: The endpoints whose segments have to be kept.
+		\return: True if anything was removed, False if there was nothing to do.
+		"""
+		# Taken before anything is removed: afterwards a fork that lost a branch is
+		# no longer recognisable as one, and its leftovers would go unnoticed.
+		junction_zones = self.find_junction_zones(skeleton)
+
+		removed = []
+		for segment in self.find_branch_segments(skeleton):
+			is_side_branch = len(segment["junctions"]) == 1 and len(segment["end_points"]) == 1
+			if not is_side_branch:
 				continue
-			length = 0
-			path = [(row, col)]
-			while length < max_branch_length:
-				neighbors = skeleton_copy[row - 1:row + 2, col - 1:col + 2]
-				if np.sum(neighbors) == 2:
-					skeleton_copy[row, col] = 0
-					length += 1
-					row, col = np.where(neighbors == 1)
-					if len(row) == 0 or len(col) == 0:
-						break
-					row, col = row[0] + path[-1][0] - 1, col[0] + path[-1][1] - 1
-					# if branch_points[row, col]:
-					# 	break
-					path.append((row, col))
-				else:
-					break
-			if length < max_branch_length:
-				for r, c in path:
-					skeleton_copy[r, c] = 0
-		return skeleton_copy
+			if segment["end_points"][0] in protected:
+				continue
+			if segment["length"] >= max_branch_length:
+				continue
+			removed.extend(segment["pixels"])
+
+		if not removed:
+			return False
+
+		for pixel in removed:
+			skeleton[pixel] = 0
+		# Only pixels of a fork area are up for the cleanup, so nothing can be eaten
+		# away further down the line, and never a main endpoint.
+		candidates = {pixel for pixel in zip(*(axis.tolist() for axis in np.where(junction_zones)))
+					  if pixel not in protected}
+		self.remove_leftover_junctions(skeleton, candidates)
+		return True
 
 	# def find_longest_path(self, skeleton):
 	# 	G = nx.Graph()
@@ -149,5 +567,3 @@ class SkeletonProcessor:
 	# 			new_skeleton[point] = 1
 	#
 	# 		return new_skeleton
-
-

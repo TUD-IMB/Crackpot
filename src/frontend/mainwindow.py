@@ -417,9 +417,12 @@ class MainWindow(QMainWindow):
 
 	def clean_skeleton_branches(self, all_images=False):
 		r"""
-		Remove short branches from the skeleton and keep the longest path.
-		Identify main endpoints, clean unnecessary branches, and extract the longest path.
-		Branches shorter than the length threshold set in the UI are removed.
+		Remove short side branches from the skeleton and keep the longest path.
+
+		Only the branches hanging off the line are removed, and only as a whole
+		(see SkeletonProcessor.remove_small_branches). The line itself keeps its
+		length however often this is run, so the button can be pressed repeatedly
+		with a larger threshold until the skeleton looks right.
 
 		\param all_images: Process every image if True (right button), only the
 			currently displayed one if False (left button).
@@ -446,15 +449,13 @@ class MainWindow(QMainWindow):
 			branch_points = self.skeleton_processor.find_branch_points(clean_skeleton)
 			end_points = self.skeleton_processor.find_end_points(clean_skeleton)
 
-			self.skeleton_results[image_path] = {
-				"skeleton": clean_skeleton,
-				"branch_points": branch_points,
-				"end_points": end_points,
-				"longest_path": longest_path,
-				"selected_points": [],
-				"created_nodes": [],
-				"created_lines": []
-			}
+			# Update in place instead of replacing the entry: the manually drawn nodes
+			# and lines belong to the image, not to the automatic skeleton, and must
+			# survive a cleaning run.
+			skeleton_data["skeleton"] = clean_skeleton
+			skeleton_data["branch_points"] = branch_points
+			skeleton_data["end_points"] = end_points
+			skeleton_data["longest_path"] = longest_path
 
 		self.skeleton_processor.skeletons = self.skeleton_results
 		self.refresh_display_image()
