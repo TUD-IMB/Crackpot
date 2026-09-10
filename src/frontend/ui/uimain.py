@@ -604,6 +604,11 @@ class Ui_MainWindow(object):
         self.horizontalLayout_17 = QHBoxLayout()
         self.horizontalLayout_17.setObjectName(u"horizontalLayout_17")
         self.horizontalLayout_17.setContentsMargins(-1, -1, -1, 0)
+        self.previousButton1 = QPushButton(self.page1)
+        self.previousButton1.setObjectName(u"previousButton1")
+
+        self.horizontalLayout_17.addWidget(self.previousButton1)
+
         self.nextButton1 = QPushButton(self.page1)
         self.nextButton1.setObjectName(u"nextButton1")
 
@@ -840,6 +845,11 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_9 = QHBoxLayout()
         self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
+        self.previousButton3 = QPushButton(self.page3)
+        self.previousButton3.setObjectName(u"previousButton3")
+
+        self.horizontalLayout_9.addWidget(self.previousButton3)
+
         self.nextButton3 = QPushButton(self.page3)
         self.nextButton3.setObjectName(u"nextButton3")
 
@@ -1054,10 +1064,20 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_8.addItem(self.verticalSpacer_3)
 
+        self.horizontalLayout_26 = QHBoxLayout()
+        self.horizontalLayout_26.setObjectName(u"horizontalLayout_26")
+        self.previousButton4 = QPushButton(self.page4)
+        self.previousButton4.setObjectName(u"previousButton4")
+
+        self.horizontalLayout_26.addWidget(self.previousButton4)
+
         self.nextButton4 = QPushButton(self.page4)
         self.nextButton4.setObjectName(u"nextButton4")
 
-        self.verticalLayout_8.addWidget(self.nextButton4)
+        self.horizontalLayout_26.addWidget(self.nextButton4)
+
+
+        self.verticalLayout_8.addLayout(self.horizontalLayout_26)
 
 
         self.verticalLayout_9.addLayout(self.verticalLayout_8)
@@ -1180,10 +1200,20 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_10.addItem(self.verticalSpacer_5)
 
+        self.horizontalLayout_27 = QHBoxLayout()
+        self.horizontalLayout_27.setObjectName(u"horizontalLayout_27")
+        self.previousButton5 = QPushButton(self.page5)
+        self.previousButton5.setObjectName(u"previousButton5")
+
+        self.horizontalLayout_27.addWidget(self.previousButton5)
+
         self.nextButton5 = QPushButton(self.page5)
         self.nextButton5.setObjectName(u"nextButton5")
 
-        self.verticalLayout_10.addWidget(self.nextButton5)
+        self.horizontalLayout_27.addWidget(self.nextButton5)
+
+
+        self.verticalLayout_10.addLayout(self.horizontalLayout_27)
 
 
         self.verticalLayout_11.addLayout(self.verticalLayout_10)
@@ -1332,6 +1362,7 @@ class Ui_MainWindow(object):
         self.label_13.setText(QCoreApplication.translate("MainWindow", u"Click", None))
         self.plusButton.setText("")
         self.label_3.setText(QCoreApplication.translate("MainWindow", u" to upload figures.", None))
+        self.previousButton1.setText(QCoreApplication.translate("MainWindow", u"Previous Stage", None))
         self.nextButton1.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
         self.maskingGroupBox.setTitle(QCoreApplication.translate("MainWindow", u"Masking", None))
         self.label_7.setText(QCoreApplication.translate("MainWindow", u"Select a Model to do crack detection.", None))
@@ -1362,6 +1393,7 @@ class Ui_MainWindow(object):
 #endif // QT_CONFIG(tooltip)
         self.removePatchesButton.setText(QCoreApplication.translate("MainWindow", u"This Image", None))
         self.removePatchesAllButton.setText(QCoreApplication.translate("MainWindow", u"All Images", None))
+        self.previousButton3.setText(QCoreApplication.translate("MainWindow", u"Previous Stage", None))
         self.nextButton3.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
         self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", u"Skeletonization", None))
         self.label_16.setText(QCoreApplication.translate("MainWindow", u"Extracting crack skeleton information.", None))
@@ -1384,6 +1416,7 @@ class Ui_MainWindow(object):
         self.hintsLabel1.setText(QCoreApplication.translate("MainWindow", u"Left-click to add and connect nodes.", None))
         self.hintsLabel2.setText(QCoreApplication.translate("MainWindow", u"Right-click to start a new segment.", None))
         self.hintsLabel3.setText(QCoreApplication.translate("MainWindow", u"Click a node to delete it and its lines.", None))
+        self.previousButton4.setText(QCoreApplication.translate("MainWindow", u"Previous Stage", None))
         self.nextButton4.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
         self.groupBox_4.setTitle(QCoreApplication.translate("MainWindow", u"Calculation Results", None))
         self.label_12.setText(QCoreApplication.translate("MainWindow", u"File Name:", None))
@@ -1396,6 +1429,7 @@ class Ui_MainWindow(object):
         self.crackWidthLabel.setText("")
         self.groupBox_5.setTitle(QCoreApplication.translate("MainWindow", u"Export Settings", None))
         self.exportButton.setText(QCoreApplication.translate("MainWindow", u"Export", None))
+        self.previousButton5.setText(QCoreApplication.translate("MainWindow", u"Previous Stage", None))
         self.nextButton5.setText(QCoreApplication.translate("MainWindow", u"Finish", None))
         self.previousFigButton.setText("")
         self.nextFigButton.setText("")

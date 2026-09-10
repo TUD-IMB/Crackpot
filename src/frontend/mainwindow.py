@@ -176,6 +176,11 @@ class MainWindow(QMainWindow):
 		self.ui.nextButton4.clicked.connect(lambda: self.set_stage(4))
 		self.ui.nextButton5.clicked.connect(self.reset_all_data)
 
+		self.ui.previousButton1.clicked.connect(lambda: self.set_stage(0))
+		self.ui.previousButton3.clicked.connect(lambda: self.set_stage(1))
+		self.ui.previousButton4.clicked.connect(lambda: self.set_stage(2))
+		self.ui.previousButton5.clicked.connect(lambda: self.set_stage(3))
+
 		# masking stage
 		self.ui.applyModelButton.clicked.connect(lambda: self.apply_model_detection(all_images=False))
 		self.ui.applyModelAllButton.clicked.connect(lambda: self.apply_model_detection(all_images=True))

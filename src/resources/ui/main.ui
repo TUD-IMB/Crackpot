@@ -889,6 +889,13 @@ QPushButton:pressed {
                    <number>0</number>
                   </property>
                   <item>
+                   <widget class="QPushButton" name="previousButton1">
+                    <property name="text">
+                     <string>Previous Stage</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
                    <widget class="QPushButton" name="nextButton1">
                     <property name="text">
                      <string>Next Stage</string>
@@ -1229,6 +1236,13 @@ QPushButton:pressed {
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_9">
                   <item>
+                   <widget class="QPushButton" name="previousButton3">
+                    <property name="text">
+                     <string>Previous Stage</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
                    <widget class="QPushButton" name="nextButton3">
                     <property name="text">
                      <string>Next Stage</string>
@@ -1566,11 +1580,22 @@ QPushButton:pressed {
                  </spacer>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="nextButton4">
-                  <property name="text">
-                   <string>Next Stage</string>
-                  </property>
-                 </widget>
+                 <layout class="QHBoxLayout" name="horizontalLayout_26">
+                  <item>
+                   <widget class="QPushButton" name="previousButton4">
+                    <property name="text">
+                     <string>Previous Stage</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="nextButton4">
+                    <property name="text">
+                     <string>Next Stage</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
                 </item>
                </layout>
               </item>
@@ -1742,11 +1767,22 @@ QPushButton:pressed {
                  </spacer>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="nextButton5">
-                  <property name="text">
-                   <string>Finish</string>
-                  </property>
-                 </widget>
+                 <layout class="QHBoxLayout" name="horizontalLayout_27">
+                  <item>
+                   <widget class="QPushButton" name="previousButton5">
+                    <property name="text">
+                     <string>Previous Stage</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="nextButton5">
+                    <property name="text">
+                     <string>Finish</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
                 </item>
                </layout>
               </item>
