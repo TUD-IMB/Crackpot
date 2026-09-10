@@ -6,14 +6,16 @@ import sys
 import cv2
 import numpy as np
 import pandas as pd
-from PySide6.QtCore import Qt, QEvent, QPoint
-from PySide6.QtGui import QPixmap, QIcon, QImage, QPainter, QColor, QPen, QCursor
+from PySide6.QtCore import Qt, QEvent, QPoint, QSettings, QTranslator
+from PySide6.QtGui import QAction, QPixmap, QIcon, QImage, QPainter, QColor, QPen, QCursor
 from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QListWidgetItem, QListWidget, QSlider, \
 	QMessageBox, QToolTip
 from skimage.measure import regionprops,label
 from backend.edgedetection import EdgeDetection
 from backend.maskprocessor import MaskProcessor
 from backend.skeletonprocessor import SkeletonProcessor
+from frontend.aboutdialog import AboutDialog
+from frontend.documentationdialog import DocumentationDialog
 from frontend.progressmanager import ProgressManager
 from frontend.ui.uimain import Ui_MainWindow
 from skimage.morphology import skeletonize
@@ -69,6 +71,10 @@ class MainWindow(QMainWindow):
 
 		self.ui = Ui_MainWindow()
 		self.ui.setupUi(self)
+
+		self.settings = QSettings()
+		self.translator = QTranslator(self)
+		self.switch_language(self.settings.value('language', 'english'))
 
 		self.progress_stage = 0
 		self.current_image_path = None
@@ -169,6 +175,22 @@ class MainWindow(QMainWindow):
 		# File menu
 		self.ui.actionExportProject.triggered.connect(self.export_project)
 		self.ui.actionImportProject.triggered.connect(self.import_project)
+		self.ui.actionExit.triggered.connect(self.close)
+
+		# Help menu
+		self.ui.actionDocumentation.triggered.connect(self.show_documentation_dialog)
+		self.ui.actionAbout.triggered.connect(self.show_about_dialog)
+
+		# On macOS, Qt guesses at "About"/"Quit" etc. by their English label text and
+		# moves them into the app menu - which then hides them under English, but not
+		# under the German translation ("Über"/"Beenden"). Pinning the role keeps every
+		# action in the menu main.ui puts it in, regardless of language or platform.
+		for action in (self.ui.actionAbout, self.ui.actionDocumentation, self.ui.actionExit):
+			action.setMenuRole(QAction.MenuRole.NoRole)
+
+		# Setting menu
+		self.ui.actionEnglish.triggered.connect(lambda: self.switch_language('english'))
+		self.ui.actionGerman.triggered.connect(lambda: self.switch_language('german'))
 
 		self.ui.nextButton0.clicked.connect(lambda: self.set_stage(1))
 		self.ui.nextButton1.clicked.connect(lambda: self.set_stage(2))
@@ -1808,6 +1830,31 @@ class MainWindow(QMainWindow):
 			QMessageBox.information(self, "Success", f"File exported successfully:\n{file_path}", QMessageBox.StandardButton.Ok)
 		except Exception as e:
 			QMessageBox.critical(self, "Export Failed", f"Error:\n{str(e)}")
+	# ------------------------ Menu Actions ----------------------------------------------------------------------
+
+	def show_documentation_dialog(self):
+		r"""Open the offline README as a modal dialog, in the currently active language."""
+		DocumentationDialog(self.settings.value('language', 'english'), self).exec()
+
+	def show_about_dialog(self):
+		r"""Open a dialog displaying version, authors, copyright and license."""
+		AboutDialog(self).exec()
+
+	def switch_language(self, language):
+		r"""
+		Switch the UI language, retranslate every widget in place, and
+		remember the choice for the next start.
+
+		\param language: The target language, either 'english' or 'german'.
+		"""
+		if language == 'german':
+			translation_path = resource_path('resources/translations/crackpot_de.qm')
+			self.translator.load(translation_path)
+			QApplication.instance().installTranslator(self.translator)
+		else:
+			QApplication.instance().removeTranslator(self.translator)
+		self.ui.retranslateUi(self)
+		self.settings.setValue('language', language)
 	# ------------------------ Global UI Functions ----------------------------------------------------------------------
 
 	def set_display_pixmap(self, pixmap, keep_zoom=False):
@@ -2029,6 +2076,8 @@ def main():
 	r"""
 	Initialize and run the application.
 	"""
+	QApplication.setOrganizationName("Institut für Massivbau, TU Dresden")
+	QApplication.setApplicationName("Crackpot")
 	app = QApplication(sys.argv)
 	window = MainWindow()
 	window.show_and_check_config()

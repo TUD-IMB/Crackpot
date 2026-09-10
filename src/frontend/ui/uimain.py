@@ -40,28 +40,10 @@ class Ui_MainWindow(object):
         self.actionImportProject.setObjectName(u"actionImportProject")
         self.actionExportProject = QAction(MainWindow)
         self.actionExportProject.setObjectName(u"actionExportProject")
-        self.actionBackward = QAction(MainWindow)
-        self.actionBackward.setObjectName(u"actionBackward")
-        icon = QIcon()
-        icon.addFile(u":/icons/icons/backward.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.actionBackward.setIcon(icon)
-        self.actionForward = QAction(MainWindow)
-        self.actionForward.setObjectName(u"actionForward")
-        icon1 = QIcon()
-        icon1.addFile(u":/icons/icons/forward.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.actionForward.setIcon(icon1)
-        self.actionExportResults = QAction(MainWindow)
-        self.actionExportResults.setObjectName(u"actionExportResults")
-        self.actionCrackSeg = QAction(MainWindow)
-        self.actionCrackSeg.setObjectName(u"actionCrackSeg")
-        self.actionDeepCrack = QAction(MainWindow)
-        self.actionDeepCrack.setObjectName(u"actionDeepCrack")
         self.actionEnglish = QAction(MainWindow)
         self.actionEnglish.setObjectName(u"actionEnglish")
         self.actionGerman = QAction(MainWindow)
         self.actionGerman.setObjectName(u"actionGerman")
-        self.actionUploadImages = QAction(MainWindow)
-        self.actionUploadImages.setObjectName(u"actionUploadImages")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout_5 = QVBoxLayout(self.centralwidget)
@@ -91,9 +73,9 @@ class Ui_MainWindow(object):
 "    background-color: lightblue;\n"
 "}\n"
 "")
-        icon2 = QIcon()
-        icon2.addFile(u":/icons/icons/ruler.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.calibrationProcessButton.setIcon(icon2)
+        icon = QIcon()
+        icon.addFile(u":/icons/icons/ruler.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.calibrationProcessButton.setIcon(icon)
         self.calibrationProcessButton.setIconSize(QSize(30, 30))
 
         self.horizontalLayout_5.addWidget(self.calibrationProcessButton)
@@ -121,9 +103,9 @@ class Ui_MainWindow(object):
 "    background-color: lightblue;\n"
 "}\n"
 "")
-        icon3 = QIcon()
-        icon3.addFile(u":/icons/icons/imageupload.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.uploadProcessButton.setIcon(icon3)
+        icon1 = QIcon()
+        icon1.addFile(u":/icons/icons/imageupload.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.uploadProcessButton.setIcon(icon1)
         self.uploadProcessButton.setIconSize(QSize(30, 30))
 
         self.horizontalLayout_5.addWidget(self.uploadProcessButton)
@@ -151,9 +133,9 @@ class Ui_MainWindow(object):
 "    background-color: lightblue;\n"
 "}\n"
 "")
-        icon4 = QIcon()
-        icon4.addFile(u":/icons/icons/edit.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.detectProcessButton.setIcon(icon4)
+        icon2 = QIcon()
+        icon2.addFile(u":/icons/icons/edit.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.detectProcessButton.setIcon(icon2)
         self.detectProcessButton.setIconSize(QSize(30, 30))
 
         self.horizontalLayout_5.addWidget(self.detectProcessButton)
@@ -181,9 +163,9 @@ class Ui_MainWindow(object):
 "    background-color: lightblue;\n"
 "}\n"
 "")
-        icon5 = QIcon()
-        icon5.addFile(u":/icons/icons/cursoredit.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.selectProcessButton.setIcon(icon5)
+        icon3 = QIcon()
+        icon3.addFile(u":/icons/icons/cursoredit.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.selectProcessButton.setIcon(icon3)
         self.selectProcessButton.setIconSize(QSize(30, 30))
 
         self.horizontalLayout_5.addWidget(self.selectProcessButton)
@@ -211,9 +193,9 @@ class Ui_MainWindow(object):
 "    background-color: lightblue;\n"
 "}\n"
 "")
-        icon6 = QIcon()
-        icon6.addFile(u":/icons/icons/csv.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.exportProcessButton.setIcon(icon6)
+        icon4 = QIcon()
+        icon4.addFile(u":/icons/icons/csv.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.exportProcessButton.setIcon(icon4)
         self.exportProcessButton.setIconSize(QSize(30, 30))
 
         self.horizontalLayout_5.addWidget(self.exportProcessButton)
@@ -271,9 +253,9 @@ class Ui_MainWindow(object):
 "    background-color: lightblue;\n"
 "}\n"
 "")
-        icon7 = QIcon()
-        icon7.addFile(u":/icons/icons/zoomin.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.zoomInButton.setIcon(icon7)
+        icon5 = QIcon()
+        icon5.addFile(u":/icons/icons/zoomin.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.zoomInButton.setIcon(icon5)
         self.zoomInButton.setIconSize(QSize(30, 30))
 
         self.horizontalLayout_8.addWidget(self.zoomInButton)
@@ -291,9 +273,9 @@ class Ui_MainWindow(object):
 "    background-color: lightblue;\n"
 "}\n"
 "")
-        icon8 = QIcon()
-        icon8.addFile(u":/icons/icons/zoomout.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.zoomOutButton.setIcon(icon8)
+        icon6 = QIcon()
+        icon6.addFile(u":/icons/icons/zoomout.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.zoomOutButton.setIcon(icon6)
         self.zoomOutButton.setIconSize(QSize(30, 30))
 
         self.horizontalLayout_8.addWidget(self.zoomOutButton)
@@ -311,9 +293,9 @@ class Ui_MainWindow(object):
 "    background-color: lightblue;\n"
 "}\n"
 "")
-        icon9 = QIcon()
-        icon9.addFile(u":/icons/icons/zoomfit.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.zoomFitButton.setIcon(icon9)
+        icon7 = QIcon()
+        icon7.addFile(u":/icons/icons/zoomfit.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.zoomFitButton.setIcon(icon7)
         self.zoomFitButton.setIconSize(QSize(30, 30))
 
         self.horizontalLayout_8.addWidget(self.zoomFitButton)
@@ -331,9 +313,9 @@ class Ui_MainWindow(object):
 "    background-color: lightblue;\n"
 "}\n"
 "")
-        icon10 = QIcon()
-        icon10.addFile(u":/icons/icons/zoom1to1.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.zoomOneToOneButton.setIcon(icon10)
+        icon8 = QIcon()
+        icon8.addFile(u":/icons/icons/zoom1to1.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.zoomOneToOneButton.setIcon(icon8)
         self.zoomOneToOneButton.setIconSize(QSize(30, 30))
 
         self.horizontalLayout_8.addWidget(self.zoomOneToOneButton)
@@ -351,9 +333,9 @@ class Ui_MainWindow(object):
 "    background-color: lightblue;\n"
 "}\n"
 "")
-        icon11 = QIcon()
-        icon11.addFile(u":/icons/icons/delete.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.deleteImageButton.setIcon(icon11)
+        icon9 = QIcon()
+        icon9.addFile(u":/icons/icons/delete.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.deleteImageButton.setIcon(icon9)
         self.deleteImageButton.setIconSize(QSize(30, 30))
 
         self.horizontalLayout_8.addWidget(self.deleteImageButton)
@@ -435,9 +417,9 @@ class Ui_MainWindow(object):
         self.clickAddButton.setObjectName(u"clickAddButton")
         sizePolicy.setHeightForWidth(self.clickAddButton.sizePolicy().hasHeightForWidth())
         self.clickAddButton.setSizePolicy(sizePolicy)
-        icon12 = QIcon()
-        icon12.addFile(u":/icons/icons/caliadd.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.clickAddButton.setIcon(icon12)
+        icon10 = QIcon()
+        icon10.addFile(u":/icons/icons/caliadd.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.clickAddButton.setIcon(icon10)
         self.clickAddButton.setIconSize(QSize(25, 25))
         self.clickAddButton.setCheckable(True)
 
@@ -448,9 +430,9 @@ class Ui_MainWindow(object):
         self.clickDeleteButton.setObjectName(u"clickDeleteButton")
         sizePolicy.setHeightForWidth(self.clickDeleteButton.sizePolicy().hasHeightForWidth())
         self.clickDeleteButton.setSizePolicy(sizePolicy)
-        icon13 = QIcon()
-        icon13.addFile(u":/icons/icons/calidelete.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.clickDeleteButton.setIcon(icon13)
+        icon11 = QIcon()
+        icon11.addFile(u":/icons/icons/calidelete.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.clickDeleteButton.setIcon(icon11)
         self.clickDeleteButton.setIconSize(QSize(25, 25))
         self.clickDeleteButton.setCheckable(True)
 
@@ -579,9 +561,9 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.plusButton.sizePolicy().hasHeightForWidth())
         self.plusButton.setSizePolicy(sizePolicy)
         self.plusButton.setMinimumSize(QSize(80, 80))
-        icon14 = QIcon()
-        icon14.addFile(u":/icons/icons/plus.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.plusButton.setIcon(icon14)
+        icon12 = QIcon()
+        icon12.addFile(u":/icons/icons/plus.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.plusButton.setIcon(icon12)
         self.plusButton.setIconSize(QSize(50, 50))
 
         self.horizontalLayout_19.addWidget(self.plusButton)
@@ -722,9 +704,9 @@ class Ui_MainWindow(object):
         self.penButtonGroup.setObjectName(u"penButtonGroup")
         self.penButtonGroup.addButton(self.addButton)
         self.addButton.setObjectName(u"addButton")
-        icon15 = QIcon()
-        icon15.addFile(u":/icons/icons/penadd.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.addButton.setIcon(icon15)
+        icon13 = QIcon()
+        icon13.addFile(u":/icons/icons/penadd.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.addButton.setIcon(icon13)
         self.addButton.setIconSize(QSize(23, 23))
         self.addButton.setCheckable(True)
         self.addButton.setChecked(True)
@@ -734,9 +716,9 @@ class Ui_MainWindow(object):
         self.deleteButton = QPushButton(self.groupBox)
         self.penButtonGroup.addButton(self.deleteButton)
         self.deleteButton.setObjectName(u"deleteButton")
-        icon16 = QIcon()
-        icon16.addFile(u":/icons/icons/penminus.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.deleteButton.setIcon(icon16)
+        icon14 = QIcon()
+        icon14.addFile(u":/icons/icons/penminus.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.deleteButton.setIcon(icon14)
         self.deleteButton.setIconSize(QSize(23, 23))
         self.deleteButton.setCheckable(True)
 
@@ -939,14 +921,14 @@ class Ui_MainWindow(object):
         self.clearSkeletonButtonLayout.setObjectName(u"clearSkeletonButtonLayout")
         self.clearSkeletonButton = QPushButton(self.groupBox_2)
         self.clearSkeletonButton.setObjectName(u"clearSkeletonButton")
-        self.clearSkeletonButton.setIcon(icon11)
+        self.clearSkeletonButton.setIcon(icon9)
         self.clearSkeletonButton.setIconSize(QSize(20, 20))
 
         self.clearSkeletonButtonLayout.addWidget(self.clearSkeletonButton)
 
         self.clearSkeletonAllButton = QPushButton(self.groupBox_2)
         self.clearSkeletonAllButton.setObjectName(u"clearSkeletonAllButton")
-        self.clearSkeletonAllButton.setIcon(icon11)
+        self.clearSkeletonAllButton.setIcon(icon9)
         self.clearSkeletonAllButton.setIconSize(QSize(20, 20))
 
         self.clearSkeletonButtonLayout.addWidget(self.clearSkeletonAllButton)
@@ -982,9 +964,9 @@ class Ui_MainWindow(object):
         self.nodeAddButton.setObjectName(u"nodeAddButton")
         sizePolicy.setHeightForWidth(self.nodeAddButton.sizePolicy().hasHeightForWidth())
         self.nodeAddButton.setSizePolicy(sizePolicy)
-        icon17 = QIcon()
-        icon17.addFile(u":/icons/icons/routeadd.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.nodeAddButton.setIcon(icon17)
+        icon15 = QIcon()
+        icon15.addFile(u":/icons/icons/routeadd.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.nodeAddButton.setIcon(icon15)
         self.nodeAddButton.setIconSize(QSize(25, 25))
         self.nodeAddButton.setCheckable(True)
 
@@ -995,9 +977,9 @@ class Ui_MainWindow(object):
         self.nodeDeleteButton.setObjectName(u"nodeDeleteButton")
         sizePolicy.setHeightForWidth(self.nodeDeleteButton.sizePolicy().hasHeightForWidth())
         self.nodeDeleteButton.setSizePolicy(sizePolicy)
-        icon18 = QIcon()
-        icon18.addFile(u":/icons/icons/routedelete.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.nodeDeleteButton.setIcon(icon18)
+        icon16 = QIcon()
+        icon16.addFile(u":/icons/icons/routedelete.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.nodeDeleteButton.setIcon(icon16)
         self.nodeDeleteButton.setIconSize(QSize(25, 25))
         self.nodeDeleteButton.setCheckable(True)
 
@@ -1026,9 +1008,9 @@ class Ui_MainWindow(object):
 "    background-color: lightblue;\n"
 "}\n"
 "")
-        icon19 = QIcon()
-        icon19.addFile(u":/icons/icons/hints.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.hintsButton.setIcon(icon19)
+        icon17 = QIcon()
+        icon17.addFile(u":/icons/icons/hints.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.hintsButton.setIcon(icon17)
         self.hintsButton.setIconSize(QSize(18, 18))
 
         self.verticalLayout_14.addWidget(self.hintsButton)
@@ -1239,9 +1221,9 @@ class Ui_MainWindow(object):
         self.previousFigButton = QPushButton(self.centralwidget)
         self.previousFigButton.setObjectName(u"previousFigButton")
         self.previousFigButton.setMaximumSize(QSize(16777215, 80))
-        icon20 = QIcon()
-        icon20.addFile(u":/icons/icons/arrowleft.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.previousFigButton.setIcon(icon20)
+        icon18 = QIcon()
+        icon18.addFile(u":/icons/icons/arrowleft.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.previousFigButton.setIcon(icon18)
         self.previousFigButton.setIconSize(QSize(20, 20))
 
         self.horizontalLayout.addWidget(self.previousFigButton)
@@ -1260,9 +1242,9 @@ class Ui_MainWindow(object):
         self.nextFigButton = QPushButton(self.centralwidget)
         self.nextFigButton.setObjectName(u"nextFigButton")
         self.nextFigButton.setMaximumSize(QSize(16777215, 80))
-        icon21 = QIcon()
-        icon21.addFile(u":/icons/icons/arrowright.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.nextFigButton.setIcon(icon21)
+        icon19 = QIcon()
+        icon19.addFile(u":/icons/icons/arrowright.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.nextFigButton.setIcon(icon19)
         self.nextFigButton.setIconSize(QSize(20, 20))
 
         self.horizontalLayout.addWidget(self.nextFigButton)
@@ -1288,8 +1270,6 @@ class Ui_MainWindow(object):
         self.menuSetting.setObjectName(u"menuSetting")
         self.menuLanguage = QMenu(self.menuSetting)
         self.menuLanguage.setObjectName(u"menuLanguage")
-        self.menuModel = QMenu(self.menuSetting)
-        self.menuModel.setObjectName(u"menuModel")
         MainWindow.setMenuBar(self.menuBar)
 
         self.menuBar.addAction(self.menuFile.menuAction())
@@ -1301,11 +1281,9 @@ class Ui_MainWindow(object):
         self.menuFile.addAction(self.actionExit)
         self.menuHelp.addAction(self.actionDocumentation)
         self.menuHelp.addAction(self.actionAbout)
-        self.menuSetting.addAction(self.menuModel.menuAction())
         self.menuSetting.addAction(self.menuLanguage.menuAction())
         self.menuLanguage.addAction(self.actionEnglish)
         self.menuLanguage.addAction(self.actionGerman)
-        self.menuModel.addAction(self.actionCrackSeg)
 
         self.retranslateUi(MainWindow)
 
@@ -1322,14 +1300,8 @@ class Ui_MainWindow(object):
         self.actionExit.setText(QCoreApplication.translate("MainWindow", u"Exit", None))
         self.actionImportProject.setText(QCoreApplication.translate("MainWindow", u"Import Project...", None))
         self.actionExportProject.setText(QCoreApplication.translate("MainWindow", u"Export Project...", None))
-        self.actionBackward.setText(QCoreApplication.translate("MainWindow", u"Backward", None))
-        self.actionForward.setText(QCoreApplication.translate("MainWindow", u"Forward", None))
-        self.actionExportResults.setText(QCoreApplication.translate("MainWindow", u"Export Results", None))
-        self.actionCrackSeg.setText(QCoreApplication.translate("MainWindow", u"Crack Seg", None))
-        self.actionDeepCrack.setText(QCoreApplication.translate("MainWindow", u"Deep Crack", None))
         self.actionEnglish.setText(QCoreApplication.translate("MainWindow", u"English", None))
         self.actionGerman.setText(QCoreApplication.translate("MainWindow", u"German", None))
-        self.actionUploadImages.setText(QCoreApplication.translate("MainWindow", u"Upload Images", None))
         self.calibrationProcessButton.setText("")
         self.uploadProcessButton.setText("")
         self.detectProcessButton.setText("")
@@ -1437,6 +1409,5 @@ class Ui_MainWindow(object):
         self.menuHelp.setTitle(QCoreApplication.translate("MainWindow", u"Help", None))
         self.menuSetting.setTitle(QCoreApplication.translate("MainWindow", u"Setting", None))
         self.menuLanguage.setTitle(QCoreApplication.translate("MainWindow", u"Language", None))
-        self.menuModel.setTitle(QCoreApplication.translate("MainWindow", u"Model", None))
     # retranslateUi
 
