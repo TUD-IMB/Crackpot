@@ -1656,7 +1656,13 @@ class MainWindow(QMainWindow):
 			# of failing the whole calculation.
 			skeleton_data = self.skeleton_results.get(image_path) or self.empty_skeleton_result(prediction.shape[:2])
 			clean_skeleton = skeleton_data.get("skeleton")
-			skeleton_length = np.sum(clean_skeleton == 1)
+			# Measured along the lines instead of counted: a skeleton draws a slanted
+			# crack as a staircase, and counting its pixels reads a diagonal step as
+			# one pixel although it covers sqrt(2). A crack running at 45 degrees came
+			# out almost 30 % too short that way, and it was the only value here that
+			# was not measured geometrically - the manually drawn lines below always
+			# were, and both end up in the same sum.
+			skeleton_length = self.skeleton_processor.measure_skeleton_length(clean_skeleton)
 
 			manual_line_length = 0
 			created_lines = skeleton_data.get("created_lines", [])

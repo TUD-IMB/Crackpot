@@ -14,7 +14,15 @@ NEIGHBOR_KERNEL = np.array([[1, 1, 1],
 NEIGHBOR_OFFSETS = ((-1, 0), (-1, 1), (0, 1), (1, 1),
 					(1, 0), (1, -1), (0, -1), (-1, -1))
 CONNECTIVITY_8 = np.ones((3, 3), dtype=np.uint8)
+# Geometric length of a diagonal step. Used to measure distances in the pixel graph,
+# where an actual distance is needed to find the way along a segment; the length of a
+# chain is estimated with the weights below instead.
 DIAGONAL_STEP = float(np.sqrt(2))
+# Weights of the length estimator (Vossepoel/Smeulders), see measure_chain_length():
+# one straight step, one diagonal step, one direction change.
+STRAIGHT_WEIGHT = 0.980
+DIAGONAL_WEIGHT = 1.406
+CORNER_WEIGHT = 0.091
 
 
 class SkeletonProcessor:
@@ -212,7 +220,20 @@ class SkeletonProcessor:
 		\param start: The node to start from.
 		\return: A dictionary mapping every reachable node to its distance.
 		"""
+		return self.shortest_paths_from(graph, start)[0]
+
+	def shortest_paths_from(self, graph, start):
+		r"""
+		Walk a graph from one node with Dijkstra and keep both what came out of it:
+		how far every node is away, and which node it was reached over.
+
+		\param graph: A graph of (neighbor, length) pairs per node.
+		\param start: The node to start from.
+		\return: A pair of dictionaries, the distance per node and the node it was
+			reached from (None for the starting node).
+		"""
 		distances = {start: 0.0}
+		previous = {start: None}
 		queue = [(0.0, start)]
 		while queue:
 			distance, node = heapq.heappop(queue)
@@ -222,8 +243,36 @@ class SkeletonProcessor:
 				candidate = distance + length
 				if candidate < distances.get(neighbor, float("inf")):
 					distances[neighbor] = candidate
+					previous[neighbor] = node
 					heapq.heappush(queue, (candidate, neighbor))
-		return distances
+		return distances, previous
+
+	def furthest_chain(self, graph, start):
+		r"""
+		List the nodes on the way from a starting node to the node furthest away from
+		it, in the order they are passed.
+
+		Reading the way back over the predecessors is what makes the order reliable.
+		Simply walking the pixels from one neighbor to the next gets stuck: in an
+		8-connected skeleton a bend offers two ways on at once and the wrong one ends
+		in a dead end halfway along. Sorting the pixels by their distance would work
+		on a plain piece of line, but not where a fork area hangs off the middle of
+		one - the pixel of the fork would be sorted into the middle of the line
+		without touching its neighbors there.
+
+		\param graph: A graph of (neighbor, length) pairs per node.
+		\param start: The node to start from.
+		\return: A list of nodes, beginning with the starting node.
+		"""
+		distances, previous = self.shortest_paths_from(graph, start)
+		node = max(distances.items(), key=lambda entry: entry[1])[0]
+
+		chain = []
+		while node is not None:
+			chain.append(node)
+			node = previous[node]
+		chain.reverse()
+		return chain
 
 	def furthest_end_point(self, distances, exclude=None):
 		r"""
@@ -256,9 +305,10 @@ class SkeletonProcessor:
 
 		\param skeleton: A binary skeletonized image.
 		\return: A list of dictionaries, one per segment, with "pixels" (the pixels
-			it consists of), "length" (its length measured from the junction it hangs
-			on, a diagonal step counting as sqrt(2)), "junctions" (the labels of the
-			junctions it touches) and "end_points" (its loose ends).
+			it consists of), "length" (its length measured from the junctions it hangs
+			on, see measure_segment_length), "junctions" (the junctions it touches,
+			mapped to the pixel of each where the segment meets it) and "end_points"
+			(its loose ends).
 		"""
 		binary = np.asarray(skeleton) > 0
 		neighbor_count = self.count_neighbors(binary)
@@ -291,7 +341,7 @@ class SkeletonProcessor:
 			segments.append({
 				"pixels": pixels,
 				"length": self.measure_segment_length(pixels, end_points or ends, junctions, shape),
-				"junctions": set(junctions),
+				"junctions": junctions,
 				"end_points": end_points,
 			})
 		return segments
@@ -300,25 +350,140 @@ class SkeletonProcessor:
 		r"""
 		Measure how long a segment is.
 
-		Measured along the pixels from one end to the other, and from the junction
-		the segment hangs on rather than from its first pixel, so that the length of
-		a side branch is the distance from the fork to its tip. A diagonal step counts
-		as sqrt(2) and not as 1, otherwise a slanted branch would come out about 30 %
-		too short and survive a threshold it should not.
+		Measured along the pixels from one end to the other, and from the junctions
+		the segment hangs on rather than from its own first pixel, so that the length
+		of a side branch is the distance from the fork to its tip.
+
+		This is the one place a length is measured. The pruning compares it against
+		its threshold and the export shows it, so if the two were measured
+		differently, "branches shorter than 50" would mean something other than the
+		length on screen.
 
 		\param pixels: The pixels of the segment.
 		\param ends: The ends of the segment, the loose ones first if there are any.
+			Empty for a segment that closes into a ring, which is measured all the
+			way around instead.
 		\param junctions: The junctions the segment touches, mapped to one pixel each.
 		\param shape: The shape of the skeleton image.
 		\return: The length of the segment in pixels.
 		"""
-		# Walking the pixels one after another would be the obvious way, but in an
-		# 8-connected skeleton a bend can offer two ways on at once, and picking the
-		# wrong one ends in a dead end halfway along the segment. Taking the distance
-		# to the furthest pixel instead cannot get stuck.
 		measured = set(pixels) | set(junctions.values())
-		start = ends[0] if ends else next(iter(pixels))
-		return max(self.distances_from(self.pixel_graph(measured, shape), start).values())
+
+		if not ends:
+			# A crack that closes into a ring has no end to start at and none to stop
+			# at, so the way to the furthest pixel would only reach halfway around it.
+			# Cutting the ring open at one pixel leaves a piece of line, and hanging
+			# that pixel back on both ends closes it again, so every step is counted
+			# exactly once.
+			cut = next(iter(pixels))
+			opened = self.pixel_graph(measured - {cut}, shape)
+			around = self.furthest_chain(opened, self.neighbors_within(cut, measured, shape)[0])
+			return self.measure_chain_length([cut] + around + [cut])
+
+		graph = self.pixel_graph(measured, shape)
+		# Two sweeps, so that a piece running between two forks is measured from the
+		# one to the other and not only up to the far one: starting at an end of the
+		# segment itself leaves the fork behind the start uncounted. Where a segment
+		# has a loose end, both sweeps end up on the same way and nothing changes.
+		return self.measure_chain_length(self.furthest_chain(graph, self.furthest_chain(graph, ends[0])[-1]))
+
+	def measure_chain_length(self, chain):
+		r"""
+		Measure how long a chain of neighboring pixels is.
+
+		Counting the pixels is not a length: a slanted line is drawn as a staircase,
+		and a step across the diagonal covers about sqrt(2) pixels, not one. Adding
+		the steps up with their exact geometric size (Freeman) fixes that but
+		overshoots the other way by up to 8 %, because the staircase itself is longer
+		than the line it stands for - it runs along two sides of a triangle instead of
+		the hypotenuse.
+
+		How much staircase there is can be read off the number of direction changes,
+		which is why the corners are subtracted; the two step weights sit a little
+		below their geometric values for the same reason. The three together are set
+		so that the error cancels out over all directions a line can run in. That is
+		what matters here: a crack runs through many directions, and only an error
+		that averages to zero stops adding up along it. The price is the one case
+		where the length would be known exactly - a run straight along a row or column
+		comes out about 2 % short - and that case does not survive a real crack, which
+		never stays on the grid for long.
+
+		Every step still adds at least STRAIGHT_WEIGHT - CORNER_WEIGHT, so a longer
+		chain can never come out shorter than a piece of it and the pruning threshold
+		keeps its meaning.
+
+		\param chain: The pixels in the order they are passed, as returned by
+			furthest_chain().
+		\return: The length of the chain in pixels.
+		"""
+		straight = diagonal = corners = 0
+		last_step = None
+		for first, second in zip(chain, chain[1:]):
+			step = (second[0] - first[0], second[1] - first[1])
+			if step[0] == 0 or step[1] == 0:
+				straight += 1
+			else:
+				diagonal += 1
+			if last_step is not None and step != last_step:
+				corners += 1
+			last_step = step
+		return STRAIGHT_WEIGHT * straight + DIAGONAL_WEIGHT * diagonal - CORNER_WEIGHT * corners
+
+	def measure_skeleton_length(self, skeleton):
+		r"""
+		Measure the total length of all the lines the skeleton consists of.
+
+		This is the length of the crack as it is exported: every line of the skeleton
+		counts, the side branches that survived the cleaning included. What it says
+		about the crack is the same as counting the pixels used to say, only that a
+		slanted line is no longer measured too short.
+
+		The fork areas belong to no segment (see find_branch_segments), so summing the
+		segments alone would lose them. Measuring every segment on to the middle of
+		the fork it hangs on closes that gap: the middle is where the branches meet,
+		so that is the point each of them runs to, and each piece in between is
+		counted once, by the one branch it belongs to. Leaving it out is not a
+		rounding error - it costs a few pixels per fork, on a frayed crack with twenty
+		forks around 6 % of the length.
+
+		\param skeleton: A binary skeletonized image.
+		\return: The total length in pixels.
+		"""
+		binary = np.asarray(skeleton) > 0
+		shape = binary.shape
+		junction_labels, _ = label(self.find_junction_zones(binary), structure=CONNECTIVITY_8)
+
+		pixels_per_junction = {}
+		for row, col in zip(*np.where(junction_labels)):
+			pixels_per_junction.setdefault(int(junction_labels[row, col]), set()).add((int(row), int(col)))
+
+		# How far every pixel of a fork area is from its middle, measured inside the
+		# area. Done once per fork, because several segments meet at the same one.
+		reach = {junction: self.distances_from(self.pixel_graph(pixels, shape),
+											   self.junction_center(pixels, shape))
+				 for junction, pixels in pixels_per_junction.items()}
+
+		total = 0.0
+		for segment in self.find_branch_segments(binary):
+			total += segment["length"]
+			for junction, pixel in segment["junctions"].items():
+				total += reach[junction][pixel]
+		return total
+
+	def junction_center(self, pixels, shape):
+		r"""
+		Pick the pixel in the middle of a fork area, the one none of its pixels is far
+		from. That is where the branches meet, so it is the point their lengths are
+		measured to.
+
+		\param pixels: The pixels of one fork area.
+		\param shape: The shape of the skeleton image.
+		\return: The (row, col) pixel in the middle.
+		"""
+		graph = self.pixel_graph(pixels, shape)
+		# The pixel itself breaks a tie, so that the same fork always gives the same
+		# middle and a length cannot depend on the order the pixels came in.
+		return min(pixels, key=lambda pixel: (max(self.distances_from(graph, pixel).values()), pixel))
 
 	def pixel_graph(self, pixels, shape):
 		r"""
