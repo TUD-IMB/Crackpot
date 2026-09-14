@@ -400,5 +400,30 @@ Technische Universität Dresden</translation>
         <source>German</source>
         <translation>Deutsch</translation>
     </message>
+    <message>
+        <location filename="../../frontend/mainwindow.py" line="1111"/>
+        <source>Automatic detection unavailable</source>
+        <translation>Automatische Erkennung nicht verfügbar</translation>
+    </message>
+    <message>
+        <location filename="../../frontend/mainwindow.py" line="1118"/>
+        <source>Loading the detection model...</source>
+        <translation>Erkennungsmodell wird geladen ...</translation>
+    </message>
+    <message>
+        <location filename="../../frontend/mainwindow.py" line="1119"/>
+        <source>Crack detection</source>
+        <translation>Risserkennung</translation>
+    </message>
+    <message>
+        <location filename="../../frontend/mainwindow.py" line="1130"/>
+        <source>Detecting cracks in {file}...</source>
+        <translation>Risse werden erkannt in {file} ...</translation>
+    </message>
+    <message>
+        <location filename="../../frontend/mainwindow.py" line="1136"/>
+        <source>Crack detection failed</source>
+        <translation>Risserkennung fehlgeschlagen</translation>
+    </message>
 </context>
 </TS>

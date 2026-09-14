@@ -9,9 +9,9 @@ import pandas as pd
 from PySide6.QtCore import Qt, QEvent, QPoint, QSettings, QTranslator
 from PySide6.QtGui import QAction, QPixmap, QIcon, QImage, QPainter, QColor, QPen, QCursor, QPalette
 from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QListWidgetItem, QListWidget, QSlider, \
-	QMessageBox, QToolTip, QAbstractButton
+	QMessageBox, QToolTip, QAbstractButton, QProgressDialog
 from skimage.measure import regionprops,label
-from crackpot.backend.edgedetection import EdgeDetection
+from crackpot.backend.edgedetection import EdgeDetection, MISSING_BACKEND_HINT, is_detection_available
 from crackpot.backend.maskprocessor import MaskProcessor
 from crackpot.backend.skeletonprocessor import SkeletonProcessor
 from crackpot.frontend.aboutdialog import AboutDialog
@@ -115,6 +115,7 @@ class MainWindow(QMainWindow):
 		self.ui.nextFigButton.clicked.connect(self.show_next_image)
 
 		self.edge_detector = None
+		self.configure_detection_availability()
 
 		self.progress_manager = ProgressManager(
 			buttons=[
@@ -170,7 +171,6 @@ class MainWindow(QMainWindow):
 		self.calibration_path = None
 		self.calibration_points = []
 
-		self.setWindowIcon(QIcon(resource_path('resources/crackpot.ico')))
 		self.adjust_window_size()
 
 	def adjust_window_size(self):
@@ -1049,6 +1049,43 @@ class MainWindow(QMainWindow):
 				image = cv2.imread(file_name)
 				self.prediction_results[file_name] = np.zeros(image.shape[:2], dtype=np.float32)
 
+	def configure_detection_availability(self):
+		r"""
+		Disable the automatic detection methods if their optional backend is missing.
+
+		TensorFlow is an optional dependency. Without it only manual annotation is
+		possible, so every detection method except "None" is greyed out and
+		preselected. The entries are addressed by index, so the setting survives a
+		language switch, which replaces their texts.
+		"""
+		if is_detection_available():
+			return
+
+		combo = self.ui.modelComboBox
+		none_index = combo.findText(self.tr(self.DETECTION_METHOD_NONE))
+		for index in range(combo.count()):
+			if index == none_index:
+				continue
+			item = combo.model().item(index)
+			if item is not None:
+				item.setEnabled(False)
+			combo.setItemData(index, MISSING_BACKEND_HINT, Qt.ItemDataRole.ToolTipRole)
+
+		if none_index >= 0:
+			combo.setCurrentIndex(none_index)
+		combo.setToolTip(MISSING_BACKEND_HINT)
+
+	def detection_method_is_none(self):
+		r"""
+		Check whether the model dropdown is set to "None".
+
+		The entry is translated at runtime ("Keins" in German), so it is compared
+		against the translation rather than the literal English text.
+
+		\return (bool): True if no automatic detection is selected.
+		"""
+		return self.ui.modelComboBox.currentText() == self.tr(self.DETECTION_METHOD_NONE)
+
 	def apply_model_detection(self, all_images=False):
 		r"""
 		Run crack detection for the selected images, overwriting their current mask.
@@ -1056,19 +1093,48 @@ class MainWindow(QMainWindow):
 		Unless the model dropdown is set to "None", in which case the mask is
 		instead reset to empty, same as \ref clear_mask.
 
+		Loading the model and predicting take several seconds, in which the window
+		would otherwise appear frozen, so the progress is displayed. The model is
+		loaded only once and reused for later runs.
+
 		\param all_images: Process every image if True (right button), only the
 			currently displayed one if False (left button).
 		"""
 		if not self.prediction_results:
 			return
 
-		if self.ui.modelComboBox.currentText() == self.DETECTION_METHOD_NONE:
+		if self.detection_method_is_none():
 			self.clear_mask(all_images)
 			return
 
-		self.edge_detector = EdgeDetection()
-		for image_path in self._skeleton_target_paths(all_images, self.prediction_results):
-			self.prediction_results[image_path] = self.edge_detector.detect_edges(image_path)
+		if not is_detection_available():
+			QMessageBox.warning(self, self.tr("Automatic detection unavailable"), MISSING_BACKEND_HINT)
+			return
+
+		image_paths = list(self._skeleton_target_paths(all_images, self.prediction_results))
+		if not image_paths:
+			return
+
+		progress = QProgressDialog(self.tr("Loading the detection model..."), None, 0, len(image_paths), self)
+		progress.setWindowTitle(self.tr("Crack detection"))
+		progress.setWindowModality(Qt.WindowModality.WindowModal)
+		progress.setMinimumDuration(0)
+		progress.setValue(0)
+		QApplication.processEvents()
+
+		try:
+			if self.edge_detector is None:
+				self.edge_detector = EdgeDetection()
+
+			for index, image_path in enumerate(image_paths):
+				progress.setLabelText(self.tr("Detecting cracks in {file}...").format(file=os.path.basename(image_path)))
+				QApplication.processEvents()
+				self.prediction_results[image_path] = self.edge_detector.detect_edges(image_path)
+				progress.setValue(index + 1)
+		except Exception as error:
+			progress.cancel()
+			QMessageBox.critical(self, self.tr("Crack detection failed"), str(error))
+			return
 
 		if self.ui.listWidget.currentItem():
 			self.refresh_display_image()
@@ -2157,6 +2223,9 @@ def main():
 	QApplication.setOrganizationName("Institut für Massivbau, TU Dresden")
 	QApplication.setApplicationName("Crackpot")
 	app = QApplication(sys.argv)
+	# Set on the application instead of the main window, so that dialogs and the
+	# taskbar entry show the icon as well.
+	app.setWindowIcon(QIcon(resource_path('resources/crackpot.ico')))
 	window = MainWindow()
 	window.show_and_check_config()
-	sys.exit(app.exec_())
+	sys.exit(app.exec())
