@@ -5,7 +5,7 @@ import tensorflow as tf
 import keras
 from keras import backend as K
 
-from utils.utils import resource_path
+from crackpot.utils.utils import resource_path
 
 
 def dice_coef(y_true, y_pred, smooth=1e-6):

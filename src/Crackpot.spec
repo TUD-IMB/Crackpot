@@ -2,11 +2,11 @@
 
 
 a = Analysis(
-    ['main.py'],
-    pathex=['.', 'src'],
+    ['crackpot/main.py'],
+    pathex=['.'],
     binaries=[],
     datas=[
-    ('resources', 'resources')
+    ('crackpot/resources', 'resources')
     ],
     hiddenimports=['openpyxl'],
     hookspath=[],
@@ -33,7 +33,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['resources/crackpot.ico'],
+    icon=['crackpot/resources/crackpot.ico'],
 )
 coll = COLLECT(
     exe,

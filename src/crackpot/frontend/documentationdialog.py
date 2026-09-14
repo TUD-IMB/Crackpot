@@ -2,7 +2,7 @@ from PySide6.QtCore import QUrl
 from PySide6.QtGui import QTextCursor, QTextDocument
 from PySide6.QtWidgets import QDialog, QTextBrowser, QVBoxLayout
 
-from utils.utils import resource_path
+from crackpot.utils.utils import resource_path
 
 DOCS_DIR = resource_path('resources/docs')
 README_PATH_BY_LANGUAGE = {

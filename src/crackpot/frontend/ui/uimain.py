@@ -23,7 +23,7 @@ from PySide6.QtWidgets import (QApplication, QButtonGroup, QComboBox, QFormLayou
     QScrollArea, QSizePolicy, QSlider, QSpacerItem,
     QSpinBox, QStackedWidget, QStatusBar, QVBoxLayout,
     QWidget)
-from frontend.ui import icon_rc
+from crackpot.frontend.ui import icon_rc
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):

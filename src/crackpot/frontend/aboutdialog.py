@@ -2,8 +2,8 @@ from PySide6.QtCore import Qt
 from PySide6.QtSvgWidgets import QSvgWidget
 from PySide6.QtWidgets import QDialog, QLabel, QVBoxLayout
 
-from version import __version__, RELEASE_DATE
-from utils.utils import resource_path
+from crackpot.version import __version__, RELEASE_DATE
+from crackpot.utils.utils import resource_path
 
 LICENSE_TEXT = (
 	"This software is licensed under the GNU General Public License (GPL) Version 3, 29 June 2007."

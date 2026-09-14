@@ -11,16 +11,16 @@ from PySide6.QtGui import QAction, QPixmap, QIcon, QImage, QPainter, QColor, QPe
 from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QListWidgetItem, QListWidget, QSlider, \
 	QMessageBox, QToolTip
 from skimage.measure import regionprops,label
-from backend.edgedetection import EdgeDetection
-from backend.maskprocessor import MaskProcessor
-from backend.skeletonprocessor import SkeletonProcessor
-from frontend.aboutdialog import AboutDialog
-from frontend.documentationdialog import DocumentationDialog
-from frontend.progressmanager import ProgressManager
-from frontend.ui.uimain import Ui_MainWindow
+from crackpot.backend.edgedetection import EdgeDetection
+from crackpot.backend.maskprocessor import MaskProcessor
+from crackpot.backend.skeletonprocessor import SkeletonProcessor
+from crackpot.frontend.aboutdialog import AboutDialog
+from crackpot.frontend.documentationdialog import DocumentationDialog
+from crackpot.frontend.progressmanager import ProgressManager
+from crackpot.frontend.ui.uimain import Ui_MainWindow
 from skimage.morphology import skeletonize
 
-from utils.utils import resource_path
+from crackpot.utils.utils import resource_path
 
 # Radius of a manually placed node in image pixels. The overlay draws the node
 # with it and get_clicked_node() uses it as the click tolerance, so everything

@@ -2,7 +2,9 @@ import os
 import subprocess
 import re
 
-base_dir = os.path.abspath(os.path.dirname(__file__))
+# The application lives in the crackpot package one level below this script,
+# which is deliberately not part of it: it is a development tool, not shipped.
+base_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'crackpot')
 ui_source_dir = os.path.join(base_dir, 'resources/ui')
 qrc_source_dir = os.path.join(base_dir, 'resources')
 py_target_dir = os.path.join(base_dir, 'frontend/ui')
@@ -36,7 +38,7 @@ def modify_import_statement(py_file_path):
 	with open(py_file_path, 'r', encoding='utf-8') as file:
 		content = file.read()
 
-	content = re.sub(r'import (\w+_rc)', r'from frontend.ui import \1', content)
+	content = re.sub(r'^import (\w+_rc)', r'from crackpot.frontend.ui import \1', content, flags=re.M)
 
 	with open(py_file_path, 'w', encoding='utf-8') as file:
 		file.write(content)
