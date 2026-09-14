@@ -7,9 +7,9 @@ import cv2
 import numpy as np
 import pandas as pd
 from PySide6.QtCore import Qt, QEvent, QPoint, QSettings, QTranslator
-from PySide6.QtGui import QAction, QPixmap, QIcon, QImage, QPainter, QColor, QPen, QCursor
+from PySide6.QtGui import QAction, QPixmap, QIcon, QImage, QPainter, QColor, QPen, QCursor, QPalette
 from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QListWidgetItem, QListWidget, QSlider, \
-	QMessageBox, QToolTip
+	QMessageBox, QToolTip, QAbstractButton
 from skimage.measure import regionprops,label
 from crackpot.backend.edgedetection import EdgeDetection
 from crackpot.backend.maskprocessor import MaskProcessor
@@ -157,6 +157,7 @@ class MainWindow(QMainWindow):
 
 		self.init_stacked_widget()
 		self.init_image_label()
+		self.apply_icon_color()
 
 		# Which of the two skeleton editing modes a click is handled as. Mutually
 		# exclusive: turning one on turns the other off (see toggle_add_node_mode).
@@ -1892,6 +1893,47 @@ class MainWindow(QMainWindow):
 		self.ui.retranslateUi(self)
 		self.settings.setValue('language', language)
 	# ------------------------ Global UI Functions ----------------------------------------------------------------------
+
+	def apply_icon_color(self):
+		r"""
+		Repaint the interface icons in the color of the active color scheme.
+
+		The icons are monochrome drawings in a fixed color, which is barely
+		visible if it does not match the color scheme. The button text color of
+		the palette keeps them readable in both the light and the dark scheme.
+		"""
+		color = self.palette().color(QPalette.ColorRole.ButtonText)
+
+		for button in self.findChildren(QAbstractButton):
+			icon = button.icon()
+			if icon.isNull():
+				continue
+			button.setIcon(self.recolor_icon(icon, button.iconSize(), color))
+
+	def recolor_icon(self, icon, size, color):
+		r"""
+		Draw a monochrome icon in a different color.
+
+		The icon is rendered at the pixel ratio of the display, so that it stays
+		sharp on high resolution screens.
+
+		\param icon: The icon to recolor.
+		\param size: The size to render the icon at.
+		\param color: The color to draw the icon in.
+		\return: A new icon showing the same shape in the given color.
+		"""
+		ratio = self.devicePixelRatio()
+		pixmap = icon.pixmap(size * ratio)
+		if pixmap.isNull():
+			return icon
+		pixmap.setDevicePixelRatio(ratio)
+
+		painter = QPainter(pixmap)
+		painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceIn)
+		painter.fillRect(pixmap.rect(), color)
+		painter.end()
+
+		return QIcon(pixmap)
 
 	def set_display_pixmap(self, pixmap, keep_zoom=False):
 		r"""
