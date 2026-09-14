@@ -23,10 +23,10 @@ def IOU(y_true, y_pred):
 	y_true = K.flatten(y_true)
 	y_pred = K.flatten(y_pred)
 
-	thresh = 0.5
+	binarization_threshold = 0.5
 
-	y_true = K.cast(K.greater_equal(y_true, thresh), 'float32')
-	y_pred = K.cast(K.greater_equal(y_pred, thresh), 'float32')
+	y_true = K.cast(K.greater_equal(y_true, binarization_threshold), 'float32')
+	y_pred = K.cast(K.greater_equal(y_pred, binarization_threshold), 'float32')
 
 	union = K.sum(K.maximum(y_true, y_pred)) + K.epsilon()
 	intersection = K.sum(K.minimum(y_true, y_pred)) + K.epsilon()
@@ -86,9 +86,7 @@ class EdgeDetection:
 		prediction = self.model.predict(image)
 		predicted_mask = np.squeeze(prediction, axis=0)
 
-		resize_back_mask = self.resize_back(predicted_mask, original_size)
-
-		return resize_back_mask
+		return self.resize_back(predicted_mask, original_size)
 
 # model_path = '../resources/model/my_model.keras'
 # model = keras.models.load_model(

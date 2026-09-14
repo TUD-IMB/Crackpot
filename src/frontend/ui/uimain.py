@@ -118,11 +118,11 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_5.addWidget(self.line1)
 
-        self.detectProcessButton = QPushButton(self.centralwidget)
-        self.detectProcessButton.setObjectName(u"detectProcessButton")
-        sizePolicy.setHeightForWidth(self.detectProcessButton.sizePolicy().hasHeightForWidth())
-        self.detectProcessButton.setSizePolicy(sizePolicy)
-        self.detectProcessButton.setStyleSheet(u"QPushButton {\n"
+        self.maskingProcessButton = QPushButton(self.centralwidget)
+        self.maskingProcessButton.setObjectName(u"maskingProcessButton")
+        sizePolicy.setHeightForWidth(self.maskingProcessButton.sizePolicy().hasHeightForWidth())
+        self.maskingProcessButton.setSizePolicy(sizePolicy)
+        self.maskingProcessButton.setStyleSheet(u"QPushButton {\n"
 "    border: none; \n"
 "    background: transparent;\n"
 "}\n"
@@ -135,10 +135,10 @@ class Ui_MainWindow(object):
 "")
         icon2 = QIcon()
         icon2.addFile(u":/icons/icons/edit.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.detectProcessButton.setIcon(icon2)
-        self.detectProcessButton.setIconSize(QSize(30, 30))
+        self.maskingProcessButton.setIcon(icon2)
+        self.maskingProcessButton.setIconSize(QSize(30, 30))
 
-        self.horizontalLayout_5.addWidget(self.detectProcessButton)
+        self.horizontalLayout_5.addWidget(self.maskingProcessButton)
 
         self.line2 = QFrame(self.centralwidget)
         self.line2.setObjectName(u"line2")
@@ -148,11 +148,11 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_5.addWidget(self.line2)
 
-        self.selectProcessButton = QPushButton(self.centralwidget)
-        self.selectProcessButton.setObjectName(u"selectProcessButton")
-        sizePolicy.setHeightForWidth(self.selectProcessButton.sizePolicy().hasHeightForWidth())
-        self.selectProcessButton.setSizePolicy(sizePolicy)
-        self.selectProcessButton.setStyleSheet(u"QPushButton {\n"
+        self.skeletonProcessButton = QPushButton(self.centralwidget)
+        self.skeletonProcessButton.setObjectName(u"skeletonProcessButton")
+        sizePolicy.setHeightForWidth(self.skeletonProcessButton.sizePolicy().hasHeightForWidth())
+        self.skeletonProcessButton.setSizePolicy(sizePolicy)
+        self.skeletonProcessButton.setStyleSheet(u"QPushButton {\n"
 "    border: none; \n"
 "    background: transparent;\n"
 "}\n"
@@ -165,18 +165,18 @@ class Ui_MainWindow(object):
 "")
         icon3 = QIcon()
         icon3.addFile(u":/icons/icons/cursoredit.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.selectProcessButton.setIcon(icon3)
-        self.selectProcessButton.setIconSize(QSize(30, 30))
+        self.skeletonProcessButton.setIcon(icon3)
+        self.skeletonProcessButton.setIconSize(QSize(30, 30))
 
-        self.horizontalLayout_5.addWidget(self.selectProcessButton)
+        self.horizontalLayout_5.addWidget(self.skeletonProcessButton)
 
-        self.line4 = QFrame(self.centralwidget)
-        self.line4.setObjectName(u"line4")
-        self.line4.setFrameShape(QFrame.Shape.HLine)
-        self.line4.setFrameShadow(QFrame.Shadow.Raised)
-        self.line4.setLineWidth(3)
+        self.line3 = QFrame(self.centralwidget)
+        self.line3.setObjectName(u"line3")
+        self.line3.setFrameShape(QFrame.Shape.HLine)
+        self.line3.setFrameShadow(QFrame.Shadow.Raised)
+        self.line3.setLineWidth(3)
 
-        self.horizontalLayout_5.addWidget(self.line4)
+        self.horizontalLayout_5.addWidget(self.line3)
 
         self.exportProcessButton = QPushButton(self.centralwidget)
         self.exportProcessButton.setObjectName(u"exportProcessButton")
@@ -603,25 +603,25 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addLayout(self.verticalLayout)
 
         self.stackedWidget.addWidget(self.page1)
-        self.page3 = QWidget()
-        self.page3.setObjectName(u"page3")
-        self.verticalLayout_7 = QVBoxLayout(self.page3)
+        self.page2 = QWidget()
+        self.page2.setObjectName(u"page2")
+        self.verticalLayout_7 = QVBoxLayout(self.page2)
         self.verticalLayout_7.setObjectName(u"verticalLayout_7")
         self.verticalLayout_6 = QVBoxLayout()
         self.verticalLayout_6.setObjectName(u"verticalLayout_6")
         self.verticalLayout_6.setContentsMargins(-1, -1, -1, 0)
-        self.maskingGroupBox = QGroupBox(self.page3)
+        self.maskingGroupBox = QGroupBox(self.page2)
         self.maskingGroupBox.setObjectName(u"maskingGroupBox")
         self.maskingGroupBox.setStyleSheet(u"QGroupBox{\n"
 "    font-weight: bold;\n"
 "}\n"
 "")
-        self.verticalLayout_171 = QVBoxLayout(self.maskingGroupBox)
-        self.verticalLayout_171.setObjectName(u"verticalLayout_171")
+        self.verticalLayout_12 = QVBoxLayout(self.maskingGroupBox)
+        self.verticalLayout_12.setObjectName(u"verticalLayout_12")
         self.label_7 = QLabel(self.maskingGroupBox)
         self.label_7.setObjectName(u"label_7")
 
-        self.verticalLayout_171.addWidget(self.label_7)
+        self.verticalLayout_12.addWidget(self.label_7)
 
         self.horizontalLayout_12 = QHBoxLayout()
         self.horizontalLayout_12.setObjectName(u"horizontalLayout_12")
@@ -643,12 +643,12 @@ class Ui_MainWindow(object):
         self.horizontalLayout_12.addWidget(self.modelComboBox)
 
 
-        self.verticalLayout_171.addLayout(self.horizontalLayout_12)
+        self.verticalLayout_12.addLayout(self.horizontalLayout_12)
 
         self.applyModelLabel = QLabel(self.maskingGroupBox)
         self.applyModelLabel.setObjectName(u"applyModelLabel")
 
-        self.verticalLayout_171.addWidget(self.applyModelLabel)
+        self.verticalLayout_12.addWidget(self.applyModelLabel)
 
         self.applyModelButtonLayout = QHBoxLayout()
         self.applyModelButtonLayout.setObjectName(u"applyModelButtonLayout")
@@ -663,12 +663,12 @@ class Ui_MainWindow(object):
         self.applyModelButtonLayout.addWidget(self.applyModelAllButton)
 
 
-        self.verticalLayout_171.addLayout(self.applyModelButtonLayout)
+        self.verticalLayout_12.addLayout(self.applyModelButtonLayout)
 
         self.clearMaskLabel = QLabel(self.maskingGroupBox)
         self.clearMaskLabel.setObjectName(u"clearMaskLabel")
 
-        self.verticalLayout_171.addWidget(self.clearMaskLabel)
+        self.verticalLayout_12.addWidget(self.clearMaskLabel)
 
         self.clearMaskButtonLayout = QHBoxLayout()
         self.clearMaskButtonLayout.setObjectName(u"clearMaskButtonLayout")
@@ -683,12 +683,12 @@ class Ui_MainWindow(object):
         self.clearMaskButtonLayout.addWidget(self.clearMaskAllButton)
 
 
-        self.verticalLayout_171.addLayout(self.clearMaskButtonLayout)
+        self.verticalLayout_12.addLayout(self.clearMaskButtonLayout)
 
 
         self.verticalLayout_6.addWidget(self.maskingGroupBox)
 
-        self.groupBox = QGroupBox(self.page3)
+        self.groupBox = QGroupBox(self.page2)
         self.groupBox.setObjectName(u"groupBox")
         self.groupBox.setMinimumSize(QSize(0, 150))
         self.groupBox.setStyleSheet(u"QGroupBox{\n"
@@ -827,15 +827,15 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_9 = QHBoxLayout()
         self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
-        self.previousButton3 = QPushButton(self.page3)
-        self.previousButton3.setObjectName(u"previousButton3")
+        self.previousButton2 = QPushButton(self.page2)
+        self.previousButton2.setObjectName(u"previousButton2")
 
-        self.horizontalLayout_9.addWidget(self.previousButton3)
+        self.horizontalLayout_9.addWidget(self.previousButton2)
 
-        self.nextButton3 = QPushButton(self.page3)
-        self.nextButton3.setObjectName(u"nextButton3")
+        self.nextButton2 = QPushButton(self.page2)
+        self.nextButton2.setObjectName(u"nextButton2")
 
-        self.horizontalLayout_9.addWidget(self.nextButton3)
+        self.horizontalLayout_9.addWidget(self.nextButton2)
 
 
         self.verticalLayout_6.addLayout(self.horizontalLayout_9)
@@ -843,14 +843,14 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_7.addLayout(self.verticalLayout_6)
 
-        self.stackedWidget.addWidget(self.page3)
-        self.page4 = QWidget()
-        self.page4.setObjectName(u"page4")
-        self.verticalLayout_9 = QVBoxLayout(self.page4)
+        self.stackedWidget.addWidget(self.page2)
+        self.page3 = QWidget()
+        self.page3.setObjectName(u"page3")
+        self.verticalLayout_9 = QVBoxLayout(self.page3)
         self.verticalLayout_9.setObjectName(u"verticalLayout_9")
         self.verticalLayout_8 = QVBoxLayout()
         self.verticalLayout_8.setObjectName(u"verticalLayout_8")
-        self.groupBox_2 = QGroupBox(self.page4)
+        self.groupBox_2 = QGroupBox(self.page3)
         self.groupBox_2.setObjectName(u"groupBox_2")
         self.groupBox_2.setStyleSheet(u"QGroupBox{\n"
 "    font-weight: bold;\n"
@@ -1015,26 +1015,26 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_14.addWidget(self.hintsButton)
 
-        self.hintsLabel1 = QLabel(self.groupBox_2)
-        self.hintsLabel1.setObjectName(u"hintsLabel1")
-        self.hintsLabel1.setStyleSheet(u"color: gray;\n"
+        self.addNodeHintLabel = QLabel(self.groupBox_2)
+        self.addNodeHintLabel.setObjectName(u"addNodeHintLabel")
+        self.addNodeHintLabel.setStyleSheet(u"color: gray;\n"
 "")
 
-        self.verticalLayout_14.addWidget(self.hintsLabel1)
+        self.verticalLayout_14.addWidget(self.addNodeHintLabel)
 
-        self.hintsLabel2 = QLabel(self.groupBox_2)
-        self.hintsLabel2.setObjectName(u"hintsLabel2")
-        self.hintsLabel2.setStyleSheet(u"color: gray;\n"
+        self.newSegmentHintLabel = QLabel(self.groupBox_2)
+        self.newSegmentHintLabel.setObjectName(u"newSegmentHintLabel")
+        self.newSegmentHintLabel.setStyleSheet(u"color: gray;\n"
 "")
 
-        self.verticalLayout_14.addWidget(self.hintsLabel2)
+        self.verticalLayout_14.addWidget(self.newSegmentHintLabel)
 
-        self.hintsLabel3 = QLabel(self.groupBox_2)
-        self.hintsLabel3.setObjectName(u"hintsLabel3")
-        self.hintsLabel3.setStyleSheet(u"color: gray;\n"
+        self.deleteNodeHintLabel = QLabel(self.groupBox_2)
+        self.deleteNodeHintLabel.setObjectName(u"deleteNodeHintLabel")
+        self.deleteNodeHintLabel.setStyleSheet(u"color: gray;\n"
 "")
 
-        self.verticalLayout_14.addWidget(self.hintsLabel3)
+        self.verticalLayout_14.addWidget(self.deleteNodeHintLabel)
 
 
         self.verticalLayout_16.addLayout(self.verticalLayout_14)
@@ -1048,15 +1048,15 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_26 = QHBoxLayout()
         self.horizontalLayout_26.setObjectName(u"horizontalLayout_26")
-        self.previousButton4 = QPushButton(self.page4)
-        self.previousButton4.setObjectName(u"previousButton4")
+        self.previousButton3 = QPushButton(self.page3)
+        self.previousButton3.setObjectName(u"previousButton3")
 
-        self.horizontalLayout_26.addWidget(self.previousButton4)
+        self.horizontalLayout_26.addWidget(self.previousButton3)
 
-        self.nextButton4 = QPushButton(self.page4)
-        self.nextButton4.setObjectName(u"nextButton4")
+        self.nextButton3 = QPushButton(self.page3)
+        self.nextButton3.setObjectName(u"nextButton3")
 
-        self.horizontalLayout_26.addWidget(self.nextButton4)
+        self.horizontalLayout_26.addWidget(self.nextButton3)
 
 
         self.verticalLayout_8.addLayout(self.horizontalLayout_26)
@@ -1064,14 +1064,14 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_9.addLayout(self.verticalLayout_8)
 
-        self.stackedWidget.addWidget(self.page4)
-        self.page5 = QWidget()
-        self.page5.setObjectName(u"page5")
-        self.verticalLayout_11 = QVBoxLayout(self.page5)
+        self.stackedWidget.addWidget(self.page3)
+        self.page4 = QWidget()
+        self.page4.setObjectName(u"page4")
+        self.verticalLayout_11 = QVBoxLayout(self.page4)
         self.verticalLayout_11.setObjectName(u"verticalLayout_11")
         self.verticalLayout_10 = QVBoxLayout()
         self.verticalLayout_10.setObjectName(u"verticalLayout_10")
-        self.groupBox_4 = QGroupBox(self.page5)
+        self.groupBox_4 = QGroupBox(self.page4)
         self.groupBox_4.setObjectName(u"groupBox_4")
         self.groupBox_4.setMinimumSize(QSize(0, 100))
         self.groupBox_4.setStyleSheet(u"QGroupBox{\n"
@@ -1144,7 +1144,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_10.addWidget(self.groupBox_4)
 
-        self.line_2 = QFrame(self.page5)
+        self.line_2 = QFrame(self.page4)
         self.line_2.setObjectName(u"line_2")
         sizePolicy.setHeightForWidth(self.line_2.sizePolicy().hasHeightForWidth())
         self.line_2.setSizePolicy(sizePolicy)
@@ -1153,7 +1153,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_10.addWidget(self.line_2)
 
-        self.groupBox_5 = QGroupBox(self.page5)
+        self.groupBox_5 = QGroupBox(self.page4)
         self.groupBox_5.setObjectName(u"groupBox_5")
         self.groupBox_5.setStyleSheet(u"QGroupBox{\n"
 "    font-weight: bold;\n"
@@ -1184,15 +1184,15 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_27 = QHBoxLayout()
         self.horizontalLayout_27.setObjectName(u"horizontalLayout_27")
-        self.previousButton5 = QPushButton(self.page5)
-        self.previousButton5.setObjectName(u"previousButton5")
+        self.previousButton4 = QPushButton(self.page4)
+        self.previousButton4.setObjectName(u"previousButton4")
 
-        self.horizontalLayout_27.addWidget(self.previousButton5)
+        self.horizontalLayout_27.addWidget(self.previousButton4)
 
-        self.nextButton5 = QPushButton(self.page5)
-        self.nextButton5.setObjectName(u"nextButton5")
+        self.nextButton4 = QPushButton(self.page4)
+        self.nextButton4.setObjectName(u"nextButton4")
 
-        self.horizontalLayout_27.addWidget(self.nextButton5)
+        self.horizontalLayout_27.addWidget(self.nextButton4)
 
 
         self.verticalLayout_10.addLayout(self.horizontalLayout_27)
@@ -1200,7 +1200,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_11.addLayout(self.verticalLayout_10)
 
-        self.stackedWidget.addWidget(self.page5)
+        self.stackedWidget.addWidget(self.page4)
 
         self.toolLayout.addWidget(self.stackedWidget)
 
@@ -1304,8 +1304,8 @@ class Ui_MainWindow(object):
         self.actionGerman.setText(QCoreApplication.translate("MainWindow", u"German", None))
         self.calibrationProcessButton.setText("")
         self.uploadProcessButton.setText("")
-        self.detectProcessButton.setText("")
-        self.selectProcessButton.setText("")
+        self.maskingProcessButton.setText("")
+        self.skeletonProcessButton.setText("")
         self.exportProcessButton.setText("")
         self.imageLabel.setText("")
         self.zoomInButton.setText("")
@@ -1365,8 +1365,8 @@ class Ui_MainWindow(object):
 #endif // QT_CONFIG(tooltip)
         self.removePatchesButton.setText(QCoreApplication.translate("MainWindow", u"This Image", None))
         self.removePatchesAllButton.setText(QCoreApplication.translate("MainWindow", u"All Images", None))
-        self.previousButton3.setText(QCoreApplication.translate("MainWindow", u"Previous Stage", None))
-        self.nextButton3.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
+        self.previousButton2.setText(QCoreApplication.translate("MainWindow", u"Previous Stage", None))
+        self.nextButton2.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
         self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", u"Skeletonization", None))
         self.label_16.setText(QCoreApplication.translate("MainWindow", u"Extracting crack skeleton information.", None))
         self.skeletonizeLabel.setText(QCoreApplication.translate("MainWindow", u"Skeletonization", None))
@@ -1385,11 +1385,11 @@ class Ui_MainWindow(object):
         self.nodeAddButton.setText("")
         self.nodeDeleteButton.setText("")
         self.hintsButton.setText(QCoreApplication.translate("MainWindow", u"Hints:", None))
-        self.hintsLabel1.setText(QCoreApplication.translate("MainWindow", u"Left-click to add and connect nodes.", None))
-        self.hintsLabel2.setText(QCoreApplication.translate("MainWindow", u"Right-click to start a new segment.", None))
-        self.hintsLabel3.setText(QCoreApplication.translate("MainWindow", u"Click a node to delete it and its lines.", None))
-        self.previousButton4.setText(QCoreApplication.translate("MainWindow", u"Previous Stage", None))
-        self.nextButton4.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
+        self.addNodeHintLabel.setText(QCoreApplication.translate("MainWindow", u"Left-click to add and connect nodes.", None))
+        self.newSegmentHintLabel.setText(QCoreApplication.translate("MainWindow", u"Right-click to start a new segment.", None))
+        self.deleteNodeHintLabel.setText(QCoreApplication.translate("MainWindow", u"Click a node to delete it and its lines.", None))
+        self.previousButton3.setText(QCoreApplication.translate("MainWindow", u"Previous Stage", None))
+        self.nextButton3.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
         self.groupBox_4.setTitle(QCoreApplication.translate("MainWindow", u"Calculation Results", None))
         self.label_12.setText(QCoreApplication.translate("MainWindow", u"File Name:", None))
         self.fileNameLabel.setText("")
@@ -1401,8 +1401,8 @@ class Ui_MainWindow(object):
         self.crackWidthLabel.setText("")
         self.groupBox_5.setTitle(QCoreApplication.translate("MainWindow", u"Export Settings", None))
         self.exportButton.setText(QCoreApplication.translate("MainWindow", u"Export", None))
-        self.previousButton5.setText(QCoreApplication.translate("MainWindow", u"Previous Stage", None))
-        self.nextButton5.setText(QCoreApplication.translate("MainWindow", u"Finish", None))
+        self.previousButton4.setText(QCoreApplication.translate("MainWindow", u"Previous Stage", None))
+        self.nextButton4.setText(QCoreApplication.translate("MainWindow", u"Finish", None))
         self.previousFigButton.setText("")
         self.nextFigButton.setText("")
         self.menuFile.setTitle(QCoreApplication.translate("MainWindow", u"File", None))

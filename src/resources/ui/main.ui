@@ -133,7 +133,7 @@ QPushButton:pressed {
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="detectProcessButton">
+         <widget class="QPushButton" name="maskingProcessButton">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -182,7 +182,7 @@ QPushButton:pressed {
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="selectProcessButton">
+         <widget class="QPushButton" name="skeletonProcessButton">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -218,7 +218,7 @@ QPushButton:pressed {
          </widget>
         </item>
         <item>
-         <widget class="QFrame" name="line4">
+         <widget class="QFrame" name="line3">
           <property name="frameShape">
            <enum>QFrame::Shape::HLine</enum>
           </property>
@@ -908,7 +908,7 @@ QPushButton:pressed {
               </item>
              </layout>
             </widget>
-            <widget class="QWidget" name="page3">
+            <widget class="QWidget" name="page2">
              <layout class="QVBoxLayout" name="verticalLayout_7">
               <item>
                <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -926,7 +926,7 @@ QPushButton:pressed {
                   <property name="title">
                    <string>Masking</string>
                   </property>
-                  <layout class="QVBoxLayout" name="verticalLayout_17">
+                  <layout class="QVBoxLayout" name="verticalLayout_12">
                    <item>
                     <widget class="QLabel" name="label_7">
                      <property name="text">
@@ -1236,14 +1236,14 @@ QPushButton:pressed {
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_9">
                   <item>
-                   <widget class="QPushButton" name="previousButton3">
+                   <widget class="QPushButton" name="previousButton2">
                     <property name="text">
                      <string>Previous Stage</string>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="nextButton3">
+                   <widget class="QPushButton" name="nextButton2">
                     <property name="text">
                      <string>Next Stage</string>
                     </property>
@@ -1255,7 +1255,7 @@ QPushButton:pressed {
               </item>
              </layout>
             </widget>
-            <widget class="QWidget" name="page4">
+            <widget class="QWidget" name="page3">
              <layout class="QVBoxLayout" name="verticalLayout_9">
               <item>
                <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -1529,7 +1529,7 @@ QPushButton:pressed {
                       </widget>
                      </item>
                      <item>
-                      <widget class="QLabel" name="hintsLabel1">
+                      <widget class="QLabel" name="addNodeHintLabel">
                        <property name="styleSheet">
                         <string notr="true">color: gray;
 </string>
@@ -1540,7 +1540,7 @@ QPushButton:pressed {
                       </widget>
                      </item>
                      <item>
-                      <widget class="QLabel" name="hintsLabel2">
+                      <widget class="QLabel" name="newSegmentHintLabel">
                        <property name="styleSheet">
                         <string notr="true">color: gray;
 </string>
@@ -1551,7 +1551,7 @@ QPushButton:pressed {
                       </widget>
                      </item>
                      <item>
-                      <widget class="QLabel" name="hintsLabel3">
+                      <widget class="QLabel" name="deleteNodeHintLabel">
                        <property name="styleSheet">
                         <string notr="true">color: gray;
 </string>
@@ -1582,14 +1582,14 @@ QPushButton:pressed {
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_26">
                   <item>
-                   <widget class="QPushButton" name="previousButton4">
+                   <widget class="QPushButton" name="previousButton3">
                     <property name="text">
                      <string>Previous Stage</string>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="nextButton4">
+                   <widget class="QPushButton" name="nextButton3">
                     <property name="text">
                      <string>Next Stage</string>
                     </property>
@@ -1601,7 +1601,7 @@ QPushButton:pressed {
               </item>
              </layout>
             </widget>
-            <widget class="QWidget" name="page5">
+            <widget class="QWidget" name="page4">
              <layout class="QVBoxLayout" name="verticalLayout_11">
               <item>
                <layout class="QVBoxLayout" name="verticalLayout_10">
@@ -1769,14 +1769,14 @@ QPushButton:pressed {
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_27">
                   <item>
-                   <widget class="QPushButton" name="previousButton5">
+                   <widget class="QPushButton" name="previousButton4">
                     <property name="text">
                      <string>Previous Stage</string>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="nextButton5">
+                   <widget class="QPushButton" name="nextButton4">
                     <property name="text">
                      <string>Finish</string>
                     </property>

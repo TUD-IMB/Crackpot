@@ -36,15 +36,6 @@ class SkeletonProcessor:
 		"""
 		self.skeletons = {}
 
-	def add_skeleton(self, image_path, skeleton):
-		r"""
-		Store a skeletonized image associated with its image path.
-
-		\param image_path: The file path of the image.
-		\param skeleton: The skeletonized image as a NumPy array.
-		"""
-		self.skeletons[image_path] = skeleton
-
 	def count_neighbors(self, skeleton):
 		r"""
 		Count the set neighbors of every pixel in the skeleton.

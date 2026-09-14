@@ -55,6 +55,26 @@ def _decode_mask_png(data):
 	return cv2.imdecode(encoded, cv2.IMREAD_UNCHANGED)
 
 
+# Result keys written before the units were spelled out. Projects saved with those
+# versions still carry the old names, so they are renamed on the way in instead of
+# leaving the export and the result labels with missing values.
+_RENAMED_CRACK_RESULT_KEYS = {
+	"crack_area": "crack_area_mm2",
+	"skeleton_length": "skeleton_length_mm",
+	"crack_width": "crack_width_mm",
+}
+
+
+def _migrate_crack_result(result):
+	r"""
+	Bring one stored crack result entry up to the current key names.
+
+	\param result: The entry as it was read from the project file.
+	\return: A new dictionary using the current key names.
+	"""
+	return {_RENAMED_CRACK_RESULT_KEYS.get(key, key): value for key, value in result.items()}
+
+
 class MainWindow(QMainWindow):
 	r"""
 	Main User Interface for the application.
@@ -100,16 +120,16 @@ class MainWindow(QMainWindow):
 			buttons=[
 				self.ui.calibrationProcessButton,
 				self.ui.uploadProcessButton,
-				self.ui.detectProcessButton,
-				self.ui.selectProcessButton,
+				self.ui.maskingProcessButton,
+				self.ui.skeletonProcessButton,
 				self.ui.exportProcessButton
 			],
-			lines=[self.ui.line0, self.ui.line1, self.ui.line2, self.ui.line4]
+			lines=[self.ui.line0, self.ui.line1, self.ui.line2, self.ui.line3]
 		)
 		self.ui.calibrationProcessButton.clicked.connect(lambda: self.set_stage(0))
 		self.ui.uploadProcessButton.clicked.connect(lambda: self.set_stage(1))
-		self.ui.detectProcessButton.clicked.connect(lambda: self.set_stage(2))
-		self.ui.selectProcessButton.clicked.connect(lambda: self.set_stage(3))
+		self.ui.maskingProcessButton.clicked.connect(lambda: self.set_stage(2))
+		self.ui.skeletonProcessButton.clicked.connect(lambda: self.set_stage(3))
 		self.ui.exportProcessButton.clicked.connect(lambda: self.set_stage(4))
 
 		self.ui.zoomInButton.clicked.connect(lambda: self.zoom_image(zoom_in=True))
@@ -125,7 +145,10 @@ class MainWindow(QMainWindow):
 		self.brush_color = QColor(255, 255, 255)
 		self.brush_size = 10
 		self.pen_cap_style = Qt.PenCapStyle.RoundCap
-		self.image = None
+		# The layer the brush paints on: the mask in the masking stage, the skeleton
+		# overlay in the skeleton stage. Kept as a QImage because QPainter writes to
+		# it directly, unlike the NumPy masks in prediction_results.
+		self.editable_qimage = None
 		self.original_pixmap = None
 		self.zoom_base_pixmap = None
 		self.zoom_factor = 1.0
@@ -135,14 +158,16 @@ class MainWindow(QMainWindow):
 		self.init_stacked_widget()
 		self.init_image_label()
 
-		self.deleting_node = None
-		self.creating_node = None
+		# Which of the two skeleton editing modes a click is handled as. Mutually
+		# exclusive: turning one on turns the other off (see toggle_add_node_mode).
+		self.add_node_mode = False
+		self.delete_node_mode = False
 		self.dragged_node = None
 
 		self.resolution = None
-		self.cali_image = None
-		self.cali_path = None
-		self.cali_points = []
+		self.calibration_image = None
+		self.calibration_path = None
+		self.calibration_points = []
 
 		self.setWindowIcon(QIcon(resource_path('resources/crackpot.ico')))
 		self.adjust_window_size()
@@ -194,14 +219,14 @@ class MainWindow(QMainWindow):
 
 		self.ui.nextButton0.clicked.connect(lambda: self.set_stage(1))
 		self.ui.nextButton1.clicked.connect(lambda: self.set_stage(2))
-		self.ui.nextButton3.clicked.connect(lambda: self.set_stage(3))
-		self.ui.nextButton4.clicked.connect(lambda: self.set_stage(4))
-		self.ui.nextButton5.clicked.connect(self.reset_all_data)
+		self.ui.nextButton2.clicked.connect(lambda: self.set_stage(3))
+		self.ui.nextButton3.clicked.connect(lambda: self.set_stage(4))
+		self.ui.nextButton4.clicked.connect(self.reset_all_data)
 
 		self.ui.previousButton1.clicked.connect(lambda: self.set_stage(0))
-		self.ui.previousButton3.clicked.connect(lambda: self.set_stage(1))
-		self.ui.previousButton4.clicked.connect(lambda: self.set_stage(2))
-		self.ui.previousButton5.clicked.connect(lambda: self.set_stage(3))
+		self.ui.previousButton2.clicked.connect(lambda: self.set_stage(1))
+		self.ui.previousButton3.clicked.connect(lambda: self.set_stage(2))
+		self.ui.previousButton4.clicked.connect(lambda: self.set_stage(3))
 
 		# masking stage
 		self.ui.applyModelButton.clicked.connect(lambda: self.apply_model_detection(all_images=False))
@@ -255,9 +280,9 @@ class MainWindow(QMainWindow):
 		self.ui.nodeDeleteButton.clicked.connect(self.toggle_delete_node_mode)
 		# self.ui.adjustNodeButton.clicked.connect(self.toggle_adjust_node_mode)
 		self.ui.hintsButton.setVisible(False)
-		self.ui.hintsLabel1.setVisible(False)
-		self.ui.hintsLabel2.setVisible(False)
-		self.ui.hintsLabel3.setVisible(False)
+		self.ui.addNodeHintLabel.setVisible(False)
+		self.ui.newSegmentHintLabel.setVisible(False)
+		self.ui.deleteNodeHintLabel.setVisible(False)
 
 		# export stage
 		self.ui.exportButton.clicked.connect(self.export_to_csv)
@@ -267,18 +292,18 @@ class MainWindow(QMainWindow):
 		r"""
 		Open a file dialog to select a calibration image, load it, and initialize calibration points list.
 		"""
-		cali_path, _ = QFileDialog.getOpenFileName(
+		calibration_file_path, _ = QFileDialog.getOpenFileName(
 			self, "Select a Calibration Picture", "", "Images (*.png *.jpg *.jpeg *.bmp)"
 		)
-		if not cali_path:
+		if not calibration_file_path:
 			return
-		self.cali_image = cv2.imread(cali_path)
-		if self.cali_image is None:
+		self.calibration_image = cv2.imread(calibration_file_path)
+		if self.calibration_image is None:
 			QMessageBox.warning(self, "Error", "Failed to load the image.")
 			return
-		self.cali_path = cali_path
-		self.cali_points.clear()
-		self.display_cali_image()
+		self.calibration_path = calibration_file_path
+		self.calibration_points.clear()
+		self.display_calibration_image()
 
 	def calculate_pixel_distance(self):
 		r"""
@@ -286,26 +311,25 @@ class MainWindow(QMainWindow):
 		Update the pixel distance value in the UI if exactly two points are selected.
 		Clear the pixel distance field if the number of points is incorrect.
 		"""
-		if len(self.cali_points) != 2:
+		if len(self.calibration_points) != 2:
 			self.ui.pixelLineEdit.clear()
 			return
-		cali_points = np.array(self.cali_points)
-		pixel_distance = np.linalg.norm(cali_points[1] - cali_points[0])
+		calibration_point_array = np.array(self.calibration_points)
+		pixel_distance = np.linalg.norm(calibration_point_array[1] - calibration_point_array[0])
 		self.ui.pixelLineEdit.setText(str(pixel_distance))
 
-	def display_cali_image(self):
+	def display_calibration_image(self):
 		r"""
 		Display the calibration image with marked calibration points.
 		"""
-		if self.cali_image is not None:
-			img = self.cali_image.copy()
-			img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-			for point in self.cali_points:
-				cv2.circle(img, point, 10, (255, 0, 0), -1)
-			height, width, channel = img.shape
+		if self.calibration_image is not None:
+			marked_image = cv2.cvtColor(self.calibration_image.copy(), cv2.COLOR_BGR2RGB)
+			for point in self.calibration_points:
+				cv2.circle(marked_image, point, 10, (255, 0, 0), -1)
+			height, width, channels = marked_image.shape
 			bytes_per_line = 3 * width
-			q_img = QImage(img.data, width, height, bytes_per_line, QImage.Format.Format_RGB888)
-			pixmap = QPixmap.fromImage(q_img)
+			marked_qimage = QImage(marked_image.data, width, height, bytes_per_line, QImage.Format.Format_RGB888)
+			pixmap = QPixmap.fromImage(marked_qimage)
 			self.original_pixmap = pixmap
 			label_size = self.ui.imageLabel.size()
 			scaled_pixmap = pixmap.scaled(
@@ -359,38 +383,38 @@ class MainWindow(QMainWindow):
 		Toggle the mode for adding skeleton nodes in the skeleton editing process.
 		"""
 		if self.ui.nodeAddButton.isChecked():
-			self.creating_node = True
-			self.deleting_node = False
+			self.add_node_mode = True
+			self.delete_node_mode = False
 			self.ui.nodeDeleteButton.setChecked(False)
 			self.ui.hintsButton.setVisible(True)
-			self.ui.hintsLabel1.setVisible(True)
-			self.ui.hintsLabel2.setVisible(True)
-			self.ui.hintsLabel3.setVisible(False)
+			self.ui.addNodeHintLabel.setVisible(True)
+			self.ui.newSegmentHintLabel.setVisible(True)
+			self.ui.deleteNodeHintLabel.setVisible(False)
 		else:
-			self.creating_node = False
+			self.add_node_mode = False
 			self.ui.hintsButton.setVisible(False)
-			self.ui.hintsLabel1.setVisible(False)
-			self.ui.hintsLabel2.setVisible(False)
-			self.ui.hintsLabel3.setVisible(False)
+			self.ui.addNodeHintLabel.setVisible(False)
+			self.ui.newSegmentHintLabel.setVisible(False)
+			self.ui.deleteNodeHintLabel.setVisible(False)
 
 	def toggle_delete_node_mode(self):
 		r"""
 		Toggle the mode for deleting skeleton nodes in the skeleton editing process.
 		"""
 		if self.ui.nodeDeleteButton.isChecked():
-			self.deleting_node = True
-			self.creating_node = False
+			self.delete_node_mode = True
+			self.add_node_mode = False
 			self.ui.nodeAddButton.setChecked(False)
 			self.ui.hintsButton.setVisible(True)
-			self.ui.hintsLabel1.setVisible(False)
-			self.ui.hintsLabel2.setVisible(False)
-			self.ui.hintsLabel3.setVisible(True)
+			self.ui.addNodeHintLabel.setVisible(False)
+			self.ui.newSegmentHintLabel.setVisible(False)
+			self.ui.deleteNodeHintLabel.setVisible(True)
 		else:
-			self.deleting_node = False
+			self.delete_node_mode = False
 			self.ui.hintsButton.setVisible(False)
-			self.ui.hintsLabel1.setVisible(False)
-			self.ui.hintsLabel2.setVisible(False)
-			self.ui.hintsLabel3.setVisible(False)
+			self.ui.addNodeHintLabel.setVisible(False)
+			self.ui.newSegmentHintLabel.setVisible(False)
+			self.ui.deleteNodeHintLabel.setVisible(False)
 
 	def _skeleton_target_paths(self, all_images, source):
 		r"""
@@ -477,7 +501,7 @@ class MainWindow(QMainWindow):
 			# clean_skeleton = self.skeleton_processor.extract_main_skeleton(skeleton)
 
 			# todo: longest path define?
-			longest_path = self.get_longest_skeleton(clean_skeleton)
+			largest_component = self.get_largest_skeleton_component(clean_skeleton)
 			branch_points = self.skeleton_processor.find_branch_points(clean_skeleton)
 			end_points = self.skeleton_processor.find_end_points(clean_skeleton)
 
@@ -487,7 +511,8 @@ class MainWindow(QMainWindow):
 			skeleton_data["skeleton"] = clean_skeleton
 			skeleton_data["branch_points"] = branch_points
 			skeleton_data["end_points"] = end_points
-			skeleton_data["longest_path"] = longest_path
+			# Key stays "longest_path" so existing .crackpot project files keep loading.
+			skeleton_data["longest_path"] = largest_component
 
 		self.skeleton_processor.skeletons = self.skeleton_results
 		self.refresh_display_image()
@@ -521,28 +546,31 @@ class MainWindow(QMainWindow):
 		self.skeleton_processor.skeletons = self.skeleton_results
 		self.refresh_display_image()
 
-	def get_longest_skeleton(self, skeleton):
+	def get_largest_skeleton_component(self, skeleton):
 		r"""
-		Find and return the longest connected path in the skeletonized results.
-		Label connected components in the skeleton and determine the longest one
-		based on the number of pixels in each region.
+		Return the coordinates of the largest connected component of the skeleton,
+		measured by pixel count.
+
+		Note that this is not the longest *path* through the skeleton: a component
+		with many short side branches can outweigh a longer but thinner one. The
+		result is currently only stored, never drawn (see refresh_display_image).
 
 		\param skeleton: A binary skeletonized image.
-		\return: A list of coordinates representing the longest skeleton path.
+		\return: An array of coordinates of the largest component, empty if none.
 		"""
 		labeled_skeleton = label(skeleton, connectivity=2)
 
-		longest_path = []
-		max_length = 0
+		largest_component = []
+		max_size = 0
 
 		for region in regionprops(labeled_skeleton):
 			coords = region.coords
-			length = len(coords)
+			size = len(coords)
 
-			if length > max_length:
-				max_length = length
-				longest_path = coords
-		return longest_path
+			if size > max_size:
+				max_size = size
+				largest_component = coords
+		return largest_component
 
 	# ------------------------ Event Handling ----------------------------------------------------------------------
 	def convert_to_image_coords(self, pos, img_size):
@@ -583,22 +611,22 @@ class MainWindow(QMainWindow):
 		if self.progress_stage == 0:
 			if event.type() == QEvent.Type.MouseButtonPress and event.button() == Qt.MouseButton.LeftButton:
 				clicked_pos = event.pos()
-				img_size = self.cali_image.shape if self.cali_image is not None else (1, 1, 1)
+				img_size = self.calibration_image.shape if self.calibration_image is not None else (1, 1, 1)
 				img_x, img_y = self.convert_to_image_coords(clicked_pos, img_size)
 
 				if self.ui.clickAddButton.isChecked():
-					if len(self.cali_points) < 2:
-						self.cali_points.append((int(img_x), int(img_y)))
+					if len(self.calibration_points) < 2:
+						self.calibration_points.append((int(img_x), int(img_y)))
 					else:
-						self.cali_points = [(img_x, img_y)]
+						self.calibration_points = [(img_x, img_y)]
 					# QMessageBox.warning(self, "Warning", "Only two points can be marked!")
 				elif self.ui.clickDeleteButton.isChecked():
-					for point in self.cali_points:
+					for point in self.calibration_points:
 						if abs(point[0] - img_x) < 10 and abs(point[1] - img_y) < 10:
-							self.cali_points.remove(point)
+							self.calibration_points.remove(point)
 							break
 				self.calculate_pixel_distance()
-				self.display_cali_image()
+				self.display_calibration_image()
 				return True
 
 		if self.progress_stage == 2:
@@ -612,22 +640,22 @@ class MainWindow(QMainWindow):
 				self.draw_on_image(event.pos())
 			elif event.type() == QEvent.Type.MouseButtonRelease and event.button() == Qt.MouseButton.LeftButton:
 				self.drawing = False
-				if self.image is not None and self.current_image_path is not None:
-					updated_array = self.qimage_to_np(self.image)
+				if self.editable_qimage is not None and self.current_image_path is not None:
+					updated_array = self.qimage_to_numpy(self.editable_qimage)
 					updated_array = updated_array.astype(np.float32) / 255.0
 					self.prediction_results[self.current_image_path] = updated_array
 
 		elif self.progress_stage == 3:
-			if self.creating_node and event.type() == QEvent.Type.MouseButtonPress:
+			if self.add_node_mode and event.type() == QEvent.Type.MouseButtonPress:
 				clicked_pos = event.pos()
-				if self.image:
+				if self.editable_qimage:
 					if event.button() == Qt.MouseButton.LeftButton:
 						self.create_node(clicked_pos, connect_to_previous=True)
 					elif event.button() == Qt.MouseButton.RightButton:
 						self.create_node(clicked_pos, connect_to_previous=False)
-			elif self.deleting_node and event.type() == QEvent.Type.MouseButtonPress and event.button() == Qt.MouseButton.LeftButton:
+			elif self.delete_node_mode and event.type() == QEvent.Type.MouseButtonPress and event.button() == Qt.MouseButton.LeftButton:
 				clicked_pos = event.pos()
-				if self.image:
+				if self.editable_qimage:
 					self.delete_node(clicked_pos)
 
 		return super().eventFilter(source, event)
@@ -803,7 +831,7 @@ class MainWindow(QMainWindow):
 
 		return None
 
-	def qimage_to_np(self, qimage: QImage):
+	def qimage_to_numpy(self, qimage: QImage):
 		r"""
 		Convert a QImage object to a NumPy array.
 
@@ -813,9 +841,8 @@ class MainWindow(QMainWindow):
 		qimage = qimage.convertToFormat(QImage.Format.Format_Grayscale8)
 		width = qimage.width()
 		height = qimage.height()
-		ptr = qimage.bits()
-		arr = np.array(ptr).reshape(height, width)
-		return arr
+		pixel_buffer = qimage.bits()
+		return np.array(pixel_buffer).reshape(height, width)
 
 	def resizeEvent(self, event):
 		r"""
@@ -834,10 +861,10 @@ class MainWindow(QMainWindow):
 
 		\param current_point: The QPoint representing the current mouse position.
 		"""
-		if self.image is None:
+		if self.editable_qimage is None:
 			return
 
-		image_size = self.image.size()
+		image_size = self.editable_qimage.size()
 		x1, y1 = self.convert_to_image_coords(self.last_point, (image_size.height(), image_size.width()))
 		x2, y2 = self.convert_to_image_coords(current_point, (image_size.height(), image_size.width()))
 
@@ -846,7 +873,7 @@ class MainWindow(QMainWindow):
 		if not (0 <= x2 < image_size.width() and 0 <= y2 < image_size.height()):
 			return
 
-		painter = QPainter(self.image)
+		painter = QPainter(self.editable_qimage)
 		pen = QPen(self.brush_color)
 		pen.setWidth(self.brush_size)
 		pen.setCapStyle(self.pen_cap_style)
@@ -911,9 +938,9 @@ class MainWindow(QMainWindow):
 		scaling logic as convert_to_image_coords, so the cursor matches the
 		stroke that will actually be drawn. Returns 1.0 when no image is shown.
 		"""
-		if self.image is None:
+		if self.editable_qimage is None:
 			return 1.0
-		image_size = self.image.size()
+		image_size = self.editable_qimage.size()
 		if image_size.width() == 0 or image_size.height() == 0:
 			return 1.0
 		label_size = self.ui.imageLabel.size()
@@ -1111,7 +1138,7 @@ class MainWindow(QMainWindow):
 			self.display_skeleton_overlay(original_image)
 		elif self.progress_stage == 4:
 			self.display_original_image(original_pixmap)
-			self.display_calcu_results()
+			self.display_calculation_results()
 
 	def display_original_image(self, original_pixmap):
 		r"""
@@ -1123,7 +1150,7 @@ class MainWindow(QMainWindow):
 		# Hand over the full resolution: render_current_view scales it to the
 		# current zoom level, so no detail is thrown away up front.
 		self.set_display_pixmap(original_pixmap)
-		self.image = None
+		self.editable_qimage = None
 
 	def display_prediction_overlay(self, original_pixmap):
 		r"""
@@ -1165,7 +1192,7 @@ class MainWindow(QMainWindow):
 		self.original_pixmap = combined_pixmap
 		self.set_display_pixmap(combined_pixmap)
 
-		self.image = prediction_qimage.copy()
+		self.editable_qimage = prediction_qimage.copy()
 
 	def overlay_line_scale(self):
 		r"""
@@ -1266,9 +1293,9 @@ class MainWindow(QMainWindow):
 
 		self.original_pixmap = overlay_pixmap
 		self.set_display_pixmap(overlay_pixmap)
-		self.image = overlay_qimage.copy()
+		self.editable_qimage = overlay_qimage.copy()
 
-	def display_calcu_results(self):
+	def display_calculation_results(self):
 		r"""
 		Display calculated crack width, area, and skeleton length in the UI.
 		If no results exist for the current image, clear the labels.
@@ -1281,20 +1308,21 @@ class MainWindow(QMainWindow):
 			return
 
 		full_path = self.current_image_path
-		parent_1 = os.path.basename(os.path.dirname(full_path))
-		parent_2 = os.path.basename(os.path.dirname(os.path.dirname(full_path)))
+		# Show the last two directories along with the file name, so images with the
+		# same name from different measurement folders can still be told apart.
+		parent_directory = os.path.basename(os.path.dirname(full_path))
+		grandparent_directory = os.path.basename(os.path.dirname(os.path.dirname(full_path)))
 
-		if parent_2:
-			display_name = f"/{parent_2}/{parent_1}/{os.path.basename(full_path)}"
+		if grandparent_directory:
+			display_name = f"/{grandparent_directory}/{parent_directory}/{os.path.basename(full_path)}"
 		else:
-			display_name = f"/{parent_1}/{os.path.basename(full_path)}"
+			display_name = f"/{parent_directory}/{os.path.basename(full_path)}"
 
-		display_name = f"{display_name}"
 		self.ui.fileNameLabel.setText(display_name)
 
-		crack_width_mm = self.crack_results[self.current_image_path]["crack_width"]
-		crack_area_mm = self.crack_results[self.current_image_path]["crack_area"]
-		skeleton_length_mm = self.crack_results[self.current_image_path]["skeleton_length"]
+		crack_width_mm = self.crack_results[self.current_image_path]["crack_width_mm"]
+		crack_area_mm = self.crack_results[self.current_image_path]["crack_area_mm2"]
+		skeleton_length_mm = self.crack_results[self.current_image_path]["skeleton_length_mm"]
 
 		self.ui.crackWidthLabel.setText(f"{crack_width_mm:.6f} mm")
 		self.ui.crackAreaLabel.setText(f"{crack_area_mm:.6f} mm²")
@@ -1305,7 +1333,7 @@ class MainWindow(QMainWindow):
 		Refresh the QLabel display after a drawing operation.
 		Overlay the manually drawn mask onto the original image and update the UI.
 		"""
-		if not self.current_image_path or self.image is None:
+		if not self.current_image_path or self.editable_qimage is None:
 			return
 
 		original_image = cv2.imread(self.current_image_path)
@@ -1321,7 +1349,7 @@ class MainWindow(QMainWindow):
 		if original_pixmap.isNull():
 			return
 
-		prediction_pixmap = QPixmap.fromImage(self.image)
+		prediction_pixmap = QPixmap.fromImage(self.editable_qimage)
 
 		combined_pixmap = QPixmap(original_pixmap.size())
 		combined_pixmap.fill(Qt.GlobalColor.transparent)
@@ -1362,7 +1390,7 @@ class MainWindow(QMainWindow):
 			self.ui.imageLabel.unsetCursor()
 
 		if self.progress_stage == 0:
-			self.display_cali_image()
+			self.display_calibration_image()
 			print("Calibration stage")
 		elif self.progress_stage == 1:
 			self.refresh_display_image()
@@ -1411,14 +1439,14 @@ class MainWindow(QMainWindow):
 		self.ui.resolutionLineEdit.clear()
 
 		self.drawing = False
-		self.image = None
+		self.editable_qimage = None
 		self.original_pixmap = None
 		self.resolution = None
-		self.cali_image = None
-		self.cali_path = None
-		self.cali_points = []
-		self.creating_node = None
-		self.deleting_node = None
+		self.calibration_image = None
+		self.calibration_path = None
+		self.calibration_points = []
+		self.add_node_mode = False
+		self.delete_node_mode = False
 		self.dragged_node = None
 
 	# ------------------------ Project Save/Load ----------------------------------------------------------------------
@@ -1491,17 +1519,20 @@ class MainWindow(QMainWindow):
 			if stored_path in self.crack_results:
 				crack_results[rel_path] = self.crack_results[stored_path]
 
-		cali_image_path = None
-		if self.cali_path is not None:
-			cali_image_path = self._project_to_relative(self.cali_path, project_dir)
-			if cali_image_path is None:
-				skipped.append(self.cali_path)
+		calibration_image_path = None
+		if self.calibration_path is not None:
+			calibration_image_path = self._project_to_relative(self.calibration_path, project_dir)
+			if calibration_image_path is None:
+				skipped.append(self.calibration_path)
 
 		project_data = {
 			"format_version": 4,
 			"images": images,
-			"cali_image_path": cali_image_path,
-			"cali_points": self.cali_points,
+			# The "cali_" keys keep their abbreviated names on purpose: they are part
+			# of the stored file format, and renaming them would silently drop the
+			# calibration when an older project file is opened.
+			"cali_image_path": calibration_image_path,
+			"cali_points": self.calibration_points,
 			"resolution": self.resolution,
 			"prediction_results": prediction_results,
 			"skeleton_results": skeleton_results,
@@ -1562,15 +1593,15 @@ class MainWindow(QMainWindow):
 		self.reset_all_data()
 
 		self.resolution = project_data.get("resolution")
-		self.cali_points = project_data.get("cali_points", [])
+		self.calibration_points = project_data.get("cali_points", [])
 
-		raw_cali_path = project_data.get("cali_image_path")
-		cali_image_path = resolve(raw_cali_path)
-		if cali_image_path is not None:
-			self.cali_image = cv2.imread(cali_image_path)
-			self.cali_path = cali_image_path
-		elif raw_cali_path:
-			missing_paths.append(raw_cali_path)
+		stored_calibration_path = project_data.get("cali_image_path")
+		calibration_image_path = resolve(stored_calibration_path)
+		if calibration_image_path is not None:
+			self.calibration_image = cv2.imread(calibration_image_path)
+			self.calibration_path = calibration_image_path
+		elif stored_calibration_path:
+			missing_paths.append(stored_calibration_path)
 
 		prediction_data = project_data.get("prediction_results", {})
 		skeleton_data_raw = project_data.get("skeleton_results", {})
@@ -1611,7 +1642,7 @@ class MainWindow(QMainWindow):
 				}
 
 			if rel_path in crack_data:
-				self.crack_results[current_path] = crack_data[rel_path]
+				self.crack_results[current_path] = _migrate_crack_result(crack_data[rel_path])
 
 		self.skeleton_processor.skeletons = self.skeleton_results
 
@@ -1704,12 +1735,15 @@ class MainWindow(QMainWindow):
 
 			avg_crack_width_pixels = (crack_region_pixels / total_skeleton_length) if total_skeleton_length > 0 else 0
 
+			# Every key carries its unit: the same quantity appears twice here, once
+			# in pixels and once converted with the calibration, and without the
+			# suffix the two were only told apart by which one had one.
 			crack_results[image_path] = {
 				"crack_pixels": crack_region_pixels,
-				"skeleton_pixels": total_skeleton_length,
-				"crack_area": crack_area_mm2,
-				"skeleton_length": skeleton_length_mm,
-				"crack_width": avg_crack_width_pixels * self.resolution
+				"skeleton_length_px": total_skeleton_length,
+				"crack_area_mm2": crack_area_mm2,
+				"skeleton_length_mm": skeleton_length_mm,
+				"crack_width_mm": avg_crack_width_pixels * self.resolution
 			}
 
 		return crack_results
@@ -1722,7 +1756,7 @@ class MainWindow(QMainWindow):
 		\return: A pandas DataFrame with the rows to export.
 		"""
 
-		data_list = []
+		export_rows = []
 
 		for image_path, result in self.crack_results.items():
 			try:
@@ -1739,19 +1773,21 @@ class MainWindow(QMainWindow):
 			else:
 				image_size = ""
 
-			data_list.append({
+			export_rows.append({
 				"File Name": os.path.basename(image_path),
 				"File Path": relative_path,
 				"Image Size (px)": image_size,
 				"Crack Pixel (px)": int(result["crack_pixels"]),
-				"Skeleton Pixel (px)": round(float(result["skeleton_pixels"]), 2),
-				"Crack Area (mm\u00b2)": round(result["crack_area"], 4),
-				"Skeleton Length (mm)": round(result["skeleton_length"], 4),
-				"Mean Crack Width (mm)": round(result["crack_width"], 4),
+				# Column header kept as-is so existing exports and the evaluations built
+				# on them keep working, even though the value is a measured length now.
+				"Skeleton Pixel (px)": round(float(result["skeleton_length_px"]), 2),
+				"Crack Area (mm\u00b2)": round(result["crack_area_mm2"], 4),
+				"Skeleton Length (mm)": round(result["skeleton_length_mm"], 4),
+				"Mean Crack Width (mm)": round(result["crack_width_mm"], 4),
 				"Resolution (mm/px)": self.resolution
 			})
 
-		return pd.DataFrame(data_list)
+		return pd.DataFrame(export_rows)
 
 	def write_excel_file(self, dataframe, file_path):
 		r"""
@@ -2038,7 +2074,7 @@ class MainWindow(QMainWindow):
 			self.display_large_image(self.ui.listWidget.currentItem())
 		else:
 			self.current_image_path = None
-			self.image = None
+			self.editable_qimage = None
 			self.original_pixmap = None
 			self.ui.imageLabel.clear()
 			self.zoom_base_pixmap = None
