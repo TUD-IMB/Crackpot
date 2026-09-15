@@ -1,0 +1,90 @@
+[project]
+name = "crackpot"
+
+dynamic = ["version"]
+
+description = "Concrete Research And Crack Knowledge Photogrammetric Observation Tool"
+
+readme = "README.md"
+
+requires-python = ">=3.10"
+
+license = "GPL-3.0-only"
+license-files = ["LICENSE", "src/crackpot/resources/license/*.txt"]
+
+keywords = [
+	"crack detection",
+	"crack width",
+	"concrete",
+	"structural health monitoring",
+	"photogrammetry",
+	"image segmentation",
+	]
+
+authors = [
+	{name = "Bertram Richter" },
+	{name = "Carl Stock" },
+	{name = "Xiaoli Song" },
+]
+
+maintainers = [
+	{name = "Bertram Richter" },
+]
+
+classifiers = [
+	"Intended Audience :: Science/Research",
+	"Environment :: X11 Applications :: Qt",
+	"Topic :: Scientific/Engineering :: Image Processing",
+
+	"Programming Language :: Python :: 3",
+	"Programming Language :: Python :: 3 :: Only",
+	"Programming Language :: Python :: 3.10",
+	"Programming Language :: Python :: 3.11",
+	"Programming Language :: Python :: 3.12",
+	"Programming Language :: Python :: 3.13",
+]
+
+# Only what the manual annotation workflow needs. The automatic crack detection
+# is installed with the "tensorflow" extra below; the model file itself always
+# ships with the package.
+dependencies = [
+	# Only QtCore, QtGui, QtWidgets and QtSvgWidgets are used, which are all part
+	# of the Essentials package. The full PySide6 would additionally pull in
+	# PySide6-Addons, several hundred megabytes of unused modules.
+	"PySide6-Essentials>=6.7",
+	"numpy>=1.24",
+	"scipy>=1.10",
+	"pandas>=2.0",
+	# Not imported directly, pandas uses it as the engine for the Excel export.
+	"openpyxl>=3.1",
+	"opencv-python>=4.8",
+	"scikit-image>=0.22",
+]
+
+[project.optional-dependencies]
+tensorflow = [
+	"tensorflow>=2.16",
+	"keras>=3.0",
+]
+
+[project.gui-scripts]
+crackpot = "crackpot.main:main"
+
+[project.urls]
+"source" = "https://github.com/TUD-IMB/Crackpot"
+"issues" = "https://github.com/TUD-IMB/Crackpot/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# The version is kept in the package itself, so that the About dialog and the
+# package metadata can never drift apart.
+[tool.hatch.version]
+path = "src/crackpot/version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/crackpot"]
+
+[tool.hatch.build.targets.sdist]
+only-include = ["src/crackpot", "README.md", "LICENSE"]
