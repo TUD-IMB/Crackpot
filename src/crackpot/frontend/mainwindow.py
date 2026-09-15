@@ -155,7 +155,7 @@ class MainWindow(QMainWindow):
 		self.original_pixmap = None
 		self.zoom_base_pixmap = None
 		self.zoom_factor = 1.0
-		self.overlay_scale_in_use = 1
+		self.overlay_scale_in_use = NODE_RADIUS
 		self.keep_zoom_on_refresh = False
 
 		self.init_stacked_widget()
@@ -710,7 +710,9 @@ class MainWindow(QMainWindow):
 
 		if not connect_to_previous:
 			skeleton_data["created_nodes"].append(new_node)
-			self.refresh_display_image()
+			# Placing a node is an edit of the overlay, not a change of image: falling
+			# back to the overview here would undo the zoom before the next click.
+			self.refresh_display_image(keep_zoom=True)
 			return
 
 		if len(skeleton_data["created_nodes"]) > 0:
@@ -718,7 +720,7 @@ class MainWindow(QMainWindow):
 			skeleton_data.setdefault("created_lines", []).append((last_node, new_node))
 
 		skeleton_data["created_nodes"].append(new_node)
-		self.refresh_display_image()
+		self.refresh_display_image(keep_zoom=True)
 
 	def delete_node(self, clicked_pos):
 		r"""
@@ -753,7 +755,7 @@ class MainWindow(QMainWindow):
 		if len(neighbor_nodes) == 2 and neighbor_nodes[0] != neighbor_nodes[1]:
 			skeleton_data["created_lines"].append((neighbor_nodes[0], neighbor_nodes[1]))
 
-		self.refresh_display_image()
+		self.refresh_display_image(keep_zoom=True)
 
 	def delete_skeleton_segment(self, clicked_pos):
 		r"""
@@ -782,7 +784,7 @@ class MainWindow(QMainWindow):
 		self.skeleton_processor.remove_pixels(skeleton, clicked_segment["pixels"], junction_zones)
 		skeleton_data["branch_points"] = self.skeleton_processor.find_branch_points(skeleton)
 		skeleton_data["end_points"] = self.skeleton_processor.find_end_points(skeleton)
-		self.refresh_display_image()
+		self.refresh_display_image(keep_zoom=True)
 
 	def find_clicked_segment(self, segments, position):
 		r"""
@@ -802,9 +804,25 @@ class MainWindow(QMainWindow):
 		distances = np.hypot(coordinates[:, 0] - position[0], coordinates[:, 1] - position[1])
 		nearest = int(np.argmin(distances))
 		# Same tolerance as for the nodes, so both react to a click the same way.
-		if distances[nearest] > NODE_RADIUS * self.overlay_line_scale():
+		if distances[nearest] > self.node_click_tolerance():
 			return None
 		return segments[owners[nearest]]
+
+	def node_click_tolerance(self):
+		r"""
+		Return how far a click may miss a node and still count as hitting it, in
+		image pixels.
+
+		It follows the radius the node is drawn with, which is measured in screen
+		pixels: a fixed number of image pixels would shrink to well under a screen
+		pixel in the zoomed out overview, which is what made the nodes so hard to
+		hit. Zoomed in the radius gets small in image pixels instead, so it never
+		falls below the drawn size at zoom 1 - hitting a node should not turn into
+		pixel-precise aiming.
+
+		\return (float): The tolerance in image pixels.
+		"""
+		return max(NODE_RADIUS * self.overlay_line_scale(), NODE_RADIUS)
 
 	def get_clicked_node(self, position):
 		r"""
@@ -824,10 +842,7 @@ class MainWindow(QMainWindow):
 		img_size = skeleton_data["skeleton"].shape if "skeleton" in skeleton_data else (1, 1)
 		img_x, img_y = self.convert_to_image_coords(position, img_size)
 
-		# The same radius the node is drawn with. A fixed number of image pixels
-		# would shrink to well under a screen pixel in the zoomed out overview, which
-		# is what made the nodes so hard to hit.
-		threshold = NODE_RADIUS * self.overlay_line_scale()
+		threshold = self.node_click_tolerance()
 
 		nodes = np.array(created_nodes)
 		distances = np.linalg.norm(nodes - np.array([img_x, img_y]), axis=1)
@@ -1298,20 +1313,40 @@ class MainWindow(QMainWindow):
 
 	def overlay_line_scale(self):
 		r"""
-		Return how many image pixels wide a line has to be drawn so that it stays
-		visible after the image is scaled down to the current zoom level.
+		Return how many image pixels make up one screen pixel at the current zoom
+		level.
 
-		Markers are drawn into the full resolution image, so at a zoom factor of
-		e.g. 0.2 a single pixel would be averaged away entirely. The inverse of the
-		factor keeps roughly one screen pixel of every line.
+		Markers are drawn into the full resolution image and scaled along with it,
+		so their size on screen only stays put if it is measured in this unit.
+		Multiplying a wanted screen size by this factor gives the size to draw with.
 
-		\return: An odd width in image pixels, at least 1.
+		\return (float): The image pixels per screen pixel, at least a small
+			positive number.
 		"""
-		if self.zoom_factor <= 0 or self.zoom_factor >= 1.0:
-			return 1
-		width = int(round(1.0 / self.zoom_factor))
-		# Odd widths keep the line centred on the original skeleton pixel.
-		return max(width + 1 - width % 2, 1)
+		if self.zoom_factor <= 0:
+			return 1.0
+		return 1.0 / self.zoom_factor
+
+	def overlay_size_in_pixels(self, screen_size):
+		r"""
+		Convert a size meant to be seen on screen into the size to draw with in the
+		full resolution image.
+
+		\param screen_size: The wanted size in screen pixels.
+		\return (int): The size in image pixels, at least 1.
+		"""
+		return max(int(round(screen_size * self.overlay_line_scale())), 1)
+
+	def overlay_dilation_width(self):
+		r"""
+		Return the width to thicken the skeleton line by, so that it survives being
+		scaled down.
+
+		\return (int): An odd width in image pixels, at least 1. Odd widths keep the
+			line centred on the original skeleton pixel.
+		"""
+		width = self.overlay_size_in_pixels(1)
+		return width + 1 - width % 2
 
 	def display_skeleton_overlay(self, original_image):
 		r"""
@@ -1340,31 +1375,34 @@ class MainWindow(QMainWindow):
 		longest_path = skeleton_data.get("longest_path", [])
 		selected_points = skeleton_data.get("selected_points", [])
 
-		# The overlay is drawn at full resolution and scaled down for display, so a
-		# one pixel wide line disappears on large images. Widening it by the inverse
-		# of the zoom factor keeps it about equally visible at every zoom level.
-		overlay_scale = self.overlay_line_scale()
-		self.overlay_scale_in_use = overlay_scale
+		# The overlay is drawn at full resolution and scaled down for display, so every
+		# marker is sized in image pixels for the screen size it should end up with.
+		# That keeps it the same size to look at at every zoom level, instead of
+		# growing and shrinking along with the image.
+		node_radius = self.overlay_size_in_pixels(NODE_RADIUS)
+		line_width = self.overlay_size_in_pixels(1)
+		dilation_width = self.overlay_dilation_width()
+		self.overlay_scale_in_use = node_radius
 
 		overlay_image = original_image.copy()
 		skeleton_coords = np.where(skeleton == 1)
 		overlay_image[skeleton_coords[0], skeleton_coords[1]] = [255, 0, 0]
-		if overlay_scale > 1:
+		if dilation_width > 1:
 			skeleton_mask = cv2.dilate(
 				(skeleton == 1).astype(np.uint8),
-				cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (overlay_scale, overlay_scale))
+				cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (dilation_width, dilation_width))
 			)
 			overlay_image[skeleton_mask > 0] = [255, 0, 0]
 
 		created_nodes = skeleton_data.get("created_nodes", [])
 		for node in created_nodes:
-			cv2.circle(overlay_image, (node[0], node[1]), radius=NODE_RADIUS * overlay_scale,
+			cv2.circle(overlay_image, (node[0], node[1]), radius=node_radius,
 					   color=(255, 251, 13), thickness=-1)
 
 		lines = skeleton_data.get("created_lines", [])
 		for line in lines:
 			start, end = line
-			cv2.line(overlay_image, (start[0], start[1]), (end[0], end[1]), color=(255, 251, 13), thickness=overlay_scale)
+			cv2.line(overlay_image, (start[0], start[1]), (end[0], end[1]), color=(255, 251, 13), thickness=line_width)
 
 		# if longest_path is not None and len(longest_path) > 0:
 		# 	for point in longest_path:
@@ -1382,7 +1420,8 @@ class MainWindow(QMainWindow):
 			for coord in end_coords:
 				point_tuple = (coord[1], coord[0])
 				color = (0, 255, 0) if point_tuple in selected_points else (255, 255, 255)
-				cv2.circle(overlay_image, point_tuple, radius=5 * overlay_scale, color=color, thickness=2 * overlay_scale)
+				cv2.circle(overlay_image, point_tuple, radius=self.overlay_size_in_pixels(5),
+						   color=color, thickness=self.overlay_size_in_pixels(2))
 
 		overlay_qimage = QImage(
 			overlay_image.data,
@@ -2114,11 +2153,13 @@ class MainWindow(QMainWindow):
 
 		The markers are baked into the full resolution overlay, so their width only
 		fits the zoom level they were drawn for. Rebuilding on every zoom step would
-		be wasteful on large images, hence the check for an actual change.
+		be wasteful on large images, hence the check for an actual change: the
+		rounded marker size, not the zoom factor behind it, is what a redraw would
+		change.
 		"""
 		if self.progress_stage != 3:
 			return
-		if self.overlay_line_scale() == self.overlay_scale_in_use:
+		if self.overlay_size_in_pixels(NODE_RADIUS) == self.overlay_scale_in_use:
 			return
 
 		# The overlay is drawn for whatever zoom factor is set at that moment, so the
