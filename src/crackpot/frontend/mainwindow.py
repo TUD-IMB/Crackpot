@@ -125,7 +125,9 @@ class MainWindow(QMainWindow):
 				self.ui.skeletonProcessButton,
 				self.ui.exportProcessButton
 			],
-			lines=[self.ui.line0, self.ui.line1, self.ui.line2, self.ui.line3]
+			lines=[self.ui.line0, self.ui.line1, self.ui.line2, self.ui.line3],
+			recolor_icon=self.recolor_icon,
+			default_color=self.palette().color(QPalette.ColorRole.ButtonText)
 		)
 		self.ui.calibrationProcessButton.clicked.connect(lambda: self.set_stage(0))
 		self.ui.uploadProcessButton.clicked.connect(lambda: self.set_stage(1))
@@ -159,6 +161,11 @@ class MainWindow(QMainWindow):
 		self.init_stacked_widget()
 		self.init_image_label()
 		self.apply_icon_color()
+
+		# Only now do the stage buttons carry the icons the color scheme asks for,
+		# and only those are worth remembering as the unmarked state.
+		self.progress_manager.capture_icons()
+		self.progress_manager.update_progress(self.progress_stage)
 
 		# Which of the two skeleton editing modes a click is handled as. Mutually
 		# exclusive: turning one on turns the other off (see toggle_add_node_mode).
