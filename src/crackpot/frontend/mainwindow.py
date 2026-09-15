@@ -177,6 +177,9 @@ class MainWindow(QMainWindow):
 		self.calibration_image = None
 		self.calibration_path = None
 		self.calibration_points = []
+		# Where this session was last saved to, so "Finish" can tell an already
+		# written project from one that would be lost.
+		self.project_path = None
 
 		self.adjust_window_size()
 
@@ -229,7 +232,7 @@ class MainWindow(QMainWindow):
 		self.ui.nextButton1.clicked.connect(lambda: self.set_stage(2))
 		self.ui.nextButton2.clicked.connect(lambda: self.set_stage(3))
 		self.ui.nextButton3.clicked.connect(lambda: self.set_stage(4))
-		self.ui.nextButton4.clicked.connect(self.reset_all_data)
+		self.ui.nextButton4.clicked.connect(self.finish_session)
 
 		self.ui.previousButton1.clicked.connect(lambda: self.set_stage(0))
 		self.ui.previousButton2.clicked.connect(lambda: self.set_stage(1))
@@ -1552,6 +1555,63 @@ class MainWindow(QMainWindow):
 		if self.ui.listWidget.currentItem():
 			self.display_large_image(self.ui.listWidget.currentItem())
 
+	def finish_session(self):
+		r"""
+		End the session behind the "Finish" button, asking what should happen to the
+		work first.
+
+		Finishing throws away every image, mask and skeleton of this session, and the
+		button sits right next to the ones used to page through the stages, so it is
+		easily hit by accident. Saving first is offered rather than assumed: a session
+		that was only looked at is legitimately discarded, and forcing a file dialog on
+		it would be in the way.
+		"""
+		if not self.session_has_data():
+			# Nothing to lose, so the question would only be noise.
+			self.reset_all_data()
+			return
+
+		question = QMessageBox(self)
+		question.setIcon(QMessageBox.Icon.Question)
+		question.setWindowTitle(self.tr("Finish session"))
+		question.setText(self.tr("Finishing clears all images and results of this session.\n\n"
+								 "Do you want to save the project first?"))
+		question.setStandardButtons(
+			QMessageBox.StandardButton.Save | QMessageBox.StandardButton.Discard
+			| QMessageBox.StandardButton.Cancel
+		)
+		question.setDefaultButton(QMessageBox.StandardButton.Save)
+		# Qt translates its standard buttons from its own catalog, which this program
+		# does not ship, so they would stay English inside a German dialog.
+		question.button(QMessageBox.StandardButton.Save).setText(self.tr("Save project"))
+		question.button(QMessageBox.StandardButton.Discard).setText(self.tr("Discard"))
+		question.button(QMessageBox.StandardButton.Cancel).setText(self.tr("Cancel"))
+
+		answer = question.exec()
+
+		if answer == QMessageBox.StandardButton.Cancel:
+			return
+		if answer == QMessageBox.StandardButton.Save:
+			# export_project asks for the file name and reports whether it got one.
+			# A cancelled file dialog must not go on to clear the session.
+			if not self.export_project():
+				return
+
+		self.reset_all_data()
+
+	def session_has_data(self):
+		r"""
+		Check whether this session holds anything a reset would throw away.
+
+		\return (bool): True if images, calibration or results are present.
+		"""
+		return bool(
+			self.ui.listWidget.count()
+			or self.calibration_points
+			or self.resolution
+			or self.calibration_path
+		)
+
 	def reset_all_data(self):
 		r"""
 		Reset all stored data and UI elements to their initial state.
@@ -1589,6 +1649,7 @@ class MainWindow(QMainWindow):
 		self.add_node_mode = False
 		self.delete_node_mode = False
 		self.dragged_node = None
+		self.project_path = None
 
 	# ------------------------ Project Save/Load ----------------------------------------------------------------------
 	def _project_to_relative(self, path, project_dir):
@@ -1610,16 +1671,19 @@ class MainWindow(QMainWindow):
 		contains no local absolute paths and can be shared or moved to another machine
 		alongside the images. The file is JSON; masks are PNG-compressed and
 		base64-encoded, since a raw pixel dump per mask would make it huge.
+
+		\return (bool): True if the project was written, False if the user cancelled
+			or the export failed.
 		"""
 		if self.ui.listWidget.count() == 0:
 			QMessageBox.warning(self, "Export Error", "No images to export. Please upload images first.")
-			return
+			return False
 
 		file_path, _ = QFileDialog.getSaveFileName(
 			self, "Save Project", "", "Crackpot Project (*.crackpot)"
 		)
 		if not file_path:
-			return
+			return False
 		if not file_path.lower().endswith(".crackpot"):
 			file_path += ".crackpot"
 
@@ -1695,8 +1759,11 @@ class MainWindow(QMainWindow):
 					"couldn't be referenced by a relative path):\n" + "\n".join(skipped)
 				)
 			QMessageBox.information(self, "Success", message, QMessageBox.StandardButton.Ok)
+			self.project_path = file_path
+			return True
 		except Exception as e:
 			QMessageBox.critical(self, "Export Failed", f"Error:\n{str(e)}")
+			return False
 
 	def import_project(self):
 		r"""

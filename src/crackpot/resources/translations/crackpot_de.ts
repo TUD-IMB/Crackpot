@@ -401,39 +401,68 @@ Technische Universität Dresden</translation>
         <translation>Deutsch</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1122"/>
+        <location filename="../../frontend/mainwindow.py" line="1140"/>
         <source>Automatic detection unavailable</source>
         <translation>Automatische Erkennung nicht verfügbar</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1129"/>
+        <location filename="../../frontend/mainwindow.py" line="1147"/>
         <source>Loading the detection model...</source>
         <translation>Erkennungsmodell wird geladen ...</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1130"/>
+        <location filename="../../frontend/mainwindow.py" line="1148"/>
         <source>Crack detection</source>
         <translation>Risserkennung</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1141"/>
+        <location filename="../../frontend/mainwindow.py" line="1159"/>
         <source>Detecting cracks in {file}...</source>
         <translation>Risse werden erkannt in {file} ...</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1147"/>
+        <location filename="../../frontend/mainwindow.py" line="1165"/>
         <source>Crack detection failed</source>
         <translation>Risserkennung fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1186"/>
+        <location filename="../../frontend/mainwindow.py" line="1204"/>
         <source>Image unreadable</source>
         <translation>Bild nicht lesbar</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1187"/>
+        <location filename="../../frontend/mainwindow.py" line="1205"/>
         <source>{file} could not be read. It may have been moved, deleted or damaged.</source>
         <translation>{file} konnte nicht gelesen werden. Möglicherweise wurde die Datei verschoben, gelöscht oder beschädigt.</translation>
+    </message>
+    <message>
+        <location filename="../../frontend/mainwindow.py" line="1576"/>
+        <source>Finish session</source>
+        <translation>Sitzung abschließen</translation>
+    </message>
+    <message>
+        <location filename="../../frontend/mainwindow.py" line="1577"/>
+        <source>Finishing clears all images and results of this session.
+
+Do you want to save the project first?</source>
+        <translation>Beim Abschließen werden alle Bilder und Ergebnisse dieser Sitzung gelöscht.
+
+Möchten Sie das Projekt vorher speichern?</translation>
+    </message>
+    <message>
+        <location filename="../../frontend/mainwindow.py" line="1586"/>
+        <source>Save project</source>
+        <translation>Projekt speichern</translation>
+    </message>
+    <message>
+        <location filename="../../frontend/mainwindow.py" line="1587"/>
+        <source>Discard</source>
+        <translation>Verwerfen</translation>
+    </message>
+    <message>
+        <location filename="../../frontend/mainwindow.py" line="1588"/>
+        <source>Cancel</source>
+        <translation>Abbrechen</translation>
     </message>
 </context>
 </TS>
