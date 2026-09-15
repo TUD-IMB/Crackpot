@@ -401,29 +401,39 @@ Technische Universität Dresden</translation>
         <translation>Deutsch</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1111"/>
+        <location filename="../../frontend/mainwindow.py" line="1122"/>
         <source>Automatic detection unavailable</source>
         <translation>Automatische Erkennung nicht verfügbar</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1118"/>
+        <location filename="../../frontend/mainwindow.py" line="1129"/>
         <source>Loading the detection model...</source>
         <translation>Erkennungsmodell wird geladen ...</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1119"/>
+        <location filename="../../frontend/mainwindow.py" line="1130"/>
         <source>Crack detection</source>
         <translation>Risserkennung</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1130"/>
+        <location filename="../../frontend/mainwindow.py" line="1141"/>
         <source>Detecting cracks in {file}...</source>
         <translation>Risse werden erkannt in {file} ...</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1136"/>
+        <location filename="../../frontend/mainwindow.py" line="1147"/>
         <source>Crack detection failed</source>
         <translation>Risserkennung fehlgeschlagen</translation>
+    </message>
+    <message>
+        <location filename="../../frontend/mainwindow.py" line="1186"/>
+        <source>Image unreadable</source>
+        <translation>Bild nicht lesbar</translation>
+    </message>
+    <message>
+        <location filename="../../frontend/mainwindow.py" line="1187"/>
+        <source>{file} could not be read. It may have been moved, deleted or damaged.</source>
+        <translation>{file} konnte nicht gelesen werden. Möglicherweise wurde die Datei verschoben, gelöscht oder beschädigt.</translation>
     </message>
 </context>
 </TS>

@@ -1054,6 +1054,10 @@ class MainWindow(QMainWindow):
 		for file_name, prediction in self.prediction_results.items():
 			if prediction is None:
 				image = cv2.imread(file_name)
+				# An unreadable file has no shape to build a mask from; it stays without
+				# one instead of taking the masking stage down with it.
+				if image is None:
+					continue
 				self.prediction_results[file_name] = np.zeros(image.shape[:2], dtype=np.float32)
 
 	def configure_detection_availability(self):
@@ -1174,7 +1178,16 @@ class MainWindow(QMainWindow):
 		file_path = item.data(Qt.ItemDataRole.UserRole)
 		if file_path:
 			self.current_image_path = file_path
-			self.refresh_display_image()
+			if not self.refresh_display_image():
+				# Only here, not in refresh_display_image itself: that one also runs on
+				# every slider move and every window resize, which would turn a single
+				# unreadable file into a stream of dialogs.
+				QMessageBox.warning(
+					self, self.tr("Image unreadable"),
+					self.tr("{file} could not be read. It may have been moved, deleted or damaged.").format(
+						file=os.path.basename(file_path)
+					)
+				)
 
 	def refresh_display_image(self, keep_zoom=False):
 		r"""
@@ -1183,18 +1196,21 @@ class MainWindow(QMainWindow):
 
 		\param keep_zoom: Keep the current zoom factor instead of returning to the
 			overview. Used when only the overlay is rebuilt, not the image itself.
+		\return (bool): False if the image could not be read, True otherwise.
 		"""
 		self.keep_zoom_on_refresh = keep_zoom
 		if not self.current_image_path:
-			self.ui.imageLabel.clear()
-			self.original_pixmap = None
-			self.zoom_base_pixmap = None
-			return
+			self.clear_displayed_image()
+			return True
 
 		original_image = cv2.imread(self.current_image_path)
-		original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
+		# imread reports an unreadable file by returning None rather than raising,
+		# and passing that on to cvtColor aborts the whole application.
 		if original_image is None:
-			return
+			self.clear_displayed_image()
+			return False
+
+		original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
 
 		original_qimage = QImage(
 			original_image.data, original_image.shape[1], original_image.shape[0],
@@ -1202,7 +1218,8 @@ class MainWindow(QMainWindow):
 		)
 		original_pixmap = QPixmap.fromImage(original_qimage)
 		if original_pixmap.isNull():
-			return
+			self.clear_displayed_image()
+			return False
 
 		if self.progress_stage == 1:
 			self.display_original_image(original_pixmap)
@@ -1213,6 +1230,17 @@ class MainWindow(QMainWindow):
 		elif self.progress_stage == 4:
 			self.display_original_image(original_pixmap)
 			self.display_calculation_results()
+
+		return True
+
+	def clear_displayed_image(self):
+		r"""
+		Empty the image area, so that nothing is left standing that suggests the
+		file is still being shown.
+		"""
+		self.ui.imageLabel.clear()
+		self.original_pixmap = None
+		self.zoom_base_pixmap = None
 
 	def display_original_image(self, original_pixmap):
 		r"""
@@ -1673,7 +1701,10 @@ class MainWindow(QMainWindow):
 		calibration_image_path = resolve(stored_calibration_path)
 		if calibration_image_path is not None:
 			self.calibration_image = cv2.imread(calibration_image_path)
-			self.calibration_path = calibration_image_path
+			if self.calibration_image is None:
+				missing_paths.append(stored_calibration_path)
+			else:
+				self.calibration_path = calibration_image_path
 		elif stored_calibration_path:
 			missing_paths.append(stored_calibration_path)
 
