@@ -1,5 +1,6 @@
 import base64
 import json
+import math
 import os
 import pathlib
 import sys
@@ -26,6 +27,8 @@ from crackpot.utils.utils import resource_path
 # with it and get_clicked_node() uses it as the click tolerance, so everything
 # that can be seen can also be hit.
 NODE_RADIUS = 5
+# Radius a calibration point is marked with, in image pixels.
+CALIBRATION_POINT_RADIUS = 10
 
 
 class _NumpyJSONEncoder(json.JSONEncoder):
@@ -329,26 +332,28 @@ class MainWindow(QMainWindow):
 		pixel_distance = np.linalg.norm(calibration_point_array[1] - calibration_point_array[0])
 		self.ui.pixelLineEdit.setText(str(pixel_distance))
 
-	def display_calibration_image(self):
+	def display_calibration_image(self, keep_zoom=False):
 		r"""
 		Display the calibration image with marked calibration points.
+
+		\param keep_zoom: Keep the current zoom factor instead of returning to the
+			overview. Used when only a point was added or removed, so that marking
+			a distance in a zoomed in view does not throw the user back out of it.
 		"""
 		if self.calibration_image is not None:
 			marked_image = cv2.cvtColor(self.calibration_image.copy(), cv2.COLOR_BGR2RGB)
 			for point in self.calibration_points:
-				cv2.circle(marked_image, point, 10, (255, 0, 0), -1)
+				cv2.circle(marked_image, point, CALIBRATION_POINT_RADIUS, (255, 0, 0), -1)
 			height, width, channels = marked_image.shape
 			bytes_per_line = 3 * width
 			marked_qimage = QImage(marked_image.data, width, height, bytes_per_line, QImage.Format.Format_RGB888)
 			pixmap = QPixmap.fromImage(marked_qimage)
 			self.original_pixmap = pixmap
-			label_size = self.ui.imageLabel.size()
-			scaled_pixmap = pixmap.scaled(
-				label_size.width(), label_size.height(),
-				Qt.AspectRatioMode.KeepAspectRatio,
-				Qt.TransformationMode.SmoothTransformation
-			)
-			self.set_display_pixmap(scaled_pixmap)
+			# Handed over at full resolution, like in every other stage:
+			# set_display_pixmap() scales it to the zoom factor itself. Pre-scaling
+			# it to the label size here made the two disagree about how large the
+			# image is, which is what moved the marks away from the cursor.
+			self.set_display_pixmap(pixmap, keep_zoom=keep_zoom)
 
 	def update_resolution(self):
 		r"""
@@ -586,22 +591,62 @@ class MainWindow(QMainWindow):
 	# ------------------------ Event Handling ----------------------------------------------------------------------
 	def convert_to_image_coords(self, pos, img_size):
 		r"""
-		Calculate the corresponding position in the image based on the
-		displayed image's scale and offsets within the QLabel.
+		Calculate the position in the image the cursor points at.
+
+		The scale is the zoom factor, the same one render_current_view() draws
+		with and overlay_line_scale() measures the markers in. Deriving it from
+		the label size instead only holds while the image fills that label: the
+		layout stretches it to the viewport (scrollArea is widgetResizable), so
+		an image smaller than the viewport - or one zoomed out - sits centred
+		(AlignCenter) in a much larger label that says nothing about how large an
+		image pixel is on screen. A click was then read as if the image covered
+		the whole label, which happens to be exact in the middle and drifts
+		further off towards the edges: the offset between cursor and stroke,
+		worth up to 90 image pixels on a small image.
+
+		The label size is still read, for the offset. That only holds as long as it
+		does not change while the user draws, which is why render_current_view()
+		must not call adjustSize().
 
 		\param pos: The QPoint position of the cursor in the UI.
 		\param img_size: The size of the original image (height, width).
-		\return: The converted image coordinates (x, y).
+		\return: The converted image coordinates (x, y). They may lie outside the
+			image, see position_is_on_image().
 		"""
+		if img_size[0] <= 0 or img_size[1] <= 0:
+			return -1, -1
+
 		label_size = self.ui.imageLabel.size()
-		scale = min(label_size.width() / img_size[1], label_size.height() / img_size[0])
+		scale = self.zoom_factor if self.zoom_factor > 0 else 1.0
 		display_width = scale * img_size[1]
 		display_height = scale * img_size[0]
+		# The image is centred in the label, so half of whatever the label has
+		# left over is the offset. It can be negative: fit-to-window measures the
+		# viewport, while the label is a little smaller than that because of the
+		# layout margins, so a fitted image is a few pixels larger than the label
+		# showing it and is cropped evenly instead of leaving a margin.
 		x_offset = (label_size.width() - display_width) / 2
 		y_offset = (label_size.height() - display_height) / 2
-		img_x = (pos.x() - x_offset) / scale
-		img_y = (pos.y() - y_offset) / scale
-		return int(img_x), int(img_y)
+		# floor, not int: int() rounds towards zero, which would pull a click just
+		# left of or above the image onto its first column or row.
+		img_x = math.floor((pos.x() - x_offset) / scale)
+		img_y = math.floor((pos.y() - y_offset) / scale)
+		return img_x, img_y
+
+	def position_is_on_image(self, position, img_size):
+		r"""
+		Tell whether converted coordinates point at a pixel of the image.
+
+		A click can land in the empty area of the label beside the image, which
+		converts to coordinates outside it. Acting on those would place a point
+		or a stroke somewhere the user never clicked.
+
+		\param position: The (x, y) image coordinates from convert_to_image_coords().
+		\param img_size: The size of the original image (height, width).
+		\return (bool): True if the position lies inside the image.
+		"""
+		x, y = position
+		return 0 <= x < img_size[1] and 0 <= y < img_size[0]
 
 	def eventFilter(self, source, event):
 		r"""
@@ -624,6 +669,10 @@ class MainWindow(QMainWindow):
 				clicked_pos = event.pos()
 				img_size = self.calibration_image.shape if self.calibration_image is not None else (1, 1, 1)
 				img_x, img_y = self.convert_to_image_coords(clicked_pos, img_size)
+				if not self.position_is_on_image((img_x, img_y), img_size):
+					# Beside the image, not on it: the label is larger than the
+					# image whenever that does not fill the viewport.
+					return True
 
 				if self.ui.clickAddButton.isChecked():
 					if len(self.calibration_points) < 2:
@@ -637,7 +686,10 @@ class MainWindow(QMainWindow):
 							self.calibration_points.remove(point)
 							break
 				self.calculate_pixel_distance()
-				self.display_calibration_image()
+				# Marking a point is an edit of the overlay, not a change of image:
+				# falling back to the overview here would undo the zoom the user
+				# needed to place the point precisely in the first place.
+				self.display_calibration_image(keep_zoom=True)
 				return True
 
 		if self.progress_stage == 2:
@@ -708,6 +760,8 @@ class MainWindow(QMainWindow):
 
 		img_size = skeleton_data["skeleton"].shape
 		img_x, img_y = self.convert_to_image_coords(clicked_pos, img_size)
+		if not self.position_is_on_image((img_x, img_y), img_size):
+			return
 
 		new_node = (int(img_x), int(img_y))
 
@@ -867,8 +921,14 @@ class MainWindow(QMainWindow):
 		qimage = qimage.convertToFormat(QImage.Format.Format_Grayscale8)
 		width = qimage.width()
 		height = qimage.height()
-		pixel_buffer = qimage.bits()
-		return np.array(pixel_buffer).reshape(height, width)
+		# QImage pads every row out to a four byte boundary, so a row in the buffer is
+		# bytesPerLine wide, not width. Reshaping to the width alone raised a
+		# ValueError for every width that is not a multiple of four - three widths out
+		# of four - which took the program down when the mask was read back after a
+		# brush stroke. np.array copies, so the padded view does not outlive the
+		# converted image it belongs to.
+		padded = np.array(qimage.bits(), dtype=np.uint8).reshape(height, qimage.bytesPerLine())
+		return padded[:, :width]
 
 	def resizeEvent(self, event):
 		r"""
@@ -894,9 +954,14 @@ class MainWindow(QMainWindow):
 		x1, y1 = self.convert_to_image_coords(self.last_point, (image_size.height(), image_size.width()))
 		x2, y2 = self.convert_to_image_coords(current_point, (image_size.height(), image_size.width()))
 
-		if not (0 <= x1 < image_size.width() and 0 <= y1 < image_size.height()):
-			return
-		if not (0 <= x2 < image_size.width() and 0 <= y2 < image_size.height()):
+		# Carried along even when nothing is drawn. Leaving it on the last position
+		# inside the image meant that coming back after a trip outside drew a line
+		# across everything in between, the reported jumping stroke. There is room for
+		# such a trip whenever the image is smaller than the viewport, because the
+		# label then keeps empty space around it.
+		self.last_point = current_point
+
+		if not self.segment_touches_image((x1, y1), (x2, y2), image_size):
 			return
 
 		painter = QPainter(self.editable_qimage)
@@ -913,8 +978,32 @@ class MainWindow(QMainWindow):
 			painter.drawLine(int(x1), int(y1), int(x2), int(y2))
 		painter.end()
 
-		self.last_point = current_point
 		self.refresh_display_after_draw()
+
+	def segment_touches_image(self, start, end, image_size):
+		r"""
+		Tell whether a stroke from start to end can put paint on the image at all.
+
+		QPainter clips to the image by itself, so this is not about correctness but
+		about cost: refresh_display_after_draw() rereads the file and rebuilds the
+		whole overlay, which is not worth doing for a stroke dragged around in the
+		empty area beside the image. The bounding box of the segment is widened by
+		half the brush width, because a thick pen reaches into the image from just
+		outside it. A box test never rejects a segment that does cross the image; a
+		diagonal one may pass the test without touching it, which costs one redraw.
+
+		\param start: The (x, y) image coordinates the segment starts at.
+		\param end: The (x, y) image coordinates the segment ends at.
+		\param image_size: The QSize of the image being drawn on.
+		\return (bool): True if the segment may reach the image.
+		"""
+		reach = self.brush_size / 2
+		left = min(start[0], end[0]) - reach
+		right = max(start[0], end[0]) + reach
+		top = min(start[1], end[1]) - reach
+		bottom = max(start[1], end[1]) + reach
+		return (right >= 0 and left < image_size.width()
+				and bottom >= 0 and top < image_size.height())
 
 	def activate_add_mode(self):
 		r"""
@@ -957,28 +1046,16 @@ class MainWindow(QMainWindow):
 
 		QToolTip.showText(QPoint(handle_x, handle_y), f"{value} px", slider)
 
-	def display_scale(self):
-		r"""
-		Return the current scale factor between image pixels and screen pixels,
-		based on the displayed image size within the QLabel. Uses the same
-		scaling logic as convert_to_image_coords, so the cursor matches the
-		stroke that will actually be drawn. Returns 1.0 when no image is shown.
-		"""
-		if self.editable_qimage is None:
-			return 1.0
-		image_size = self.editable_qimage.size()
-		if image_size.width() == 0 or image_size.height() == 0:
-			return 1.0
-		label_size = self.ui.imageLabel.size()
-		return min(label_size.width() / image_size.width(), label_size.height() / image_size.height())
-
 	def update_cursor(self):
 		r"""
 		Update a custom transparent cursor to visually represent the current brush size and shape.
 		The radius is scaled by the current zoom factor, so the cursor always matches the
 		stroke in image pixels regardless of the zoom level.
 		"""
-		size = max(int(round(self.brush_size * self.display_scale())), 1)
+		# The brush size is given in image pixels, the cursor is drawn in screen
+		# pixels: the zoom factor converts between the two, and it is the same one
+		# convert_to_image_coords() reads the click with.
+		size = max(int(round(self.brush_size * self.zoom_factor)), 1)
 
 		# Add a small margin so the outline stays fully visible even for tiny radii.
 		margin = 2
@@ -2211,7 +2288,13 @@ class MainWindow(QMainWindow):
 		)
 
 		self.ui.imageLabel.setPixmap(scaled_pixmap)
-		self.ui.imageLabel.adjustSize()
+		# No adjustSize() here. It shrank the label to the pixmap even when that was
+		# smaller than the viewport, and the layout stretched it back on its next run
+		# (the label is Expanding inside a widgetResizable scroll area). So the label
+		# jumped between both sizes on every redraw, and with it the offset a click is
+		# read with - a constant shift of half the leftover space, which showed up as a
+		# mark sitting away from the stroke it belonged to. Scrolling large images does
+		# not need it: setPixmap already updates the size hint the layout grows to.
 		self.refresh_cursor_if_drawing()
 
 	def refresh_overlay_if_line_width_changed(self):
