@@ -366,82 +366,92 @@ Technische Universität Dresden</translation>
         <translation>Sprache</translation>
     </message>
     <message>
-        <location filename="../ui/main.ui" line="1940"/>
+        <location filename="../ui/main.ui" line="1941"/>
         <source>Documentation</source>
         <translation>Dokumentation</translation>
     </message>
     <message>
-        <location filename="../ui/main.ui" line="1945"/>
+        <location filename="../ui/main.ui" line="1946"/>
         <source>About</source>
         <translation>Über</translation>
     </message>
     <message>
-        <location filename="../ui/main.ui" line="1950"/>
+        <location filename="../ui/main.ui" line="1951"/>
         <source>Exit</source>
         <translation>Beenden</translation>
     </message>
     <message>
-        <location filename="../ui/main.ui" line="1955"/>
+        <location filename="../ui/main.ui" line="1956"/>
         <source>Import Project...</source>
         <translation>Projekt importieren...</translation>
     </message>
     <message>
-        <location filename="../ui/main.ui" line="1960"/>
+        <location filename="../ui/main.ui" line="1961"/>
         <source>Export Project...</source>
         <translation>Projekt exportieren...</translation>
     </message>
     <message>
-        <location filename="../ui/main.ui" line="1965"/>
+        <location filename="../ui/main.ui" line="1966"/>
         <source>English</source>
         <translation>Englisch</translation>
     </message>
     <message>
-        <location filename="../ui/main.ui" line="1970"/>
+        <location filename="../ui/main.ui" line="1971"/>
         <source>German</source>
         <translation>Deutsch</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1140"/>
+        <location filename="../ui/main.ui" line="1976"/>
+        <source>Cursor Color...</source>
+        <translation>Cursorfarbe...</translation>
+    </message>
+    <message>
+        <location filename="../../frontend/mainwindow.py" line="1125"/>
+        <source>Cursor Color</source>
+        <translation>Cursorfarbe</translation>
+    </message>
+    <message>
+        <location filename="../../frontend/mainwindow.py" line="1260"/>
         <source>Automatic detection unavailable</source>
         <translation>Automatische Erkennung nicht verfügbar</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1147"/>
+        <location filename="../../frontend/mainwindow.py" line="1267"/>
         <source>Loading the detection model...</source>
         <translation>Erkennungsmodell wird geladen ...</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1148"/>
+        <location filename="../../frontend/mainwindow.py" line="1268"/>
         <source>Crack detection</source>
         <translation>Risserkennung</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1159"/>
+        <location filename="../../frontend/mainwindow.py" line="1279"/>
         <source>Detecting cracks in {file}...</source>
         <translation>Risse werden erkannt in {file} ...</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1165"/>
+        <location filename="../../frontend/mainwindow.py" line="1285"/>
         <source>Crack detection failed</source>
         <translation>Risserkennung fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1204"/>
+        <location filename="../../frontend/mainwindow.py" line="1324"/>
         <source>Image unreadable</source>
         <translation>Bild nicht lesbar</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1205"/>
+        <location filename="../../frontend/mainwindow.py" line="1325"/>
         <source>{file} could not be read. It may have been moved, deleted or damaged.</source>
         <translation>{file} konnte nicht gelesen werden. Möglicherweise wurde die Datei verschoben, gelöscht oder beschädigt.</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1576"/>
+        <location filename="../../frontend/mainwindow.py" line="1696"/>
         <source>Finish session</source>
         <translation>Sitzung abschließen</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1577"/>
+        <location filename="../../frontend/mainwindow.py" line="1697"/>
         <source>Finishing clears all images and results of this session.
 
 Do you want to save the project first?</source>
@@ -450,17 +460,17 @@ Do you want to save the project first?</source>
 Möchten Sie das Projekt vorher speichern?</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1586"/>
+        <location filename="../../frontend/mainwindow.py" line="1706"/>
         <source>Save project</source>
         <translation>Projekt speichern</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1587"/>
+        <location filename="../../frontend/mainwindow.py" line="1707"/>
         <source>Discard</source>
         <translation>Verwerfen</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1588"/>
+        <location filename="../../frontend/mainwindow.py" line="1708"/>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
     </message>

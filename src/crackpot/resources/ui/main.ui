@@ -1930,6 +1930,7 @@ QPushButton:pressed {
      <addaction name="actionGerman"/>
     </widget>
     <addaction name="menuLanguage"/>
+    <addaction name="actionCursorColor"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSetting"/>
@@ -1968,6 +1969,11 @@ QPushButton:pressed {
   <action name="actionGerman">
    <property name="text">
     <string>German</string>
+   </property>
+  </action>
+  <action name="actionCursorColor">
+   <property name="text">
+    <string>Cursor Color...</string>
    </property>
   </action>
  </widget>

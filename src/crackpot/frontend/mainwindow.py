@@ -10,7 +10,7 @@ import pandas as pd
 from PySide6.QtCore import Qt, QEvent, QPoint, QSettings, QTranslator
 from PySide6.QtGui import QAction, QPixmap, QIcon, QImage, QPainter, QColor, QPen, QCursor, QPalette
 from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QListWidgetItem, QListWidget, QSlider, \
-	QMessageBox, QToolTip, QAbstractButton, QProgressDialog
+	QMessageBox, QToolTip, QAbstractButton, QProgressDialog, QColorDialog
 from skimage.measure import regionprops,label
 from crackpot.backend.edgedetection import EdgeDetection, MISSING_BACKEND_HINT, is_detection_available
 from crackpot.backend.maskprocessor import MaskProcessor
@@ -29,6 +29,9 @@ from crackpot.utils.utils import resource_path
 NODE_RADIUS = 5
 # Radius a calibration point is marked with, in image pixels.
 CALIBRATION_POINT_RADIUS = 10
+# Color the brush cursor is drawn in until the user picks another one. Red reads
+# better on the bright concrete these photographs usually show than yellow does.
+DEFAULT_CURSOR_COLOR = '#ff0000'
 
 
 class _NumpyJSONEncoder(json.JSONEncoder):
@@ -98,6 +101,7 @@ class MainWindow(QMainWindow):
 		self.settings = QSettings()
 		self.translator = QTranslator(self)
 		self.switch_language(self.settings.value('language', 'english'))
+		self.cursor_color = self.stored_cursor_color()
 
 		self.progress_stage = 0
 		self.current_image_path = None
@@ -230,6 +234,7 @@ class MainWindow(QMainWindow):
 		# Setting menu
 		self.ui.actionEnglish.triggered.connect(lambda: self.switch_language('english'))
 		self.ui.actionGerman.triggered.connect(lambda: self.switch_language('german'))
+		self.ui.actionCursorColor.triggered.connect(self.choose_cursor_color)
 
 		self.ui.nextButton0.clicked.connect(lambda: self.set_stage(1))
 		self.ui.nextButton1.clicked.connect(lambda: self.set_stage(2))
@@ -292,6 +297,10 @@ class MainWindow(QMainWindow):
 		# skeleton stage
 		self.ui.nodeAddButton.clicked.connect(self.toggle_add_node_mode)
 		self.ui.nodeDeleteButton.clicked.connect(self.toggle_delete_node_mode)
+		# The circle only stands where a click places something, so switching a mode
+		# switches it on or off.
+		self.ui.clickAddButton.clicked.connect(self.update_cursor)
+		self.ui.clickDeleteButton.clicked.connect(self.update_cursor)
 		# self.ui.adjustNodeButton.clicked.connect(self.toggle_adjust_node_mode)
 		self.ui.hintsButton.setVisible(False)
 		self.ui.addNodeHintLabel.setVisible(False)
@@ -412,6 +421,7 @@ class MainWindow(QMainWindow):
 			self.ui.addNodeHintLabel.setVisible(False)
 			self.ui.newSegmentHintLabel.setVisible(False)
 			self.ui.deleteNodeHintLabel.setVisible(False)
+		self.update_cursor()
 
 	def toggle_delete_node_mode(self):
 		r"""
@@ -431,6 +441,7 @@ class MainWindow(QMainWindow):
 			self.ui.addNodeHintLabel.setVisible(False)
 			self.ui.newSegmentHintLabel.setVisible(False)
 			self.ui.deleteNodeHintLabel.setVisible(False)
+		self.update_cursor()
 
 	def _skeleton_target_paths(self, all_images, source):
 		r"""
@@ -1046,16 +1057,55 @@ class MainWindow(QMainWindow):
 
 		QToolTip.showText(QPoint(handle_x, handle_y), f"{value} px", slider)
 
+	def cursor_circle_size(self):
+		r"""
+		Return the size the cursor circle should have in screen pixels, or 0 where
+		no circle belongs.
+
+		The circle shows what a click is about to put on the image, so it follows
+		whatever the current stage places there. The two sizes are measured in
+		different units, which is why they are converted differently:
+		CALIBRATION_POINT_RADIUS and the brush size are image pixels and therefore
+		grow with the zoom, while NODE_RADIUS is a screen size already (see
+		overlay_size_in_pixels), so a node keeps its size at every zoom level.
+
+		A stage that puts nothing on the image, and a mode that is not switched on,
+		get no circle: the plain arrow then says that a click does nothing here.
+
+		\return (int): The diameter in screen pixels, 0 for no circle.
+		"""
+		if self.progress_stage == 0:
+			if not (self.ui.clickAddButton.isChecked() or self.ui.clickDeleteButton.isChecked()):
+				return 0
+			return max(int(round(2 * CALIBRATION_POINT_RADIUS * self.zoom_factor)), 1)
+
+		if self.progress_stage == 2:
+			return max(int(round(self.brush_size * self.zoom_factor)), 1)
+
+		if self.progress_stage == 3:
+			if not (self.add_node_mode or self.delete_node_mode):
+				return 0
+			return max(2 * NODE_RADIUS, 1)
+
+		return 0
+
 	def update_cursor(self):
 		r"""
-		Update a custom transparent cursor to visually represent the current brush size and shape.
-		The radius is scaled by the current zoom factor, so the cursor always matches the
-		stroke in image pixels regardless of the zoom level.
+		Draw the cursor circle for the current stage, so that what a click will put
+		on the image can be seen before the click happens.
+
+		The size comes from cursor_circle_size(), the color from the setting behind
+		the Setting menu. The masking stage additionally follows the shape of the
+		pen; a calibration point and a node are round whatever the pen is set to.
 		"""
-		# The brush size is given in image pixels, the cursor is drawn in screen
-		# pixels: the zoom factor converts between the two, and it is the same one
-		# convert_to_image_coords() reads the click with.
-		size = max(int(round(self.brush_size * self.zoom_factor)), 1)
+		# No circle where there is nothing to click on. A stage can be entered with
+		# an empty window, and the circle then stood in the grey background with no
+		# image under it.
+		shown = self.ui.imageLabel.pixmap()
+		size = self.cursor_circle_size()
+		if size <= 0 or shown is None or shown.isNull():
+			self.ui.imageLabel.unsetCursor()
+			return
 
 		# Add a small margin so the outline stays fully visible even for tiny radii.
 		margin = 2
@@ -1063,14 +1113,14 @@ class MainWindow(QMainWindow):
 		cursor_pixmap = QPixmap(pixmap_size, pixmap_size)
 		cursor_pixmap.fill(Qt.GlobalColor.transparent)
 		painter = QPainter(cursor_pixmap)
-		pen = QPen(Qt.GlobalColor.yellow)
+		pen = QPen(self.cursor_color)
 		pen.setWidth(2)
 		painter.setPen(pen)
 
-		if self.pen_cap_style == Qt.PenCapStyle.RoundCap:
-			painter.drawEllipse(margin, margin, size, size)
-		else:
+		if self.progress_stage == 2 and self.pen_cap_style == Qt.PenCapStyle.SquareCap:
 			painter.drawRect(margin, margin, size, size)
+		else:
+			painter.drawEllipse(margin, margin, size, size)
 		painter.end()
 
 		custom_cursor = QCursor(cursor_pixmap, pixmap_size // 2, pixmap_size // 2)
@@ -1086,6 +1136,36 @@ class MainWindow(QMainWindow):
 			self.pen_cap_style = Qt.PenCapStyle.RoundCap
 		elif shape == "Square":
 			self.pen_cap_style = Qt.PenCapStyle.SquareCap
+		self.update_cursor()
+
+	def stored_cursor_color(self):
+		r"""
+		Read the brush cursor color from the settings.
+
+		\return: The stored color, or the default one if nothing readable is stored.
+			The settings file can be edited by hand, so an unusable entry must not
+			leave the cursor without a color.
+		"""
+		color = QColor(self.settings.value('cursor_color', DEFAULT_CURSOR_COLOR))
+		return color if color.isValid() else QColor(DEFAULT_CURSOR_COLOR)
+
+	def choose_cursor_color(self):
+		r"""
+		Let the user pick the color of the brush cursor and keep the choice for the
+		next start.
+
+		The circle is drawn on top of the photograph, so no single color works on
+		every image: a light crack surface swallows yellow, a dark one swallows
+		blue. Which one is readable is something only the person looking at the
+		picture can decide.
+		"""
+		color = QColorDialog.getColor(self.cursor_color, self, self.tr("Cursor Color"))
+		# An invalid color means the dialog was cancelled.
+		if not color.isValid():
+			return
+
+		self.cursor_color = color
+		self.settings.setValue('cursor_color', color.name())
 		self.update_cursor()
 
 	def clean_mask_patches(self, all_images=False):
@@ -1606,9 +1686,8 @@ class MainWindow(QMainWindow):
 
 		if self.progress_stage == 2:
 			self.ensure_masks_initialized()
-			self.update_cursor()
-		else:
-			self.ui.imageLabel.unsetCursor()
+		# update_cursor() knows which stages show a circle and which do not.
+		self.update_cursor()
 
 		if self.progress_stage == 0:
 			self.display_calibration_image()
@@ -2295,7 +2374,7 @@ class MainWindow(QMainWindow):
 		# read with - a constant shift of half the leftover space, which showed up as a
 		# mark sitting away from the stroke it belonged to. Scrolling large images does
 		# not need it: setPixmap already updates the size hint the layout grows to.
-		self.refresh_cursor_if_drawing()
+		self.refresh_cursor_for_view()
 
 	def refresh_overlay_if_line_width_changed(self):
 		r"""
@@ -2347,13 +2426,12 @@ class MainWindow(QMainWindow):
 		self.render_current_view()
 		self.refresh_overlay_if_line_width_changed()
 
-	def refresh_cursor_if_drawing(self):
+	def refresh_cursor_for_view(self):
 		r"""
-		Refresh the brush cursor after a zoom change, but only while the drawing stage
-		is active, so its size keeps matching the current zoom factor.
+		Refresh the cursor circle after the view was redrawn, so that its size keeps
+		matching the zoom factor and it disappears with the image.
 		"""
-		if self.progress_stage == 2:
-			self.update_cursor()
+		self.update_cursor()
 
 	def zoom_fit_to_window(self):
 		r"""
