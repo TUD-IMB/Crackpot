@@ -18,7 +18,9 @@ class AboutDialog(QDialog):
 	def __init__(self, parent=None):
 		super().__init__(parent)
 		self.setWindowTitle(self.tr("About"))
-		self.setWindowFlags(self.windowFlags() & ~Qt.WindowType.WindowContextHelpButtonHint)
+		# The window flags are left alone on purpose: Qt 6 no longer puts the context
+		# help button on dialogs, and masking it out with ~ takes WindowCloseButtonHint
+		# with it under Python 3.11, which leaves the title bar X without effect.
 
 		layout = QVBoxLayout(self)
 		logo = QSvgWidget(resource_path('resources/crackpot.svg'))
