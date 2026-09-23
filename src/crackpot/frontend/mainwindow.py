@@ -1703,9 +1703,7 @@ class MainWindow(QMainWindow):
 			print("Select skeleton stage")
 		elif self.progress_stage == 4:
 			self.refresh_display_image()
-			# Always a dict: every other place treats crack_results as one
-			# (.pop, .clear, "in"), so it must never become None here.
-			self.crack_results = self.calculate_crack_properties() or {}
+			self.crack_results = self.calculate_crack_properties()
 			print("File export stage")
 
 		if self.ui.listWidget.currentItem():
@@ -2061,7 +2059,8 @@ class MainWindow(QMainWindow):
 		instead of failing as a whole.
 
 		\return: A dictionary containing calculated crack properties for each image.
-		It is empty if the requirements are not met yet.
+		Always a dictionary, never None: it is empty if the requirements are not met
+		yet, so that callers can assign the result without a fallback.
 		"""
 		if self.missing_export_requirements():
 			return {}
