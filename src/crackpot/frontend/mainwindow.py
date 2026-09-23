@@ -322,7 +322,7 @@ class MainWindow(QMainWindow):
 			return
 		self.calibration_image = cv2.imread(calibration_file_path)
 		if self.calibration_image is None:
-			QMessageBox.warning(self, "Error", "Failed to load the image.")
+			QMessageBox.warning(self, self.tr("Error"), self.tr("Failed to load the image."))
 			return
 		self.calibration_path = calibration_file_path
 		self.calibration_points.clear()
@@ -395,11 +395,23 @@ class MainWindow(QMainWindow):
 		if resolution_text:
 			try:
 				self.resolution = float(resolution_text)
-				QMessageBox.information(self, "Success", f"Current resolution: {self.resolution:.6f} mm/px saved", QMessageBox.StandardButton.Ok)
+				QMessageBox.information(
+					self, self.tr("Success"),
+					self.tr("Current resolution: {value} mm/px saved").format(value=f"{self.resolution:.6f}"),
+					QMessageBox.StandardButton.Ok
+				)
 			except ValueError:
-				QMessageBox.warning(self, "Error", "....")
+				QMessageBox.warning(
+					self, self.tr("Invalid resolution"),
+					self.tr("The resolution is not a valid number. Calculate it again from two "
+							"calibration points and the distance between them.")
+				)
 		else:
-			QMessageBox.warning(self, "Error", "....")
+			QMessageBox.warning(
+				self, self.tr("No resolution"),
+				self.tr("No resolution yet. Mark two calibration points, enter the distance "
+						"between them and confirm afterwards.")
+			)
 
 	# ------------------------ Skeleton Adjust ----------------------------------------------------------------------
 
@@ -1830,7 +1842,8 @@ class MainWindow(QMainWindow):
 			or the export failed.
 		"""
 		if self.ui.imageListWidget.count() == 0:
-			QMessageBox.warning(self, "Export Error", "No images to export. Please upload images first.")
+			QMessageBox.warning(self, self.tr("Export Error"),
+								self.tr("No images to export. Please upload images first."))
 			return False
 
 		file_path, _ = QFileDialog.getSaveFileName(
@@ -1906,17 +1919,18 @@ class MainWindow(QMainWindow):
 				os.makedirs(project_dir_to_create, exist_ok=True)
 			with open(file_path, "w", encoding="utf-8") as f:
 				json.dump(project_data, f, cls=_NumpyJSONEncoder)
-			message = f"Project exported successfully:\n{file_path}"
+			message = self.tr("Project exported successfully:\n{path}").format(path=file_path)
 			if skipped:
-				message += (
-					"\n\nSkipped (on a different drive than the project file, so they "
-					"couldn't be referenced by a relative path):\n" + "\n".join(skipped)
-				)
-			QMessageBox.information(self, "Success", message, QMessageBox.StandardButton.Ok)
+				message += "\n\n" + self.tr(
+					"Skipped (on a different drive than the project file, so they "
+					"couldn't be referenced by a relative path):"
+				) + "\n" + "\n".join(skipped)
+			QMessageBox.information(self, self.tr("Success"), message, QMessageBox.StandardButton.Ok)
 			self.project_path = file_path
 			return True
 		except Exception as e:
-			QMessageBox.critical(self, "Export Failed", f"Error:\n{str(e)}")
+			QMessageBox.critical(self, self.tr("Export Failed"),
+								 self.tr("Error:\n{message}").format(message=str(e)))
 			return False
 
 	def import_project(self):
@@ -1936,7 +1950,8 @@ class MainWindow(QMainWindow):
 			with open(file_path, "r", encoding="utf-8") as f:
 				project_data = json.load(f)
 		except Exception as e:
-			QMessageBox.critical(self, "Import Failed", f"Error:\n{str(e)}")
+			QMessageBox.critical(self, self.tr("Import Failed"),
+								 self.tr("Error:\n{message}").format(message=str(e)))
 			return
 
 		project_dir = pathlib.Path(file_path).resolve().parent
@@ -2025,12 +2040,14 @@ class MainWindow(QMainWindow):
 
 		if missing_paths:
 			QMessageBox.warning(
-				self, "Some Images Missing",
-				"Project loaded, but the following images could not be found or loaded and "
-				"were skipped:\n\n" + "\n".join(missing_paths)
+				self, self.tr("Some images missing"),
+				self.tr("Project loaded, but the following images could not be found or loaded "
+						"and were skipped:") + "\n\n" + "\n".join(missing_paths)
 			)
 		else:
-			QMessageBox.information(self, "Success", "Project loaded successfully.", QMessageBox.StandardButton.Ok)
+			QMessageBox.information(self, self.tr("Success"),
+									self.tr("Project loaded successfully."),
+									QMessageBox.StandardButton.Ok)
 
 	# ------------------------ Results Export ----------------------------------------------------------------------
 	def missing_export_requirements(self):
@@ -2045,9 +2062,10 @@ class MainWindow(QMainWindow):
 		"""
 		reasons = []
 		if not self.prediction_results:
-			reasons.append("No crack masks yet. Run the crack detection or draw a mask in the Masking Stage.")
+			reasons.append(self.tr("No crack masks yet. Run the crack detection or draw a mask "
+								   "in the Masking Stage."))
 		if self.resolution is None or self.resolution <= 0:
-			reasons.append("No calibration yet. Set the resolution in the Calibration Stage.")
+			reasons.append(self.tr("No calibration yet. Set the resolution in the Calibration Stage."))
 		return reasons
 
 	def calculate_crack_properties(self):
@@ -2200,10 +2218,10 @@ class MainWindow(QMainWindow):
 			# Name the missing step instead of only stating that there is no data,
 			# so the user knows which stage to go back to.
 			reasons = self.missing_export_requirements()
-			message = "No valid data to export!"
+			message = self.tr("No valid data to export!")
 			if reasons:
 				message += "\n\n" + "\n".join(reasons)
-			QMessageBox.warning(self, "Export Error", message)
+			QMessageBox.warning(self, self.tr("Export Error"), message)
 			return
 
 		file_path, selected_filter = QFileDialog.getSaveFileName(
@@ -2230,9 +2248,14 @@ class MainWindow(QMainWindow):
 			else:
 				# US number formatting
 				dataframe.to_csv(file_path, index=False, sep=",", decimal=".", encoding="utf-8-sig")
-			QMessageBox.information(self, "Success", f"File exported successfully:\n{file_path}", QMessageBox.StandardButton.Ok)
+			QMessageBox.information(
+				self, self.tr("Success"),
+				self.tr("File exported successfully:\n{path}").format(path=file_path),
+				QMessageBox.StandardButton.Ok
+			)
 		except Exception as e:
-			QMessageBox.critical(self, "Export Failed", f"Error:\n{str(e)}")
+			QMessageBox.critical(self, self.tr("Export Failed"),
+								 self.tr("Error:\n{message}").format(message=str(e)))
 	# ------------------------ Menu Actions ----------------------------------------------------------------------
 
 	def show_documentation_dialog(self):
@@ -2462,14 +2485,16 @@ class MainWindow(QMainWindow):
 		"""
 		selected_item = self.ui.imageListWidget.currentItem()
 		if not selected_item:
-			QMessageBox.warning(self, "Error", "No image selected!")
+			QMessageBox.warning(self, self.tr("Error"), self.tr("No image selected!"))
 			return
 
 		image_path = selected_item.data(Qt.ItemDataRole.UserRole)
 
-		reply = QMessageBox.question(self, "Confirm Delete",
-									 f"Are you sure you want to delete {os.path.basename(image_path)}?",
-									 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
+		reply = QMessageBox.question(
+			self, self.tr("Confirm delete"),
+			self.tr("Are you sure you want to delete {file}?").format(file=os.path.basename(image_path)),
+			QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No
+		)
 
 		if reply == QMessageBox.StandardButton.No:
 			return
