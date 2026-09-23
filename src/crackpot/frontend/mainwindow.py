@@ -111,13 +111,13 @@ class MainWindow(QMainWindow):
 		self.skeleton_processor = SkeletonProcessor()
 		self.mask_processor = MaskProcessor()
 
-		self.ui.listWidget.setViewMode(QListWidget.ViewMode.IconMode)
-		self.ui.listWidget.setSpacing(10)
-		self.ui.listWidget.setResizeMode(QListWidget.ResizeMode.Adjust)
+		self.ui.imageListWidget.setViewMode(QListWidget.ViewMode.IconMode)
+		self.ui.imageListWidget.setSpacing(10)
+		self.ui.imageListWidget.setResizeMode(QListWidget.ResizeMode.Adjust)
 		# todo: multi selection
-		# self.ui.listWidget.setSelectionMode(QAbstractItemView.MultiSelection)
+		# self.ui.imageListWidget.setSelectionMode(QAbstractItemView.MultiSelection)
 
-		self.ui.listWidget.itemClicked.connect(self.display_large_image)
+		self.ui.imageListWidget.itemClicked.connect(self.display_large_image)
 		self.ui.previousFigButton.clicked.connect(self.show_previous_image)
 		self.ui.nextFigButton.clicked.connect(self.show_next_image)
 
@@ -132,7 +132,7 @@ class MainWindow(QMainWindow):
 				self.ui.skeletonProcessButton,
 				self.ui.exportProcessButton
 			],
-			lines=[self.ui.line0, self.ui.line1, self.ui.line2, self.ui.line3],
+			lines=[self.ui.stageSeparator0, self.ui.stageSeparator1, self.ui.stageSeparator2, self.ui.stageSeparator3],
 			recolor_icon=self.recolor_icon,
 			default_color=self.palette().color(QPalette.ColorRole.ButtonText)
 		)
@@ -213,7 +213,7 @@ class MainWindow(QMainWindow):
 		r"""
 		Initialize the stacked widget and connect tool components to their respective functions.
 		"""
-		self.ui.stackedWidget.setCurrentIndex(self.progress_stage)
+		self.ui.stageStack.setCurrentIndex(self.progress_stage)
 
 		# File menu
 		self.ui.actionExportProject.triggered.connect(self.export_project)
@@ -492,8 +492,8 @@ class MainWindow(QMainWindow):
 				"created_lines": []
 			}
 
-		if self.ui.listWidget.currentItem():
-			self.display_large_image(self.ui.listWidget.currentItem())
+		if self.ui.imageListWidget.currentItem():
+			self.display_large_image(self.ui.imageListWidget.currentItem())
 
 		self.skeleton_processor.skeletons = self.skeleton_results
 		self.refresh_display_image()
@@ -1188,7 +1188,7 @@ class MainWindow(QMainWindow):
 				mask, min_patch_area=self.ui.patchAreaSpinBox.value()
 			)
 
-		if self.ui.listWidget.currentItem():
+		if self.ui.imageListWidget.currentItem():
 			self.refresh_display_image()
 
 	# ------------------------ Image Display ----------------------------------------------------------------------
@@ -1211,11 +1211,11 @@ class MainWindow(QMainWindow):
 				item = QListWidgetItem()
 				item.setIcon(QIcon(pixmap.scaled(80, 80, Qt.AspectRatioMode.KeepAspectRatio)))
 				item.setData(Qt.ItemDataRole.UserRole, image_path)
-				self.ui.listWidget.addItem(item)
+				self.ui.imageListWidget.addItem(item)
 
-		if not self.ui.listWidget.currentItem() and self.ui.listWidget.count() > 0:
-			self.ui.listWidget.setCurrentRow(0)
-			self.display_large_image(self.ui.listWidget.currentItem())
+		if not self.ui.imageListWidget.currentItem() and self.ui.imageListWidget.count() > 0:
+			self.ui.imageListWidget.setCurrentRow(0)
+			self.display_large_image(self.ui.imageListWidget.currentItem())
 
 	def ensure_masks_initialized(self):
 		r"""
@@ -1322,7 +1322,7 @@ class MainWindow(QMainWindow):
 			QMessageBox.critical(self, self.tr("Crack detection failed"), str(error))
 			return
 
-		if self.ui.listWidget.currentItem():
+		if self.ui.imageListWidget.currentItem():
 			self.refresh_display_image()
 
 	def clear_mask(self, all_images=False):
@@ -1340,7 +1340,7 @@ class MainWindow(QMainWindow):
 			if image is not None:
 				self.prediction_results[image_path] = np.zeros(image.shape[:2], dtype=np.float32)
 
-		if self.ui.listWidget.currentItem():
+		if self.ui.imageListWidget.currentItem():
 			self.refresh_display_image()
 
 	def display_large_image(self, item):
@@ -1681,7 +1681,7 @@ class MainWindow(QMainWindow):
 		if stage < 0 or stage > 4:
 			return
 		self.progress_stage = stage
-		self.ui.stackedWidget.setCurrentIndex(stage)
+		self.ui.stageStack.setCurrentIndex(stage)
 		self.progress_manager.update_progress(self.progress_stage)
 
 		if self.progress_stage == 2:
@@ -1706,8 +1706,8 @@ class MainWindow(QMainWindow):
 			self.crack_results = self.calculate_crack_properties()
 			print("File export stage")
 
-		if self.ui.listWidget.currentItem():
-			self.display_large_image(self.ui.listWidget.currentItem())
+		if self.ui.imageListWidget.currentItem():
+			self.display_large_image(self.ui.imageListWidget.currentItem())
 
 	def finish_session(self):
 		r"""
@@ -1760,7 +1760,7 @@ class MainWindow(QMainWindow):
 		\return (bool): True if images, calibration or results are present.
 		"""
 		return bool(
-			self.ui.listWidget.count()
+			self.ui.imageListWidget.count()
 			or self.calibration_points
 			or self.resolution
 			or self.calibration_path
@@ -1778,11 +1778,11 @@ class MainWindow(QMainWindow):
 		self.skeleton_results.clear()
 		self.crack_results.clear()
 
-		self.ui.listWidget.clear()
+		self.ui.imageListWidget.clear()
 		self.ui.imageLabel.clear()
 		self.zoom_base_pixmap = None
 		self.ui.imageLabel.repaint()
-		self.ui.listWidget.repaint()
+		self.ui.imageListWidget.repaint()
 
 		self.ui.fileNameLabel.setText("")
 		self.ui.crackWidthLabel.setText("")
@@ -1829,7 +1829,7 @@ class MainWindow(QMainWindow):
 		\return (bool): True if the project was written, False if the user cancelled
 			or the export failed.
 		"""
-		if self.ui.listWidget.count() == 0:
+		if self.ui.imageListWidget.count() == 0:
 			QMessageBox.warning(self, "Export Error", "No images to export. Please upload images first.")
 			return False
 
@@ -1847,8 +1847,8 @@ class MainWindow(QMainWindow):
 		skeleton_results = {}
 		crack_results = {}
 		skipped = []
-		for i in range(self.ui.listWidget.count()):
-			stored_path = self.ui.listWidget.item(i).data(Qt.ItemDataRole.UserRole)
+		for i in range(self.ui.imageListWidget.count()):
+			stored_path = self.ui.imageListWidget.item(i).data(Qt.ItemDataRole.UserRole)
 			rel_path = self._project_to_relative(stored_path, project_dir)
 			if rel_path is None:
 				# Image and project file on different drives (Windows): there is no
@@ -1980,7 +1980,7 @@ class MainWindow(QMainWindow):
 			item = QListWidgetItem()
 			item.setIcon(QIcon(pixmap.scaled(80, 80, Qt.AspectRatioMode.KeepAspectRatio)))
 			item.setData(Qt.ItemDataRole.UserRole, current_path)
-			self.ui.listWidget.addItem(item)
+			self.ui.imageListWidget.addItem(item)
 
 			# Every uploaded image gets a prediction_results entry, even if it's just
 			# None (not yet detected): run_model_detection() iterates this dict's keys
@@ -2014,12 +2014,12 @@ class MainWindow(QMainWindow):
 		if self.resolution is not None:
 			self.ui.resolutionLineEdit.setText(f"{self.resolution:.6f}")
 
-		if self.ui.listWidget.count() > 0:
-			self.ui.listWidget.setCurrentRow(0)
-			self.display_large_image(self.ui.listWidget.currentItem())
+		if self.ui.imageListWidget.count() > 0:
+			self.ui.imageListWidget.setCurrentRow(0)
+			self.display_large_image(self.ui.imageListWidget.currentItem())
 
 		restored_stage = project_data.get("progress_stage", 0)
-		if self.ui.listWidget.count() == 0:
+		if self.ui.imageListWidget.count() == 0:
 			restored_stage = min(restored_stage, 1)
 		self.set_stage(restored_stage)
 
@@ -2185,8 +2185,8 @@ class MainWindow(QMainWindow):
 		\return: A suggested path, or just the file name if no image is available.
 		"""
 		file_name = "crack_results.csv"
-		if self.ui.listWidget.count() > 0:
-			first_image = self.ui.listWidget.item(0).data(Qt.ItemDataRole.UserRole)
+		if self.ui.imageListWidget.count() > 0:
+			first_image = self.ui.imageListWidget.item(0).data(Qt.ItemDataRole.UserRole)
 			if first_image:
 				return os.path.join(os.path.dirname(os.path.abspath(first_image)), file_name)
 		return file_name
@@ -2335,7 +2335,7 @@ class MainWindow(QMainWindow):
 		if self.original_pixmap.width() == 0 or self.original_pixmap.height() == 0:
 			return 1.0
 
-		viewport = self.ui.scrollArea.viewport().size()
+		viewport = self.ui.imageScrollArea.viewport().size()
 		factor = min(viewport.width() / self.original_pixmap.width(),
 					 viewport.height() / self.original_pixmap.height())
 		return min(factor, 1.0) if factor > 0 else 1.0
@@ -2460,7 +2460,7 @@ class MainWindow(QMainWindow):
 		Delete the currently selected image from the list and clear associated data (prediction results,
 		skeleton results, and crack results). It will prompt the user for confirmation before delete it.
 		"""
-		selected_item = self.ui.listWidget.currentItem()
+		selected_item = self.ui.imageListWidget.currentItem()
 		if not selected_item:
 			QMessageBox.warning(self, "Error", "No image selected!")
 			return
@@ -2474,19 +2474,19 @@ class MainWindow(QMainWindow):
 		if reply == QMessageBox.StandardButton.No:
 			return
 
-		row = self.ui.listWidget.row(selected_item)
-		self.ui.listWidget.takeItem(row)
+		row = self.ui.imageListWidget.row(selected_item)
+		self.ui.imageListWidget.takeItem(row)
 
 		self.prediction_results.pop(image_path, None)
 		self.skeleton_results.pop(image_path, None)
 		self.crack_results.pop(image_path, None)
 
-		self.ui.listWidget.repaint()
+		self.ui.imageListWidget.repaint()
 
-		if self.ui.listWidget.count() > 0:
-			new_index = min(row, self.ui.listWidget.count() - 1)
-			self.ui.listWidget.setCurrentRow(new_index)
-			self.display_large_image(self.ui.listWidget.currentItem())
+		if self.ui.imageListWidget.count() > 0:
+			new_index = min(row, self.ui.imageListWidget.count() - 1)
+			self.ui.imageListWidget.setCurrentRow(new_index)
+			self.display_large_image(self.ui.imageListWidget.currentItem())
 		else:
 			self.current_image_path = None
 			self.editable_qimage = None
@@ -2501,19 +2501,19 @@ class MainWindow(QMainWindow):
 		r"""
 		Navigate to and display the previous image in the list.
 		"""
-		current_row = self.ui.listWidget.currentRow()
+		current_row = self.ui.imageListWidget.currentRow()
 		if current_row > 0:
-			self.ui.listWidget.setCurrentRow(current_row - 1)
-			self.display_large_image(self.ui.listWidget.currentItem())
+			self.ui.imageListWidget.setCurrentRow(current_row - 1)
+			self.display_large_image(self.ui.imageListWidget.currentItem())
 
 	def show_next_image(self):
 		r"""
 		Navigate to and display the next image in the list.
 		"""
-		current_row = self.ui.listWidget.currentRow()
-		if current_row < self.ui.listWidget.count() - 1:
-			self.ui.listWidget.setCurrentRow(current_row + 1)
-			self.display_large_image(self.ui.listWidget.currentItem())
+		current_row = self.ui.imageListWidget.currentRow()
+		if current_row < self.ui.imageListWidget.count() - 1:
+			self.ui.imageListWidget.setCurrentRow(current_row + 1)
+			self.display_large_image(self.ui.imageListWidget.currentItem())
 
 	def show_and_check_config(self):
 		r"""
