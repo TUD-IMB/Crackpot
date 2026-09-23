@@ -2194,7 +2194,7 @@ class MainWindow(QMainWindow):
 	def export_to_csv(self):
 		r"""
 		Ask for the target file and export the crack analysis results into it, written
-		as an Excel sheet for a .xlsx path and as a semicolon separated CSV otherwise.
+		as an Excel sheet for a .xlsx path and as a comma separated CSV otherwise.
 		"""
 		if not self.crack_results:
 			# Name the missing step instead of only stating that there is no data,
@@ -2228,7 +2228,8 @@ class MainWindow(QMainWindow):
 			if file_path.lower().endswith(".xlsx"):
 				self.write_excel_file(dataframe, file_path)
 			else:
-				dataframe.to_csv(file_path, index=False, sep=";", decimal=",", encoding="utf-8-sig")
+				# US number formatting
+				dataframe.to_csv(file_path, index=False, sep=",", decimal=".", encoding="utf-8-sig")
 			QMessageBox.information(self, "Success", f"File exported successfully:\n{file_path}", QMessageBox.StandardButton.Ok)
 		except Exception as e:
 			QMessageBox.critical(self, "Export Failed", f"Error:\n{str(e)}")
