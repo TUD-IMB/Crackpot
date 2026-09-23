@@ -18,8 +18,16 @@ CONNECTIVITY_8 = np.ones((3, 3), dtype=np.uint8)
 # where an actual distance is needed to find the way along a segment; the length of a
 # chain is estimated with the weights below instead.
 DIAGONAL_STEP = float(np.sqrt(2))
-# Weights of the length estimator (Vossepoel/Smeulders), see measure_chain_length():
-# one straight step, one diagonal step, one direction change.
+# Weights of the length estimator, see measure_chain_length(): one straight step, one
+# diagonal step, one direction change. The values are those given in
+#   A. M. Vossepoel, A. W. M. Smeulders: Vector code probability and metrication error
+#   in the representation of straight lines of finite length. Computer Graphics and
+#   Image Processing 20(4), 1982, pp. 347-364. doi:10.1016/0146-664X(82)90057-0
+# which corrects the chain code length of
+#   H. Freeman: On the Encoding of Arbitrary Geometric Configurations. IRE Transactions
+#   on Electronic Computers EC-10(2), 1961, pp. 260-268. doi:10.1109/TEC.1961.5219197
+# A comparison of the common estimators, with the error of each one plotted over the
+# direction of the line, is at https://www.crisluengo.net/archives/310/
 STRAIGHT_WEIGHT = 0.980
 DIAGONAL_WEIGHT = 1.406
 CORNER_WEIGHT = 0.091
@@ -402,6 +410,10 @@ class SkeletonProcessor:
 		Every step still adds at least STRAIGHT_WEIGHT - CORNER_WEIGHT, so a longer
 		chain can never come out shorter than a piece of it and the pruning threshold
 		keeps its meaning.
+
+		The three weights are those of Vossepoel and Smeulders; see the module
+		constants above for the full references, and the "How the Skeleton Length is
+		Measured" section of the README for the same explanation aimed at users.
 
 		\param chain: The pixels in the order they are passed, as returned by
 			furthest_chain().

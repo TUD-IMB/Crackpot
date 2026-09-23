@@ -170,6 +170,43 @@ Ein direkter Sprung zur letzten Stufe ohne erneute Ausführung der Zwischenstufe
 Bitte nach jeder Änderung stets der Reihenfolge des Arbeitsablaufs folgen.
 
 
+### Wie die Skelettlänge gemessen wird
+
+Das Skelett ist eine Linie von einem Pixel Breite.
+Es liegt nahe, seine Pixel zu zählen und diese Anzahl als Länge zu verwenden.
+Dieses Vorgehen unterschätzt die tatsächliche Länge jedoch deutlich.
+Wie groß die Abweichung ausfällt, hängt von der Richtung ab, in die der Riss verläuft.
+
+Eine schräge Linie wird auf dem Pixelraster als Treppe abgebildet.
+Ein Schritt über die Diagonale überbrückt dabei etwa 1,41 Pixel, zählt aber nur als ein einzelner Schritt.
+Bei einem Riss unter 45 Grad fehlen auf diese Weise fast 30 % der Länge.
+Verläuft der Riss entlang einer Zeile oder Spalte, stimmt die Zählung, und dazwischen liegt der Fehler zwischen diesen beiden Werten.
+
+Crackpot zählt die Pixelkette deshalb nicht, sondern misst sie.
+Jeder Schritt wird danach gewichtet, wie weit er tatsächlich reicht, und die Anzahl der Richtungswechsel wird von der Summe abgezogen:
+
+```
+Länge = 0,980 * gerade Schritte + 1,406 * diagonale Schritte - 0,091 * Ecken
+```
+
+Die beiden Schrittgewichte liegen etwas unter ihren geometrischen Werten von 1 und 1,4142.
+Verantwortlich dafür ist erneut die Treppe, denn sie ist länger als die Linie, die sie darstellt.
+Sie verläuft an zwei Seiten eines Dreiecks entlang statt an der Hypotenuse.
+Wie viel Treppe eine Kette enthält, lässt sich an der Anzahl ihrer Richtungswechsel ablesen, und genau dafür steht der dritte Term.
+
+Die drei Gewichte sind so aufeinander abgestimmt, dass sich der verbleibende Fehler über alle Richtungen hinweg aufhebt.
+Für die Messung eines Risses ist das entscheidend, da er viele Richtungen durchläuft.
+Nur ein Fehler, der sich im Mittel aufhebt, summiert sich entlang seines Verlaufs nicht auf.
+Im Gegenzug wird der Sonderfall der exakt achsparallelen Linie ungenauer und um etwa 2 % zu kurz gemessen.
+In der Praxis fällt das kaum ins Gewicht, da ein realer Riss dem Raster nur selten über längere Strecken folgt.
+
+Angegeben wird die Gesamtlänge aller Linien des aufgeräumten Skeletts einschließlich der Seitenäste, nicht die Länge seines längsten Weges.
+Die mittlere Rissbreite wird daraus als Rissfläche geteilt durch Skelettlänge berechnet.
+Beide Angaben beziehen sich damit auf dieselben Linien.
+
+Die verwendeten Gewichte gehen auf Vossepoel und Smeulders (1982) zurück, die damit den Kettencode nach Freeman (1961) korrigieren.
+Eine ausführlichere Gegenüberstellung der Verfahren findet sich bei Cris Luengo unter <https://www.crisluengo.net/archives/310/>.
+
 
 ## Sitzung speichern und fortsetzen
 

@@ -170,6 +170,43 @@ Directly jumping to the final stage without re-executing intermediate stages may
 Please Always follow the workflow sequence after making any changes.
 
 
+### How the Skeleton Length is Measured
+
+The skeleton is a line one pixel wide.
+It is tempting to count its pixels and use that number as the length.
+This approach underestimates the actual length considerably.
+How large the deviation turns out to be depends on the direction the crack runs in.
+
+A slanted line is represented on the pixel grid as a staircase.
+A step across the diagonal covers about 1.41 pixels, but still counts as a single step.
+For a crack at 45 degrees, almost 30 % of the length is lost this way.
+Where the crack follows a row or column the count is correct, and in between the error falls between these two values.
+
+Crackpot therefore does not count the chain of pixels, it measures it.
+Every step is weighted by how far it actually reaches, and the number of direction changes is subtracted from the sum:
+
+```
+length = 0.980 * straight steps + 1.406 * diagonal steps - 0.091 * corners
+```
+
+The two step weights sit slightly below their geometric values of 1 and 1.4142.
+The staircase is responsible for this once more, as it is longer than the line it represents.
+It runs along two sides of a triangle instead of along the hypotenuse.
+How much staircase a chain contains can be read off the number of its direction changes, and this is precisely what the third term accounts for.
+
+The three weights are matched to one another so that the remaining error cancels out across all directions.
+This is decisive when measuring a crack, since it passes through many directions.
+Only an error that averages out will not accumulate along its course.
+In return, the special case of the exactly axis-parallel line becomes less accurate and is measured about 2 % too short.
+In practice this carries little weight, as a real crack rarely follows the grid over longer distances.
+
+The value given is the total length of all lines of the cleaned skeleton, side branches included, not the length of its longest path.
+The mean crack width is derived from it as crack area divided by skeleton length.
+Both values therefore refer to the same set of lines.
+
+The weights used go back to Vossepoel and Smeulders (1982), who corrected the chain code of Freeman (1961) with them.
+A more detailed comparison of the methods can be found on Cris Luengo's blog at <https://www.crisluengo.net/archives/310/>.
+
 
 ## Saving and Resuming a Session
 
