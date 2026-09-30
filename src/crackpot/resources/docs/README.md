@@ -136,6 +136,10 @@ The available skeleton editing tools include:
 - **Add Skeleton Point**: After selecting this tool, clicking on the image will create a skeleton point.
 Clicking a second time at another location will automatically connect the two points, forming a skeleton line between them.
 To start a new, independent skeleton segment without connecting to the previous point, right-click at the desired location to create an unconnected skeleton point.
+A click that the cursor circle places on an existing skeleton point or line attaches to it instead of leaving a gap:
+an existing point is reused, and a new point next to a line, automatic or hand-drawn, is put exactly onto that line.
+A right-click on an existing point therefore starts a new branch from there.
+To place a point close to a line without attaching it, zoom in first.
 
 - **Remove Skeleton Point**: Clicking on an existing skeleton point deletes it.
 If the point sat between two others, these two are connected directly, so the line stays in one piece.

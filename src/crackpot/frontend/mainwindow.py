@@ -784,6 +784,12 @@ class MainWindow(QMainWindow):
 		r"""
 		Create a skeleton node at the clicked position and optionally connect it to the previous node.
 
+		A click close to something already drawn attaches to it instead of leaving a
+		small gap next to it: a click on an existing node reuses that node, and one
+		next to a skeleton line puts the new node onto the line (see
+		snap_to_skeleton). Reusing a node also makes it the one the next line starts
+		from, so a right-click on a node branches off from there.
+
 		\param clicked_pos: The QPoint position where the user clicked.
 		\param connect_to_previous: Boolean indicating whether to connect to the last node.
 		"""
@@ -800,21 +806,75 @@ class MainWindow(QMainWindow):
 		if not self.position_is_on_image((img_x, img_y), img_size):
 			return
 
-		new_node = (int(img_x), int(img_y))
+		nodes = skeleton_data["created_nodes"]
+		lines = skeleton_data.setdefault("created_lines", [])
+		last_node = nodes[-1] if nodes else None
 
-		if not connect_to_previous:
-			skeleton_data["created_nodes"].append(new_node)
-			# Placing a node is an edit of the overlay, not a change of image: falling
-			# back to the overview here would undo the zoom before the next click.
-			self.refresh_display_image(keep_zoom=True)
-			return
+		new_node = self.get_clicked_node(clicked_pos)
+		if new_node is None:
+			new_node = self.snap_to_skeleton(skeleton_data, (img_x, img_y)) or (int(img_x), int(img_y))
+		else:
+			# The next line starts from the last node in the list, so a reused node
+			# moves to the end instead of being added a second time.
+			nodes.remove(new_node)
+		nodes.append(new_node)
 
-		if len(skeleton_data["created_nodes"]) > 0:
-			last_node = skeleton_data["created_nodes"][-1]
-			skeleton_data.setdefault("created_lines", []).append((last_node, new_node))
+		# A click on the node the line currently ends at, or on one it is already
+		# connected to, would only add a line of length zero or a second copy.
+		if (connect_to_previous and last_node is not None and last_node != new_node
+				and (last_node, new_node) not in lines and (new_node, last_node) not in lines):
+			lines.append((last_node, new_node))
 
-		skeleton_data["created_nodes"].append(new_node)
+		# Placing a node is an edit of the overlay, not a change of image: falling
+		# back to the overview here would undo the zoom before the next click.
 		self.refresh_display_image(keep_zoom=True)
+
+	def snap_to_skeleton(self, skeleton_data, position):
+		r"""
+		Find the point on a skeleton line that a new node was placed next to.
+
+		Both the automatic skeleton and the hand-drawn lines count, within the same
+		tolerance as a click on a node, which is what the cursor circle shows: a line
+		the circle touches is the line the node attaches to. Placing a node close to
+		a line without touching it takes zooming in, where the tolerance gets small.
+
+		\param skeleton_data: The skeleton entry of the current image.
+		\param position: The clicked position as (x, y) in image coordinates.
+		\return: The nearest skeleton pixel as (x, y), or None if no line is within
+			reach.
+		"""
+		tolerance = self.node_click_tolerance()
+		reach = int(math.ceil(tolerance))
+		x, y = int(position[0]), int(position[1])
+		# Only the surroundings of the click can be within reach, and searching the
+		# whole skeleton image on every click would be slow for large photographs.
+		top, left = max(y - reach, 0), max(x - reach, 0)
+		nearby = skeleton_data["skeleton"][top:y + reach + 1, left:x + reach + 1]
+		pixels = [(row + top, col + left) for row, col in np.argwhere(nearby == 1)]
+		for line in skeleton_data.get("created_lines", []):
+			pixels.extend(self.created_line_pixels(line))
+		if not pixels:
+			return None
+
+		coordinates = np.array(pixels)
+		distances = np.hypot(coordinates[:, 0] - position[1], coordinates[:, 1] - position[0])
+		nearest = int(np.argmin(distances))
+		if distances[nearest] > tolerance:
+			return None
+		row, col = coordinates[nearest]
+		return int(col), int(row)
+
+	def created_line_pixels(self, line):
+		r"""
+		Rasterize a hand-drawn line into the pixels it covers.
+
+		\param line: The line as a pair of nodes, each (x, y).
+		\return: The covered pixels as a list of (row, col).
+		"""
+		# Nodes are stored as (x, y), while draw_line() works in (row, col) like the
+		# skeleton image, hence the swapped order.
+		(start_x, start_y), (end_x, end_y) = line
+		return list(zip(*draw_line(start_y, start_x, end_y, end_x)))
 
 	def delete_node(self, clicked_pos):
 		r"""
@@ -906,10 +966,8 @@ class MainWindow(QMainWindow):
 			return False
 
 		img_x, img_y = self.convert_to_image_coords(clicked_pos, skeleton_data["skeleton"].shape)
-		# Nodes are stored as (x, y), while draw_line() and find_clicked_segment()
-		# work in (row, col) like the skeleton image, hence the swapped order.
-		segments = [{"pixels": list(zip(*draw_line(start[1], start[0], end[1], end[0])))}
-					for start, end in lines]
+		# find_clicked_segment() works in (row, col) like the skeleton image.
+		segments = [{"pixels": self.created_line_pixels(line)} for line in lines]
 		clicked_segment = self.find_clicked_segment(segments, (img_y, img_x))
 		if clicked_segment is None:
 			return False

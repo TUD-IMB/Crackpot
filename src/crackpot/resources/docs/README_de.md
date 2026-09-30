@@ -136,6 +136,10 @@ Zu den verfügbaren Skelett-Bearbeitungswerkzeugen gehören:
 - **Skelettpunkt hinzufügen**: Nach Auswahl dieses Werkzeugs erzeugt ein Klick auf das Bild einen Skelettpunkt.
 Ein zweiter Klick an einer anderen Stelle verbindet die beiden Punkte automatisch und bildet eine Skelettlinie zwischen ihnen.
 Um ein neues, unabhängiges Skelettsegment zu beginnen, ohne es mit dem vorherigen Punkt zu verbinden, an der gewünschten Stelle rechtsklicken, um einen unverbundenen Skelettpunkt zu erzeugen.
+Ein Klick, bei dem der Cursorkreis einen bestehenden Skelettpunkt oder eine Skelettlinie berührt, setzt dort an, statt eine Lücke zu lassen:
+Ein bestehender Punkt wird wiederverwendet, und ein neuer Punkt neben einer Linie, automatisch oder von Hand gezeichnet, wird genau auf diese Linie gesetzt.
+Ein Rechtsklick auf einen bestehenden Punkt beginnt deshalb eine neue Abzweigung an dieser Stelle.
+Um einen Punkt dicht neben eine Linie zu setzen, ohne dass er dort ansetzt, vorher hineinzoomen.
 
 - **Skelettpunkt entfernen**: Ein Klick auf einen bestehenden Skelettpunkt löscht diesen Punkt.
 Lag der Punkt zwischen zwei anderen, werden diese beiden direkt verbunden, sodass die Linie zusammenhängend bleibt.
