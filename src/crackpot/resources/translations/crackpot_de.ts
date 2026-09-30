@@ -366,136 +366,146 @@ Technische Universität Dresden</translation>
         <translation>Sprache</translation>
     </message>
     <message>
-        <location filename="../ui/main.ui" line="1941"/>
+        <location filename="../ui/main.ui" line="1934"/>
+        <source>Colors</source>
+        <translation>Farben</translation>
+    </message>
+    <message>
+        <location filename="../ui/main.ui" line="1950"/>
         <source>Documentation</source>
         <translation>Dokumentation</translation>
     </message>
     <message>
-        <location filename="../ui/main.ui" line="1946"/>
+        <location filename="../ui/main.ui" line="1955"/>
         <source>About</source>
         <translation>Über</translation>
     </message>
     <message>
-        <location filename="../ui/main.ui" line="1951"/>
+        <location filename="../ui/main.ui" line="1960"/>
         <source>Exit</source>
         <translation>Beenden</translation>
     </message>
     <message>
-        <location filename="../ui/main.ui" line="1956"/>
+        <location filename="../ui/main.ui" line="1965"/>
         <source>Import Project</source>
         <translation>Projekt importieren</translation>
     </message>
     <message>
-        <location filename="../ui/main.ui" line="1961"/>
+        <location filename="../ui/main.ui" line="1970"/>
         <source>Export Project</source>
         <translation>Projekt exportieren</translation>
     </message>
     <message>
-        <location filename="../ui/main.ui" line="1966"/>
+        <location filename="../ui/main.ui" line="1975"/>
         <source>English</source>
         <translation>Englisch</translation>
     </message>
     <message>
-        <location filename="../ui/main.ui" line="1971"/>
+        <location filename="../ui/main.ui" line="1980"/>
         <source>German</source>
         <translation>Deutsch</translation>
     </message>
     <message>
-        <location filename="../ui/main.ui" line="1976"/>
-        <source>Cursor Color...</source>
-        <translation>Cursorfarbe...</translation>
+        <location filename="../ui/main.ui" line="1985"/>
+        <source>Cursor</source>
+        <translation>Cursor</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="326"/>
-        <location filename="../../frontend/mainwindow.py" line="2531"/>
+        <location filename="../ui/main.ui" line="1990"/>
+        <source>Automatic Skeleton Line</source>
+        <translation>Automatische Skelettlinie</translation>
+    </message>
+    <message>
+        <location filename="../ui/main.ui" line="1995"/>
+        <source>Manual Skeleton Line</source>
+        <translation>Manuelle Skelettlinie</translation>
+    </message>
+    <message>
+        <location filename="../../frontend/mainwindow.py" line="339"/>
+        <location filename="../../frontend/mainwindow.py" line="2574"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="326"/>
+        <location filename="../../frontend/mainwindow.py" line="339"/>
         <source>Failed to load the image.</source>
         <translation>Das Bild konnte nicht geladen werden.</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="400"/>
-        <location filename="../../frontend/mainwindow.py" line="1971"/>
-        <location filename="../../frontend/mainwindow.py" line="2091"/>
-        <location filename="../../frontend/mainwindow.py" line="2295"/>
+        <location filename="../../frontend/mainwindow.py" line="413"/>
+        <location filename="../../frontend/mainwindow.py" line="2014"/>
+        <location filename="../../frontend/mainwindow.py" line="2134"/>
+        <location filename="../../frontend/mainwindow.py" line="2338"/>
         <source>Success</source>
         <translation>Erfolg</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="401"/>
+        <location filename="../../frontend/mainwindow.py" line="414"/>
         <source>Current resolution: {value} mm/px saved</source>
         <translation>Aktuelle Auflösung: {value} mm/px gespeichert</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="406"/>
+        <location filename="../../frontend/mainwindow.py" line="419"/>
         <source>Invalid resolution</source>
         <translation>Ungültige Auflösung</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="407"/>
+        <location filename="../../frontend/mainwindow.py" line="420"/>
         <source>The resolution is not a valid number. Calculate it again from two calibration points and the distance between them.</source>
         <translation>Die Auflösung ist keine gültige Zahl. Berechnen Sie sie erneut aus zwei Kalibrierpunkten und deren Abstand.</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="412"/>
+        <location filename="../../frontend/mainwindow.py" line="425"/>
         <source>No resolution</source>
         <translation>Keine Auflösung</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="413"/>
+        <location filename="../../frontend/mainwindow.py" line="426"/>
         <source>No resolution yet. Mark two calibration points, enter the distance between them and confirm afterwards.</source>
         <translation>Noch keine Auflösung. Markieren Sie zwei Kalibrierpunkte, geben Sie deren Abstand ein und bestätigen Sie anschließend.</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1217"/>
-        <source>Cursor Color</source>
-        <translation>Cursorfarbe</translation>
-    </message>
-    <message>
-        <location filename="../../frontend/mainwindow.py" line="1352"/>
+        <location filename="../../frontend/mainwindow.py" line="1390"/>
         <source>Automatic detection unavailable</source>
         <translation>Automatische Erkennung nicht verfügbar</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1359"/>
+        <location filename="../../frontend/mainwindow.py" line="1397"/>
         <source>Loading the detection model...</source>
         <translation>Erkennungsmodell wird geladen ...</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1360"/>
+        <location filename="../../frontend/mainwindow.py" line="1398"/>
         <source>Crack detection</source>
         <translation>Risserkennung</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1371"/>
+        <location filename="../../frontend/mainwindow.py" line="1409"/>
         <source>Detecting cracks in {file}...</source>
         <translation>Risse werden erkannt in {file} ...</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1377"/>
+        <location filename="../../frontend/mainwindow.py" line="1415"/>
         <source>Crack detection failed</source>
         <translation>Risserkennung fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1416"/>
+        <location filename="../../frontend/mainwindow.py" line="1454"/>
         <source>Image unreadable</source>
         <translation>Bild nicht lesbar</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1417"/>
+        <location filename="../../frontend/mainwindow.py" line="1455"/>
         <source>{file} could not be read. It may have been moved, deleted or damaged.</source>
         <translation>{file} konnte nicht gelesen werden. Möglicherweise wurde die Datei verschoben, gelöscht oder beschädigt.</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1785"/>
+        <location filename="../../frontend/mainwindow.py" line="1828"/>
         <source>Finish session</source>
         <translation>Sitzung abschließen</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1786"/>
+        <location filename="../../frontend/mainwindow.py" line="1829"/>
         <source>Finishing clears all images and results of this session.
 
 Do you want to save the project first?</source>
@@ -504,112 +514,112 @@ Do you want to save the project first?</source>
 Möchten Sie das Projekt vorher speichern?</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1795"/>
+        <location filename="../../frontend/mainwindow.py" line="1838"/>
         <source>Save project</source>
         <translation>Projekt speichern</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1796"/>
+        <location filename="../../frontend/mainwindow.py" line="1839"/>
         <source>Discard</source>
         <translation>Verwerfen</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1797"/>
+        <location filename="../../frontend/mainwindow.py" line="1840"/>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1888"/>
-        <location filename="../../frontend/mainwindow.py" line="2267"/>
+        <location filename="../../frontend/mainwindow.py" line="1931"/>
+        <location filename="../../frontend/mainwindow.py" line="2310"/>
         <source>Export Error</source>
         <translation>Exportfehler</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1889"/>
+        <location filename="../../frontend/mainwindow.py" line="1932"/>
         <source>No images to export. Please upload images first.</source>
         <translation>Keine Bilder zum Exportieren. Laden Sie zuerst Bilder hoch.</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1965"/>
+        <location filename="../../frontend/mainwindow.py" line="2008"/>
         <source>Project exported successfully:
 {path}</source>
         <translation>Projekt erfolgreich exportiert:
 {path}</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1968"/>
+        <location filename="../../frontend/mainwindow.py" line="2011"/>
         <source>Skipped (on a different drive than the project file, so they couldn&apos;t be referenced by a relative path):</source>
         <translation>Übersprungen (auf einem anderen Laufwerk als die Projektdatei und daher über einen relativen Pfad nicht erreichbar):</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1975"/>
-        <location filename="../../frontend/mainwindow.py" line="2300"/>
+        <location filename="../../frontend/mainwindow.py" line="2018"/>
+        <location filename="../../frontend/mainwindow.py" line="2343"/>
         <source>Export Failed</source>
         <translation>Export fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1976"/>
-        <location filename="../../frontend/mainwindow.py" line="1997"/>
-        <location filename="../../frontend/mainwindow.py" line="2301"/>
+        <location filename="../../frontend/mainwindow.py" line="2019"/>
+        <location filename="../../frontend/mainwindow.py" line="2040"/>
+        <location filename="../../frontend/mainwindow.py" line="2344"/>
         <source>Error:
 {message}</source>
         <translation>Fehler:
 {message}</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="1996"/>
+        <location filename="../../frontend/mainwindow.py" line="2039"/>
         <source>Import Failed</source>
         <translation>Import fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="2086"/>
+        <location filename="../../frontend/mainwindow.py" line="2129"/>
         <source>Some images missing</source>
         <translation>Einige Bilder fehlen</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="2087"/>
+        <location filename="../../frontend/mainwindow.py" line="2130"/>
         <source>Project loaded, but the following images could not be found or loaded and were skipped:</source>
         <translation>Projekt geladen, aber die folgenden Bilder konnten nicht gefunden oder geladen werden und wurden übersprungen:</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="2092"/>
+        <location filename="../../frontend/mainwindow.py" line="2135"/>
         <source>Project loaded successfully.</source>
         <translation>Projekt erfolgreich geladen.</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="2108"/>
+        <location filename="../../frontend/mainwindow.py" line="2151"/>
         <source>No crack masks yet. Run the crack detection or draw a mask in the Masking Stage.</source>
         <translation>Noch keine Rissmasken. Führen Sie die Risserkennung aus oder zeichnen Sie eine Maske in der Stufe Maskierung.</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="2111"/>
+        <location filename="../../frontend/mainwindow.py" line="2154"/>
         <source>No calibration yet. Set the resolution in the Calibration Stage.</source>
         <translation>Noch keine Kalibrierung. Legen Sie die Auflösung in der Stufe Kalibrierung fest.</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="2264"/>
+        <location filename="../../frontend/mainwindow.py" line="2307"/>
         <source>No valid data to export!</source>
         <translation>Keine gültigen Daten zum Exportieren!</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="2296"/>
+        <location filename="../../frontend/mainwindow.py" line="2339"/>
         <source>File exported successfully:
 {path}</source>
         <translation>Datei erfolgreich exportiert:
 {path}</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="2531"/>
+        <location filename="../../frontend/mainwindow.py" line="2574"/>
         <source>No image selected!</source>
         <translation>Kein Bild ausgewählt!</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="2537"/>
+        <location filename="../../frontend/mainwindow.py" line="2580"/>
         <source>Confirm delete</source>
         <translation>Löschen bestätigen</translation>
     </message>
     <message>
-        <location filename="../../frontend/mainwindow.py" line="2538"/>
+        <location filename="../../frontend/mainwindow.py" line="2581"/>
         <source>Are you sure you want to delete {file}?</source>
         <translation>Soll {file} wirklich gelöscht werden?</translation>
     </message>

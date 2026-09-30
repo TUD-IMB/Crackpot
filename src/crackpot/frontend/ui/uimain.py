@@ -46,6 +46,10 @@ class Ui_MainWindow(object):
         self.actionGerman.setObjectName(u"actionGerman")
         self.actionCursorColor = QAction(MainWindow)
         self.actionCursorColor.setObjectName(u"actionCursorColor")
+        self.actionSkeletonColor = QAction(MainWindow)
+        self.actionSkeletonColor.setObjectName(u"actionSkeletonColor")
+        self.actionManualSkeletonColor = QAction(MainWindow)
+        self.actionManualSkeletonColor.setObjectName(u"actionManualSkeletonColor")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.mainLayout = QVBoxLayout(self.centralwidget)
@@ -1272,6 +1276,8 @@ class Ui_MainWindow(object):
         self.menuSetting.setObjectName(u"menuSetting")
         self.menuLanguage = QMenu(self.menuSetting)
         self.menuLanguage.setObjectName(u"menuLanguage")
+        self.menuColors = QMenu(self.menuSetting)
+        self.menuColors.setObjectName(u"menuColors")
         MainWindow.setMenuBar(self.menuBar)
 
         self.menuBar.addAction(self.menuFile.menuAction())
@@ -1284,9 +1290,13 @@ class Ui_MainWindow(object):
         self.menuHelp.addAction(self.actionDocumentation)
         self.menuHelp.addAction(self.actionAbout)
         self.menuSetting.addAction(self.menuLanguage.menuAction())
-        self.menuSetting.addAction(self.actionCursorColor)
+        self.menuSetting.addAction(self.menuColors.menuAction())
         self.menuLanguage.addAction(self.actionEnglish)
         self.menuLanguage.addAction(self.actionGerman)
+        self.menuColors.addAction(self.actionCursorColor)
+        self.menuColors.addSeparator()
+        self.menuColors.addAction(self.actionSkeletonColor)
+        self.menuColors.addAction(self.actionManualSkeletonColor)
 
         self.retranslateUi(MainWindow)
 
@@ -1305,7 +1315,9 @@ class Ui_MainWindow(object):
         self.actionExportProject.setText(QCoreApplication.translate("MainWindow", u"Export Project", None))
         self.actionEnglish.setText(QCoreApplication.translate("MainWindow", u"English", None))
         self.actionGerman.setText(QCoreApplication.translate("MainWindow", u"German", None))
-        self.actionCursorColor.setText(QCoreApplication.translate("MainWindow", u"Cursor Color...", None))
+        self.actionCursorColor.setText(QCoreApplication.translate("MainWindow", u"Cursor", None))
+        self.actionSkeletonColor.setText(QCoreApplication.translate("MainWindow", u"Automatic Skeleton Line", None))
+        self.actionManualSkeletonColor.setText(QCoreApplication.translate("MainWindow", u"Manual Skeleton Line", None))
         self.calibrationProcessButton.setText("")
         self.uploadProcessButton.setText("")
         self.maskingProcessButton.setText("")
@@ -1413,5 +1425,6 @@ class Ui_MainWindow(object):
         self.menuHelp.setTitle(QCoreApplication.translate("MainWindow", u"Help", None))
         self.menuSetting.setTitle(QCoreApplication.translate("MainWindow", u"Setting", None))
         self.menuLanguage.setTitle(QCoreApplication.translate("MainWindow", u"Language", None))
+        self.menuColors.setTitle(QCoreApplication.translate("MainWindow", u"Colors", None))
     # retranslateUi
 

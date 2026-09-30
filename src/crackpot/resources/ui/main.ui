@@ -1929,8 +1929,17 @@ QPushButton:pressed {
      <addaction name="actionEnglish"/>
      <addaction name="actionGerman"/>
     </widget>
+    <widget class="QMenu" name="menuColors">
+     <property name="title">
+      <string>Colors</string>
+     </property>
+     <addaction name="actionCursorColor"/>
+     <addaction name="separator"/>
+     <addaction name="actionSkeletonColor"/>
+     <addaction name="actionManualSkeletonColor"/>
+    </widget>
     <addaction name="menuLanguage"/>
-    <addaction name="actionCursorColor"/>
+    <addaction name="menuColors"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSetting"/>
@@ -1973,7 +1982,17 @@ QPushButton:pressed {
   </action>
   <action name="actionCursorColor">
    <property name="text">
-    <string>Cursor Color...</string>
+    <string>Cursor</string>
+   </property>
+  </action>
+  <action name="actionSkeletonColor">
+   <property name="text">
+    <string>Automatic Skeleton Line</string>
+   </property>
+  </action>
+  <action name="actionManualSkeletonColor">
+   <property name="text">
+    <string>Manual Skeleton Line</string>
    </property>
   </action>
  </widget>

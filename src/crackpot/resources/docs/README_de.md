@@ -226,6 +226,21 @@ einschließlich der aktuellen Stufe, sodass die Arbeit genau dort fortgesetzt we
 seinem ursprünglichen Pfad nicht mehr auffindbar, wird es übersprungen und in einer Warnmeldung aufgeführt, während der Rest des Projekts
 trotzdem normal geladen wird.
 
+## Einstellungen
+
+Das Menü **Einstellungen** merkt sich jede Auswahl bis zum nächsten Programmstart.
+
+- **Sprache**: Schaltet die Oberfläche zwischen Englisch und Deutsch um.
+- **Farben**: Legt die Farben fest, die über das Bild gezeichnet werden. Das kleine Quadrat vor jedem Eintrag
+zeigt die aktuell verwendete Farbe.
+  - **Cursor**: Der Kreis, der in der Kalibrierungs-, Maskierungs- und Skelettstufe anzeigt, wo ein Klick landet.
+  - **Automatische Skelettlinie**: Das aus der Rissmaske extrahierte Skelett.
+  - **Manuelle Skelettlinie**: Die von Hand hinzugefügten Skelettpunkte und -linien.
+
+Alle drei sind zu Beginn rot, damit automatisches und manuell ergänztes Skelett als ein Riss erscheinen. Ob eine
+Farbe auffällt, hängt vom Bild ab — eine helle Betonoberfläche verschluckt Gelb, eine dunkle Blau —, deshalb lässt
+sie sich an die jeweiligen Bilder anpassen.
+
 ## Software-Stack
 - Backend/Logik: Python3
 - Frontend: Qt6/PySide6

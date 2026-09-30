@@ -226,6 +226,21 @@ including the current stage, so work can continue exactly where it left off. If 
 found at its original path, it is skipped and listed in a warning message, while the rest of the project is
 still loaded normally.
 
+## Settings
+
+The **Setting** menu keeps every choice for the next start of the program.
+
+- **Language**: Switches the interface between English and German.
+- **Colors**: Sets the colors that are drawn on top of the image. The small square in front of each entry
+shows the color currently in use.
+  - **Cursor**: The circle that shows where a click lands in the calibration, masking and skeleton stages.
+  - **Automatic Skeleton Line**: The skeleton extracted from the crack mask.
+  - **Manual Skeleton Line**: The skeleton points and lines added by hand.
+
+All three start out red, so that the automatic and the manually added skeleton read as one crack. Whether a
+color stands out depends on the image — a bright concrete surface swallows yellow, a dark one swallows blue —
+so it can be changed to suit the images at hand.
+
 ## Software stack
 - Backend/Logic: Python3
 - Frontend: Qt6/PySide6

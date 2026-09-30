@@ -30,9 +30,15 @@ from crackpot.utils.utils import resource_path
 NODE_RADIUS = 5
 # Radius a calibration point is marked with, in image pixels.
 CALIBRATION_POINT_RADIUS = 10
-# Color the brush cursor is drawn in until the user picks another one. Red reads
-# better on the bright concrete these photographs usually show than yellow does.
-DEFAULT_CURSOR_COLOR = '#ff0000'
+# Settings key of every color under Setting > Colors, with the color it has until
+# the user picks another one. Red reads better on the bright concrete these
+# photographs usually show than yellow does. The manually drawn skeleton starts
+# out in the color of the automatic one, so that both read as one crack.
+DEFAULT_COLORS = {
+	'cursor_color': '#ff0000',
+	'skeleton_color': '#ff0000',
+	'manual_skeleton_color': '#ff0000',
+}
 
 
 class _NumpyJSONEncoder(json.JSONEncoder):
@@ -102,7 +108,6 @@ class MainWindow(QMainWindow):
 		self.settings = QSettings()
 		self.translator = QTranslator(self)
 		self.switch_language(self.settings.value('language', 'english'))
-		self.cursor_color = self.stored_cursor_color()
 
 		self.progress_stage = 0
 		self.current_image_path = None
@@ -235,7 +240,15 @@ class MainWindow(QMainWindow):
 		# Setting menu
 		self.ui.actionEnglish.triggered.connect(lambda: self.switch_language('english'))
 		self.ui.actionGerman.triggered.connect(lambda: self.switch_language('german'))
-		self.ui.actionCursorColor.triggered.connect(self.choose_cursor_color)
+		# Every entry of the Colors menu, by the settings key of the color it sets.
+		self.color_actions = {
+			'cursor_color': self.ui.actionCursorColor,
+			'skeleton_color': self.ui.actionSkeletonColor,
+			'manual_skeleton_color': self.ui.actionManualSkeletonColor,
+		}
+		for key, action in self.color_actions.items():
+			action.triggered.connect(lambda checked=False, key=key: self.choose_color(key))
+		self.show_color_swatches()
 
 		self.ui.nextButton0.clicked.connect(lambda: self.set_stage(1))
 		self.ui.nextButton1.clicked.connect(lambda: self.set_stage(2))
@@ -1168,7 +1181,7 @@ class MainWindow(QMainWindow):
 		cursor_pixmap = QPixmap(pixmap_size, pixmap_size)
 		cursor_pixmap.fill(Qt.GlobalColor.transparent)
 		painter = QPainter(cursor_pixmap)
-		pen = QPen(self.cursor_color)
+		pen = QPen(self.stored_color('cursor_color'))
 		pen.setWidth(2)
 		painter.setPen(pen)
 
@@ -1193,35 +1206,60 @@ class MainWindow(QMainWindow):
 			self.pen_cap_style = Qt.PenCapStyle.SquareCap
 		self.update_cursor()
 
-	def stored_cursor_color(self):
+	def stored_color(self, key):
 		r"""
-		Read the brush cursor color from the settings.
+		Read one of the colors from Setting > Colors.
 
+		\param key: The settings key of the color, one of DEFAULT_COLORS.
 		\return: The stored color, or the default one if nothing readable is stored.
 			The settings file can be edited by hand, so an unusable entry must not
-			leave the cursor without a color.
+			leave the cursor or the skeleton without a color.
 		"""
-		color = QColor(self.settings.value('cursor_color', DEFAULT_CURSOR_COLOR))
-		return color if color.isValid() else QColor(DEFAULT_CURSOR_COLOR)
+		color = QColor(self.settings.value(key, DEFAULT_COLORS[key]))
+		return color if color.isValid() else QColor(DEFAULT_COLORS[key])
 
-	def choose_cursor_color(self):
+	def choose_color(self, key):
 		r"""
-		Let the user pick the color of the brush cursor and keep the choice for the
-		next start.
+		Let the user pick one of the colors from Setting > Colors and keep the
+		choice for the next start.
 
-		The circle is drawn on top of the photograph, so no single color works on
-		every image: a light crack surface swallows yellow, a dark one swallows
-		blue. Which one is readable is something only the person looking at the
-		picture can decide.
+		Cursor and skeleton are drawn on top of the photograph, so no single color
+		works on every image: a light crack surface swallows yellow, a dark one
+		swallows blue. Which one is readable is something only the person looking
+		at the picture can decide.
+
+		\param key: The settings key of the color, one of DEFAULT_COLORS.
 		"""
-		color = QColorDialog.getColor(self.cursor_color, self, self.tr("Cursor Color"))
+		title = self.color_actions[key].text()
+		color = QColorDialog.getColor(self.stored_color(key), self, title)
 		# An invalid color means the dialog was cancelled.
 		if not color.isValid():
 			return
 
-		self.cursor_color = color
-		self.settings.setValue('cursor_color', color.name())
+		self.settings.setValue(key, color.name())
+		self.show_color_swatches()
 		self.update_cursor()
+		# The skeleton colors are painted into the overlay, which only exists in the
+		# skeleton stage and has to be rebuilt to take on the new color.
+		if self.progress_stage == 3:
+			self.refresh_display_image(keep_zoom=True)
+
+	def show_color_swatches(self):
+		r"""
+		Show the current color as a small square in front of every entry of the
+		Colors menu, so it can be seen without opening the color dialog.
+		"""
+		for key, action in self.color_actions.items():
+			swatch = QPixmap(16, 16)
+			swatch.fill(self.stored_color(key))
+			# A frame keeps a color that matches the menu background from vanishing in it.
+			painter = QPainter(swatch)
+			painter.setPen(self.palette().color(QPalette.ColorRole.Mid))
+			painter.drawRect(0, 0, swatch.width() - 1, swatch.height() - 1)
+			painter.end()
+			action.setIcon(QIcon(swatch))
+			# macOS leaves icons out of menus unless an action asks for it.
+			action.setIconVisibleInMenu(True)
 
 	def clean_mask_patches(self, all_images=False):
 		r"""
@@ -1595,29 +1633,37 @@ class MainWindow(QMainWindow):
 		# That keeps it the same size to look at at every zoom level, instead of
 		# growing and shrinking along with the image.
 		node_radius = self.overlay_size_in_pixels(NODE_RADIUS)
-		line_width = self.overlay_size_in_pixels(1)
 		dilation_width = self.overlay_dilation_width()
 		self.overlay_scale_in_use = node_radius
 
+		# The overlay is an RGB array, so the colors go in as (red, green, blue).
+		skeleton_color = self.stored_color('skeleton_color').getRgb()[:3]
+		manual_color = self.stored_color('manual_skeleton_color').getRgb()[:3]
+
 		overlay_image = original_image.copy()
 		skeleton_coords = np.where(skeleton == 1)
-		overlay_image[skeleton_coords[0], skeleton_coords[1]] = [255, 0, 0]
+		overlay_image[skeleton_coords[0], skeleton_coords[1]] = skeleton_color
 		if dilation_width > 1:
 			skeleton_mask = cv2.dilate(
 				(skeleton == 1).astype(np.uint8),
 				cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (dilation_width, dilation_width))
 			)
-			overlay_image[skeleton_mask > 0] = [255, 0, 0]
+			overlay_image[skeleton_mask > 0] = skeleton_color
 
 		created_nodes = skeleton_data.get("created_nodes", [])
 		for node in created_nodes:
 			cv2.circle(overlay_image, (node[0], node[1]), radius=node_radius,
-					   color=(255, 251, 13), thickness=-1)
+					   color=manual_color, thickness=-1)
 
+		# A line added by hand is drawn as wide as the automatic skeleton, so it looks
+		# like any other part of the crack. cv2.line comes out wider than the thickness
+		# it is given (3 and 4 both end up 5 px across, 5 ends up 7 px), which is why
+		# one less than the odd dilation width gives exactly that width.
+		manual_line_width = max(dilation_width - 1, 1)
 		lines = skeleton_data.get("created_lines", [])
 		for line in lines:
 			start, end = line
-			cv2.line(overlay_image, (start[0], start[1]), (end[0], end[1]), color=(255, 251, 13), thickness=line_width)
+			cv2.line(overlay_image, (start[0], start[1]), (end[0], end[1]), color=manual_color, thickness=manual_line_width)
 
 		# if longest_path is not None and len(longest_path) > 0:
 		# 	for point in longest_path:
