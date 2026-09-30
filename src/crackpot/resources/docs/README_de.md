@@ -217,11 +217,11 @@ Eine ausführlichere Gegenüberstellung der Verfahren findet sich bei Cris Lueng
 Die Bearbeitung eines großen Bilderstapels muss nicht in einem Durchgang erfolgen.
 Das **Datei**-Menü bietet zwei Aktionen, um eine laufende Sitzung zu speichern und später fortzusetzen:
 
-- **Projekt exportieren...**: Speichert die aktuelle Sitzung — die Liste der hochgeladenen Bilder, die Kalibrierungsauflösung,
+- **Projekt exportieren**: Speichert die aktuelle Sitzung — die Liste der hochgeladenen Bilder, die Kalibrierungsauflösung,
 alle erkannten/bearbeiteten Rissmasken und alle Skelettdaten (einschließlich manuell hinzugefügter Skelettpunkte und -linien) —
 in einer einzelnen `.crackpot`-Projektdatei. Die hochgeladenen Bilder selbst werden dabei **nicht** in diese Datei kopiert, sondern nur
 über ihren Dateipfad referenziert, sie müssen also unter demselben Pfad verfügbar bleiben, um später wieder geladen werden zu können.
-- **Projekt importieren...**: Lädt eine zuvor gespeicherte `.crackpot`-Datei und stellt den genauen Arbeitsstand wieder her,
+- **Projekt importieren**: Lädt eine zuvor gespeicherte `.crackpot`-Datei und stellt den genauen Arbeitsstand wieder her,
 einschließlich der aktuellen Stufe, sodass die Arbeit genau dort fortgesetzt werden kann, wo sie unterbrochen wurde. Ist ein Bild unter
 seinem ursprünglichen Pfad nicht mehr auffindbar, wird es übersprungen und in einer Warnmeldung aufgeführt, während der Rest des Projekts
 trotzdem normal geladen wird.

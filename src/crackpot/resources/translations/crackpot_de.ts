@@ -382,13 +382,13 @@ Technische Universität Dresden</translation>
     </message>
     <message>
         <location filename="../ui/main.ui" line="1956"/>
-        <source>Import Project...</source>
-        <translation>Projekt importieren...</translation>
+        <source>Import Project</source>
+        <translation>Projekt importieren</translation>
     </message>
     <message>
         <location filename="../ui/main.ui" line="1961"/>
-        <source>Export Project...</source>
-        <translation>Projekt exportieren...</translation>
+        <source>Export Project</source>
+        <translation>Projekt exportieren</translation>
     </message>
     <message>
         <location filename="../ui/main.ui" line="1966"/>
