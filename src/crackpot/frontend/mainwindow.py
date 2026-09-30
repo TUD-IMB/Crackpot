@@ -11,6 +11,7 @@ from PySide6.QtCore import Qt, QEvent, QPoint, QSettings, QTranslator
 from PySide6.QtGui import QAction, QPixmap, QIcon, QImage, QPainter, QColor, QPen, QCursor, QPalette
 from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QListWidgetItem, QListWidget, QSlider, \
 	QMessageBox, QToolTip, QAbstractButton, QProgressDialog, QColorDialog
+from skimage.draw import line as draw_line
 from skimage.measure import regionprops,label
 from crackpot.backend.edgedetection import EdgeDetection, MISSING_BACKEND_HINT, is_detection_available
 from crackpot.backend.maskprocessor import MaskProcessor
@@ -808,8 +809,9 @@ class MainWindow(QMainWindow):
 
 		A node in the middle of a drawn chain has a node on either side of it; those
 		two are connected directly, so the line stays in one piece instead of falling
-		apart at that point. A click that does not hit any node goes to the automatic
-		skeleton instead (see delete_skeleton_segment).
+		apart at that point. A click that does not hit any node removes the line it
+		hit instead: a hand-drawn one first (see delete_created_line), otherwise the
+		piece of the automatic skeleton (see delete_skeleton_segment).
 
 		\param clicked_pos: The QPoint position where the user clicked.
 		"""
@@ -819,7 +821,10 @@ class MainWindow(QMainWindow):
 
 		closest_node = self.get_clicked_node(clicked_pos)
 		if not closest_node or closest_node not in skeleton_data["created_nodes"]:
-			self.delete_skeleton_segment(clicked_pos)
+			# Hand-drawn lines are drawn on top of the automatic skeleton, so where
+			# both are within reach the click is meant for the one that can be seen.
+			if not self.delete_created_line(clicked_pos):
+				self.delete_skeleton_segment(clicked_pos)
 			return
 
 		lines = skeleton_data.get("created_lines", [])
@@ -865,6 +870,44 @@ class MainWindow(QMainWindow):
 		skeleton_data["branch_points"] = self.skeleton_processor.find_branch_points(skeleton)
 		skeleton_data["end_points"] = self.skeleton_processor.find_end_points(skeleton)
 		self.refresh_display_image(keep_zoom=True)
+
+	def delete_created_line(self, clicked_pos):
+		r"""
+		Remove the hand-drawn line that was clicked on.
+
+		These lines are not part of the skeleton image, they are only kept as pairs
+		of nodes, so the search through the automatic skeleton cannot find them. They
+		are therefore rasterized here and handed to the same search, which gives them
+		the same click tolerance as the automatic skeleton.
+
+		An end node that is left without any line afterwards is removed as well,
+		otherwise it would remain on the image as a lone dot.
+
+		\param clicked_pos: The QPoint position where the user clicked.
+		\return (bool): True if a line was hit and removed, False if the click missed
+			all of them.
+		"""
+		skeleton_data = self.skeleton_results.get(self.current_image_path)
+		lines = skeleton_data.get("created_lines", []) if skeleton_data else []
+		if not lines:
+			return False
+
+		img_x, img_y = self.convert_to_image_coords(clicked_pos, skeleton_data["skeleton"].shape)
+		# Nodes are stored as (x, y), while draw_line() and find_clicked_segment()
+		# work in (row, col) like the skeleton image, hence the swapped order.
+		segments = [{"pixels": list(zip(*draw_line(start[1], start[0], end[1], end[0])))}
+					for start, end in lines]
+		clicked_segment = self.find_clicked_segment(segments, (img_y, img_x))
+		if clicked_segment is None:
+			return False
+
+		removed_line = lines.pop(segments.index(clicked_segment))
+		for node in removed_line:
+			if node in skeleton_data["created_nodes"] and not any(node in line for line in lines):
+				skeleton_data["created_nodes"].remove(node)
+
+		self.refresh_display_image(keep_zoom=True)
+		return True
 
 	def find_clicked_segment(self, segments, position):
 		r"""

@@ -1557,7 +1557,7 @@ QPushButton:pressed {
 </string>
                        </property>
                        <property name="text">
-                        <string>Click a node to delete it and its lines.</string>
+                        <string>Click a node or a line to delete it.</string>
                        </property>
                       </widget>
                      </item>

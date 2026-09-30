@@ -137,7 +137,11 @@ The available skeleton editing tools include:
 Clicking a second time at another location will automatically connect the two points, forming a skeleton line between them.
 To start a new, independent skeleton segment without connecting to the previous point, right-click at the desired location to create an unconnected skeleton point.
 
-- **Remove Skeleton Point**: Clicking on an existing skeleton point will delete the selected point along with any skeleton lines passing through it.
+- **Remove Skeleton Point**: Clicking on an existing skeleton point deletes it.
+If the point sat between two others, these two are connected directly, so the line stays in one piece.
+Clicking on a skeleton line deletes that line instead.
+A hand-drawn line disappears together with any of its end points that is no longer connected to another line.
+Of the automatically extracted skeleton, the piece between the two nearest forks or loose ends is removed.
 
 > Since the skeleton extraction is based on the crack mask obtained in the previous stage, it is recommended to refine 
 and clean the crack regions well during the Crack Detection Stage. This will help achieve a better extracted skeleton result.

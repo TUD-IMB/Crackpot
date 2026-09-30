@@ -1391,7 +1391,7 @@ class Ui_MainWindow(object):
         self.hintsButton.setText(QCoreApplication.translate("MainWindow", u"Hints:", None))
         self.addNodeHintLabel.setText(QCoreApplication.translate("MainWindow", u"Left-click to add and connect nodes.", None))
         self.newSegmentHintLabel.setText(QCoreApplication.translate("MainWindow", u"Right-click to start a new segment.", None))
-        self.deleteNodeHintLabel.setText(QCoreApplication.translate("MainWindow", u"Click a node to delete it and its lines.", None))
+        self.deleteNodeHintLabel.setText(QCoreApplication.translate("MainWindow", u"Click a node or a line to delete it.", None))
         self.previousButton3.setText(QCoreApplication.translate("MainWindow", u"Previous Stage", None))
         self.nextButton3.setText(QCoreApplication.translate("MainWindow", u"Next Stage", None))
         self.resultsGroupBox.setTitle(QCoreApplication.translate("MainWindow", u"Calculation Results", None))

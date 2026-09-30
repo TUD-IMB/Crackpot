@@ -137,7 +137,11 @@ Zu den verfügbaren Skelett-Bearbeitungswerkzeugen gehören:
 Ein zweiter Klick an einer anderen Stelle verbindet die beiden Punkte automatisch und bildet eine Skelettlinie zwischen ihnen.
 Um ein neues, unabhängiges Skelettsegment zu beginnen, ohne es mit dem vorherigen Punkt zu verbinden, an der gewünschten Stelle rechtsklicken, um einen unverbundenen Skelettpunkt zu erzeugen.
 
-- **Skelettpunkt entfernen**: Ein Klick auf einen bestehenden Skelettpunkt löscht den ausgewählten Punkt zusammen mit allen durch ihn verlaufenden Skelettlinien.
+- **Skelettpunkt entfernen**: Ein Klick auf einen bestehenden Skelettpunkt löscht diesen Punkt.
+Lag der Punkt zwischen zwei anderen, werden diese beiden direkt verbunden, sodass die Linie zusammenhängend bleibt.
+Ein Klick auf eine Skelettlinie löscht stattdessen diese Linie.
+Eine von Hand gezeichnete Linie verschwindet zusammen mit jedem ihrer Endpunkte, der danach an keiner anderen Linie mehr hängt.
+Beim automatisch extrahierten Skelett wird das Stück zwischen den beiden nächstgelegenen Verzweigungen bzw. losen Enden entfernt.
 
 > Da die Skelettextraktion auf der in der vorherigen Stufe gewonnenen Rissmaske basiert, wird empfohlen, die Rissbereiche
 in der Rissbereichserkennungsstufe gut nachzubearbeiten und zu bereinigen. Dies führt zu einem besseren extrahierten Skelettergebnis.
