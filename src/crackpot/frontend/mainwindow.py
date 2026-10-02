@@ -526,12 +526,18 @@ class MainWindow(QMainWindow):
 
 	def clean_skeleton_branches(self, all_images=False):
 		r"""
-		Remove short side branches from the skeleton and keep the longest path.
+		Remove short side branches from the skeleton.
 
 		Only the branches hanging off the line are removed, and only as a whole
 		(see SkeletonProcessor.remove_small_branches). The line itself keeps its
 		length however often this is run, so the button can be pressed repeatedly
 		with a larger threshold until the skeleton looks right.
+
+		The ends of the main line of every crack are determined once, before the
+		cleaning, and are protected throughout it. Nothing else of the longest path
+		is kept: "longest_path" only holds the largest connected part of the cleaned
+		skeleton, is not drawn, and stays under that key so that existing project
+		files keep loading.
 
 		\param all_images: Process every image if True (right button), only the
 			currently displayed one if False (left button).

@@ -37,6 +37,27 @@ class SkeletonProcessor:
 	r"""
 	Process and analyze skeletonized images. Provides functions to detect endpoints, branch points, main endpoints,
 	and remove small branches from a skeletonized image.
+
+	Removing short branches (remove_small_branches) builds on the other methods in
+	this order:
+
+	1. Classify the pixels: count_neighbors() counts the set neighbors,
+	   count_neighbor_groups() tells a fork from a bend, and find_branch_points()
+	   and find_end_points() mark the forks and the loose ends.
+	2. find_junction_zones() widens every fork to the area it takes up, which also
+	   joins forks lying right next to each other into one.
+	3. find_branch_segments() cuts the skeleton at those areas into segments. A
+	   segment is the unit the cleaning works with, and the removal by mouse click
+	   as well.
+	4. measure_segment_length() measures every segment with the estimator of
+	   measure_chain_length(), the same one the exported length uses.
+	5. find_main_endpoints() finds the two ends of the main line of every crack,
+	   whose segments are kept whatever their length.
+	6. remove_small_branches() removes the side branches shorter than the
+	   threshold, round after round until nothing changes.
+
+	doc/SkeletonCleaning.md goes through these steps on small examples, computed
+	with these methods.
 	"""
 	def __init__(self):
 		r"""
@@ -449,6 +470,9 @@ class SkeletonProcessor:
 		rounding error - it costs a few pixels per fork, on a frayed crack with twenty
 		forks around 6 % of the length.
 
+		doc/SkeletonLength.md goes through the measurement on small examples, computed
+		with these methods.
+
 		\param skeleton: A binary skeletonized image.
 		\return: The total length in pixels.
 		"""
@@ -633,6 +657,20 @@ class SkeletonProcessor:
 		or not at all. Everything that carries a crack itself stays untouched: the
 		pieces between two junctions and the segments ending in a main endpoint.
 
+		A side branch goes if its length is strictly below the threshold. The length
+		is the one measure_segment_length() gives, measured from the tip up to the
+		pixel where the branch meets the fork area. The part inside the fork area
+		belongs to no branch here; the exported length adds it on top (see
+		measure_skeleton_length), so a branch contributes about one pixel more there
+		than it is compared with here.
+
+		Only the two main endpoints of every crack are protected. In a network of
+		cracks, the outer ends of all the other cracks are loose ends like any spur,
+		so a threshold longer than one of those cracks removes it. The main line is
+		also simply the longest way through the skeleton: a side branch reaching
+		further than the actual end of the crack takes over the protection, and the
+		real end becomes an ordinary side branch.
+
 		A crack lying on its own has no branches and is measured end to end instead
 		(see remove_small_components), so that the short strokes left around the real
 		crack can be cleared with the same threshold.
@@ -665,6 +703,17 @@ class SkeletonProcessor:
 	def remove_side_branch_layer(self, skeleton, max_branch_length, protected):
 		r"""
 		Remove every side branch that is currently too short, one round.
+
+		One round can only see the side branches that exist when it starts. A twig
+		that forks again has its side branches at the tips, and it hangs between two
+		junctions itself until those are gone - only then does it end loose and
+		become a side branch that the next round can measure. remove_small_branches()
+		therefore calls this until a round finds nothing.
+
+		All short branches of a round are collected before any of them is removed.
+		Removing one straight away would change the forks the others hang on while
+		they are still being looked at, and the result would depend on the order the
+		segments came in.
 
 		\param skeleton: A binary skeletonized image, modified in place.
 		\param max_branch_length: Side branches shorter than this are removed.

@@ -1,4 +1,4 @@
-# Crackpot – Concrete Research And Crack Knowledge Photogrammetric Observation Tool
+# Crackpot Handbook
 
 
 ## Introduction
@@ -114,7 +114,8 @@ In this stage, three skeleton actions are available:
 - **Remove Branches Shorter Than (px)**: cleans up the extracted skeleton by automatically removing short
 branches. The length threshold is set in the input field above the buttons: every branch shorter than this
 many pixels is removed. The default is 50 px; the value applies to both buttons and stays in effect until
-it is changed.
+it is changed. How a branch is recognized and measured is described in *How Short Branches are Removed* at the
+end of this stage.
 - **Clear Skeleton**: discards the extracted skeleton, resetting it to an empty state so it can be regenerated
 or edited from scratch.
 
@@ -151,7 +152,29 @@ Of the automatically extracted skeleton, the piece between the two nearest forks
 and clean the crack regions well during the Crack Detection Stage. This will help achieve a better extracted skeleton result.
 
 
-![Skeleton Edit](./images_en/skeletonedit.png)
+### How Short Branches are Removed
+
+**Remove Branches Shorter Than (px)** removes the short spurs that an irregular crack edge leaves on the skeleton.
+
+- A branch is a piece of the skeleton that runs from a fork to a loose end. It is measured along the skeleton from
+its tip to the fork and removed as a whole if it is shorter than the threshold. It is never shortened.
+- The crack itself is kept, whatever its length: the pieces between two forks, and the two ends of the main line of
+every crack. The main line is the longest way through a crack, measured along the skeleton.
+- A crack that is shorter than the threshold as a whole, such as a short stroke left over by the detection, is
+removed completely.
+- Removing a branch can turn what it grew on into a branch itself, so the cleaning repeats until nothing changes.
+One click does the whole job, and clicking again with the same threshold changes nothing.
+
+![Remove Short Branches](./images_en/removebranches.png)
+
+Things to keep in mind:
+
+- Only two ends per crack are protected. In a network of cracks, a crack that branches off another one and is
+shorter than the threshold is removed like a spur. For crack networks, choose a small threshold and remove the
+remaining spurs by hand with **Remove Skeleton Point**.
+- If a side branch reaches further than the actual end of the crack, the main line runs through that branch, and
+the real end is no longer protected.
+- Manually drawn skeleton lines are not affected by the cleaning.
 
 
 ## Results Export Stage

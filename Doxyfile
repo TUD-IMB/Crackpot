@@ -1,0 +1,56 @@
+# Doxygen configuration for the Crackpot developer documentation.
+#
+#   doxygen Doxyfile
+#
+# builds it into Documentation/html/index.html (the call graphs need Graphviz).
+# Only the settings that differ from the Doxygen defaults are listed here;
+# "doxygen -x Doxyfile" prints them the same way, "doxygen -g" writes a full
+# template with an explanation of every setting.
+
+PROJECT_NAME           = Crackpot
+PROJECT_BRIEF          = "Concrete Research And Crack Knowledge Photogrammetric Observation Tool"
+PROJECT_LOGO           = src/crackpot/resources/crackpot.svg
+OUTPUT_DIRECTORY       = Documentation
+
+# The docstrings are written with Doxygen commands (\param, \return), which are
+# only read as such when Doxygen does not take them as plain Python docstrings.
+PYTHON_DOCSTRING       = NO
+OPTIMIZE_OUTPUT_JAVA   = YES
+TOC_INCLUDE_HEADINGS   = 5
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+CASE_SENSE_NAMES       = NO
+SORT_BRIEF_DOCS        = YES
+QUIET                  = YES
+
+# Listed explicitly rather than ".", which would also take in a virtual
+# environment or anything else lying around in the checkout.
+INPUT                  = README.md \
+                         doc \
+                         src/crackpot
+FILE_PATTERNS          = *.py \
+                         *.md
+RECURSIVE              = YES
+# Generated from main.ui and icon.qrc by src/convertpyfile.py.
+EXCLUDE                = src/crackpot/frontend/ui/uimain.py \
+                         src/crackpot/frontend/ui/icon_rc.py
+EXCLUDE_PATTERNS       = */__pycache__/*
+IMAGE_PATH             = src/crackpot/resources/docs/images_en
+USE_MDFILE_AS_MAINPAGE = README.md
+# Otherwise the README.md of the handbook would become the description of its
+# folder instead of a page of its own.
+IMPLICIT_DIR_DOCS      = NO
+# The handbook links to its own headings the way GitHub and GitLab name them.
+MARKDOWN_ID_STYLE      = GITHUB
+
+SOURCE_BROWSER         = YES
+GENERATE_TREEVIEW      = YES
+GENERATE_LATEX         = NO
+
+HAVE_DOT               = YES
+COLLABORATION_GRAPH    = NO
+UML_LOOK               = YES
+UML_LIMIT_NUM_FIELDS   = 0
+CALL_GRAPH             = YES
+CALLER_GRAPH           = YES
+DOT_IMAGE_FORMAT       = svg

@@ -1,4 +1,4 @@
-# Crackpot – Concrete Research And Crack Knowledge Photogrammetric Observation Tool
+# Crackpot-Handbuch
 
 
 ## Einführung
@@ -114,7 +114,7 @@ In dieser Stufe stehen drei Skelett-Aktionen zur Verfügung:
 - **Äste kürzer als entfernen (px)**: bereinigt das extrahierte Skelett, indem kurze
 Äste automatisch entfernt werden. Der Längenschwellwert wird im Eingabefeld oberhalb der Schaltflächen festgelegt: jeder Ast, der kürzer als
 diese Pixelanzahl ist, wird entfernt. Der Standardwert ist 50 px; der Wert gilt für beide Schaltflächen und bleibt wirksam, bis
-er geändert wird.
+er geändert wird. Wie ein Ast erkannt und gemessen wird, beschreibt *Wie kurze Äste entfernt werden* am Ende dieser Stufe.
 - **Skelett leeren**: verwirft das extrahierte Skelett und setzt es auf einen leeren Zustand zurück, sodass es neu erzeugt
 oder von Grund auf bearbeitet werden kann.
 
@@ -151,7 +151,29 @@ Beim automatisch extrahierten Skelett wird das Stück zwischen den beiden nächs
 in der Rissbereichserkennungsstufe gut nachzubearbeiten und zu bereinigen. Dies führt zu einem besseren extrahierten Skelettergebnis.
 
 
-![Skelettbearbeitung](./images_en/skeletonedit.png)
+### Wie kurze Äste entfernt werden
+
+**Äste kürzer als entfernen (px)** entfernt die kurzen Sporne, die ein unregelmäßiger Rissrand am Skelett hinterlässt.
+
+- Ein Ast ist ein Stück des Skeletts, das von einer Verzweigung zu einem losen Ende läuft. Er wird entlang des Skeletts
+von seiner Spitze bis zur Verzweigung gemessen und als Ganzes entfernt, wenn er kürzer als der Schwellwert ist. Gekürzt wird er nie.
+- Der Riss selbst bleibt unabhängig von seiner Länge erhalten: die Stücke zwischen zwei Verzweigungen und die beiden Enden der
+Hauptlinie jedes Risses. Die Hauptlinie ist der längste Weg durch einen Riss, entlang des Skeletts gemessen.
+- Ein Riss, der als Ganzes kürzer als der Schwellwert ist, etwa ein kurzer Strich, den die Erkennung übrig gelassen hat,
+wird vollständig entfernt.
+- Das Entfernen eines Asts kann das, woran er gewachsen ist, selbst zu einem Ast machen. Die Bereinigung wiederholt sich deshalb,
+bis sich nichts mehr ändert. Ein Klick erledigt die ganze Arbeit, und ein erneuter Klick mit demselben Schwellwert ändert nichts.
+
+![Kurze Äste entfernen](./images_en/removebranches.png)
+
+Zu beachten:
+
+- Pro Riss sind nur zwei Enden geschützt. In einem Rissnetz wird ein Riss, der von einem anderen abzweigt und kürzer als der
+Schwellwert ist, wie ein Sporn entfernt. Für Rissnetze einen kleinen Schwellwert wählen und verbleibende Sporne von Hand mit
+**Skelettpunkt entfernen** beseitigen.
+- Reicht ein Seitenast weiter als das eigentliche Ende des Risses, verläuft die Hauptlinie durch diesen Ast, und das echte Ende
+ist nicht mehr geschützt.
+- Von Hand gezeichnete Skelettlinien sind von der Bereinigung nicht betroffen.
 
 
 ## Ergebnis-Export-Stufe

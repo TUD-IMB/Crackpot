@@ -37,10 +37,15 @@ required, otherwise the shell interprets the brackets as a file pattern.
 
 ## Documentation
 
-The full documentation, including a walkthrough of every stage, is in
-[src/crackpot/resources/docs/README.md](https://github.com/TUD-IMB/Crackpot/blob/master/src/crackpot/resources/docs/README.md).
-It is also available offline from within the application, via
-Help → Documentation.
+- The handbook walks through every stage of the workflow:
+  [src/crackpot/resources/docs/README.md](https://github.com/TUD-IMB/Crackpot/blob/master/src/crackpot/resources/docs/README.md).
+  It is also available offline from within the application, via
+  Help → Documentation.
+- How the code is organized is described in
+  [doc/DevelopmentDocumentation.md](https://github.com/TUD-IMB/Crackpot/blob/master/doc/DevelopmentDocumentation.md),
+  which also links to the pages on how the skeleton is cleaned and measured.
+- How a new version is built and published on PyPI is described in
+  [doc/Packaging.md](https://github.com/TUD-IMB/Crackpot/blob/master/doc/Packaging.md).
 
 ## Running from a source checkout
 
