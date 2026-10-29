@@ -1,3 +1,7 @@
+![Crackpot](./src/crackpot/resources/crackpot.svg)
+
+[![DOI](https://zenodo.org/badge/1094828485.svg)](https://doi.org/10.5281/zenodo.23769243)
+
 # Crackpot – Concrete Research And Crack Knowledge Photogrammetric Observation Tool
 
 Crackpot extracts crack properties from photographs of cracks. It guides a set
